@@ -16,7 +16,7 @@ import { familyList } from './patient-family.js';
 
 const CLS_WORD = { p: 'Pathogenic', lp: 'Likely pathogenic', vus: 'Uncertain significance', lb: 'Likely benign', b: 'Benign' };
 
-export async function render(body, { patient: pt, variants: vs, refresh }) {
+export async function render(body, { patient: pt, variants: vs, refresh, query = {} }) {
   const grid = h('div.ov-grid');
   const main = h('div.ov-main');
   const side = h('div.ov-side');
@@ -25,7 +25,7 @@ export async function render(body, { patient: pt, variants: vs, refresh }) {
 
   /* ---------- the case, for a patient opened from a case file: its brief and what to do ---------- */
   const theCase = await caseOf(pt);
-  if (theCase) main.appendChild(caseBox(theCase, vs));
+  if (theCase) main.appendChild(caseBox(theCase, vs, query.case === 'open'));
 
   /* ---------- variants ---------- */
   const vbox = h('section.ov-sec', { 'aria-labelledby': 'ov-v' });
@@ -212,9 +212,9 @@ async function caseOf(pt) {
     return null;
   }
 }
-function caseBox(c, vs) {
-  // open until the student has signed a classification
-  const open = !vs.some((v) => v.classification && v.classification.saved);
+function caseBox(c, vs, force) {
+  // open until the student has signed a classification (or asked for it from the Case tag)
+  const open = force || !vs.some((v) => v.classification && v.classification.saved);
   const box = h('details.ov-sec.ov-card.ov-case', { open: open || null },
     h('summary', h('span.ic', { html: icon('book') }), h('span', 'The case'), c.title ? h('span.case-title', c.title) : null),
     c.brief ? h('div.case-brief', safeHTML(c.brief)) : null,

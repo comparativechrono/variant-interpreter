@@ -198,9 +198,9 @@ export function suggest({ ev, gene, clinvarGene, variant, calc = {}, settings = 
   if (calc.denovo && calc.denovo.points >= 0.5) {
     const st = strengthOfPoints(calc.denovo.points);
     const code = calc.denovo.anyConfirmed ? 'PS2' : 'PM6';
-    add(code, st, `De novo occurrences: ${calc.denovo.points} points by ClinGen’s scheme (${calc.denovo.summary}).`);
+    add(code, st, `De novo occurrences: ${calc.denovo.points} ${calc.denovo.points === 1 ? 'point' : 'points'} by ClinGen’s scheme (${calc.denovo.summary}).`);
   }
-  if (calc.pm3 && calc.pm3.points >= 0.5) add('PM3', strengthOfPoints(calc.pm3.points), `In trans with pathogenic variants: ${calc.pm3.points} points by ClinGen’s scheme.`);
+  if (calc.pm3 && calc.pm3.points >= 0.5) add('PM3', strengthOfPoints(calc.pm3.points), `In trans with pathogenic variants: ${calc.pm3.points} ${calc.pm3.points === 1 ? 'point' : 'points'} by ClinGen’s scheme.`);
   if (calc.seg && calc.seg.ok) {
     if (calc.seg.direction === 'for' && calc.seg.strength) {
       const s = F === 'acgs2024' ? calc.seg.strength.jarvik : calc.seg.strength.bayes || calc.seg.strength.jarvik;

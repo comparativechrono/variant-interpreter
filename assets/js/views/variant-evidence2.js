@@ -385,11 +385,12 @@ export function startMode(ctx, others = []) {
 /** who in the family fits and who doesn't, in words that suit the model */
 function segCounts(c) {
   const n = (k) => c[k] || 0;
+  const who = (k, adj, one, many) => `${n(k)} ${adj} ${n(k) === 1 ? 'relative' : 'relatives'} ${n(k) === 1 ? one : many}`;
   if (c.mode === 'AR' || c.mode === 'XLR') {
-    const two = c.mode === 'AR' ? 'have both copies affected' : 'have the disease genotype (a man with it, or a woman with two copies)';
-    return `${n('affectedCarriers')} affected relatives ${two}, and ${n('unaffectedNonCarriers')} unaffected relatives don’t (one copy or none: carriers are expected to be well); ${n('affectedNonCarriers')} affected relatives lack it and ${n('unaffectedCarriers')} unaffected ones have it.`;
+    const two = c.mode === 'AR' ? ['has both copies affected', 'have both copies affected'] : ['has the disease genotype (a man with it, or a woman with two copies)', 'have the disease genotype (a man with it, or a woman with two copies)'];
+    return `${who('affectedCarriers', 'affected', two[0], two[1])}, and ${who('unaffectedNonCarriers', 'unaffected', 'doesn’t', 'don’t')} (one copy or none: carriers are expected to be well); ${who('affectedNonCarriers', 'affected', 'lacks it', 'lack it')} and ${who('unaffectedCarriers', 'unaffected', 'has it', 'have it')}.`;
   }
-  return `${n('affectedCarriers')} affected relatives carry it, ${n('unaffectedNonCarriers')} unaffected relatives don’t; ${n('affectedNonCarriers')} affected relatives don’t carry it and ${n('unaffectedCarriers')} unaffected ones do.`;
+  return `${who('affectedCarriers', 'affected', 'carries it', 'carry it')}, ${who('unaffectedNonCarriers', 'unaffected', 'doesn’t', 'don’t')}; ${who('affectedNonCarriers', 'affected', 'doesn’t carry it', 'don’t carry it')} and ${who('unaffectedCarriers', 'unaffected', 'does', 'do')}.`;
 }
 
 /* ================================================================
@@ -510,7 +511,11 @@ async function drawConclusion(ctx, body) {
           const why = await er.reasons(x.uuid).catch(() => ({}));
           // BA1 recorded as met in a pathogenic (or uncertain) classification was not counted: an exception to BA1
           const notCounted = /^(p|lp|vus)$/.test(outcomeKey(x.outcome) || '') ? metCodes.filter((l) => er.parseCode(l).code === 'BA1') : [];
-          const exp = metCodes.filter((l) => !notCounted.includes(l)).map((l) => er.parseCode(l));
+          const exp = metCodes.filter((l) => !notCounted.includes(l)).map((l) => {
+            const e = er.parseCode(l);
+            if (!e.strength) e.strength = er.strengthInText(e.code, why[e.code] || why[l]); // listed bare, its strength in the reason
+            return e;
+          });
           panelBox.appendChild(compareTable(cls, exp.map((e) => (e.strength ? `${e.code}_${{ VS: 'VeryStrong', S: 'Strong', M: 'Moderate', P: 'Supporting', SA: 'StandAlone' }[e.strength]}` : e.code)), outcomeKey(x.outcome), x.panel, why, x.codes.filter((c) => c.status !== 'Met').map((c) => er.parseCode(c.label).code)));
           if (notCounted.length) panelBox.appendChild(h('p.small.muted', 'The panel recorded BA1 as met, but did not count it: the variant is on its list of exceptions to BA1 (common, yet pathogenic). It is left out of the comparison.'));
         }, { cls: 'small', icon: 'scale' });

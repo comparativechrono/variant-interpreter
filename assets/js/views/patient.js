@@ -1,5 +1,5 @@
 /* A patient's page: the frame (heading, tabs) and the tab on show */
-import { h, esc, toast, confirmBox, popmenu, dateStr, icon } from '../core.js';
+import { h, bus, esc, toast, confirmBox, popmenu, dateStr, icon } from '../core.js';
 import { go, link } from '../router.js';
 import * as db from '../db.js';
 import { page, crumbs, pageHead, tabs, btn, linkBtn, note, factList } from '../ui.js';
@@ -18,7 +18,7 @@ const TABS = {
 
 let cleanupTab = null;
 
-export async function render(root, params) {
+export async function render(root, params, query = {}) {
   const pt = await db.getPatient(params.id);
   if (!pt) {
     const p = page('narrow');
@@ -53,7 +53,7 @@ export async function render(root, params) {
     }]
   ]), { icon: 'dots', cls: 'icon-only', aria: 'More actions for this patient' });
   p.appendChild(pageHead({
-    titleNode: [h('span', 'Patient ' + pt.id), pt.ref ? h('span.title-ref', pt.ref) : null, pt.caseId ? h('span.tag.accent', { title: 'Opened from a case file' }, 'Case') : null],
+    titleNode: [h('span', 'Patient ' + pt.id), pt.ref ? h('span.title-ref', pt.ref) : null, pt.caseId || pt.case ? h('a.tag.accent', { href: link(`/patient/${pt.id}?case=open`), title: 'Opened from a case file: its brief and tasks are on the Overview' }, 'Case') : null],
     facts: facts.pairs,
     actions: [
       linkBtn('Details', `/patient/${pt.id}/edit`, { icon: 'pencil' }),
@@ -61,26 +61,50 @@ export async function render(root, params) {
       more
     ]
   }));
-  const obs = (pt.phenotypes || []).filter((t) => t.observed !== false).length;
-  const fam = (pt.family || []).length || (pt.pedigree && Array.isArray(pt.pedigree.persons) ? pt.pedigree.persons.length : 0);
-  p.appendChild(tabs([
+  const obsOf = (x) => (x.phenotypes || []).filter((t) => t.observed !== false).length;
+  const famOf = (x) => (x.family || []).length || (x.pedigree && Array.isArray(x.pedigree.persons) ? x.pedigree.persons.length : 0);
+  const nav = tabs([
     ['overview', 'Overview', `/patient/${pt.id}`],
-    ['phenotypes', 'Phenotypes', `/patient/${pt.id}/phenotypes`, obs, 'phenotype'],
+    ['phenotypes', 'Phenotypes', `/patient/${pt.id}/phenotypes`, obsOf(pt), 'phenotype'],
     ['variants', 'Variants', `/patient/${pt.id}/variants`, vs.length, 'dna'],
-    ['family', 'Family and pedigree', `/patient/${pt.id}/family`, fam || null, 'pedigree'],
+    ['family', 'Family and pedigree', `/patient/${pt.id}/family`, famOf(pt) || null, 'pedigree'],
     ['browser', 'Genome browser', `/patient/${pt.id}/browser`, null, 'genome'],
     ['report', 'Report', `/patient/${pt.id}/report`, null, 'report'],
     ['history', 'History', `/patient/${pt.id}/history`, null, 'history']
-  ], tab, 'Patient ' + pt.id));
+  ], tab, 'Patient ' + pt.id);
+  p.appendChild(nav);
+  // the counts follow what the tabs change (phenotypes added, a pedigree drawn, variants added)
+  const setCount = (key, n) => {
+    const a = nav.querySelector(`a[data-key="${key}"]`);
+    if (!a) return;
+    let c = a.querySelector('.count');
+    if (!n) return c && c.remove();
+    if (!c) {
+      c = h('span.count');
+      a.append(' ', c);
+    }
+    c.textContent = String(n);
+  };
+  const recount = async () => {
+    const [fresh, vs2] = await Promise.all([db.getPatient(pt.id), db.variantsOf(pt.id)]);
+    if (!fresh || !nav.isConnected) return;
+    setCount('phenotypes', obsOf(fresh));
+    setCount('variants', vs2.length);
+    setCount('family', famOf(fresh));
+  };
+  const offP = bus.on('db:patients', (e) => e && String(e.id) === String(pt.id) && recount());
+  const offV = bus.on('db:variants', (e) => e && String(e.patientId) === String(pt.id) && recount());
   const body = h('div.tab-body');
   p.appendChild(body);
   const mod = await TABS[tab]();
   if (cleanupTab) {
     try { cleanupTab(); } catch (e) { /* ignore */ }
   }
-  const r = await mod.render(body, { patient: pt, variants: vs, refresh: () => go(`/patient/${pt.id}/${tab}`, true) });
+  const r = await mod.render(body, { patient: pt, variants: vs, query, refresh: () => go(`/patient/${pt.id}/${tab}`, true) });
   cleanupTab = typeof r === 'function' ? r : null;
   return () => {
+    offP();
+    offV();
     if (cleanupTab) {
       try { cleanupTab(); } catch (e) { /* ignore */ }
       cleanupTab = null;

@@ -70,7 +70,7 @@ export function ext(href, text, opts = {}) {
 export function tabs(items, activeKey, label = 'Sections') {
   const nav = h('nav.tabs', { 'aria-label': label });
   for (const [key, text, path, count, ic] of items) {
-    const a = h('a', { href: link(path), 'aria-current': key === activeKey ? 'page' : null });
+    const a = h('a', { href: link(path), 'aria-current': key === activeKey ? 'page' : null, dataset: { key } });
     a.innerHTML = (ic ? icon(ic) : '') + `<span>${esc(text)}</span>` + (count != null ? ` <span class="count">${esc(count)}</span>` : '');
     nav.appendChild(a);
   }

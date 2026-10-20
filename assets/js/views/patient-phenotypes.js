@@ -252,12 +252,17 @@ export async function render(root, ctx) {
   drawFit();
 }
 
-/* find HPO term names (and synonyms) in free text; a "no", "not", "without" or "absent" just before makes it excluded */
+/* find HPO term names (and synonyms) in free text; a "no", "not", "without" or "absent" just before makes it excluded,
+   within its own sentence or clause ("No microcephaly. Ataxic gait." excludes only microcephaly) */
 function textToTerms(text) {
-  const t = String(text || '');
-  const lower = ' ' + t.toLowerCase().replace(/[^a-z0-9]+/g, ' ') + ' ';
   const found = new Map();
-  const words = lower.trim().split(' ');
+  for (const clause of String(text || '').split(/[.;:!?\n]+|\bbut\b|\bhowever\b/i)) {
+    const words = clause.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().split(' ').filter(Boolean);
+    if (words.length) findIn(words, found);
+  }
+  return Array.from(found.values());
+}
+function findIn(words, found) {
   // try every run of 1 to 6 words against the HPO's names
   for (let i = 0; i < words.length; i++) {
     for (let n = 6; n >= 1; n--) {
@@ -275,5 +280,4 @@ function textToTerms(text) {
       }
     }
   }
-  return Array.from(found.values());
 }

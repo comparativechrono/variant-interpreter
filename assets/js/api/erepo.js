@@ -76,9 +76,16 @@ export async function reasons(uuid) {
 }
 
 /** a code as the panel writes it (PM2_Supporting) → { code, strength } */
+const STRENGTH_WORDS = { verystrong: 'VS', vstr: 'VS', vs: 'VS', strong: 'S', str: 'S', moderate: 'M', mod: 'M', supporting: 'P', sup: 'P', standalone: 'SA' };
 export function parseCode(label) {
-  const m = /^([PB](?:VS|S|M|P|A)\d)(?:_(\w+))?$/.exec(String(label || ''));
+  // the repository writes "PM3_Very Strong" as well as "PM2_Supporting"
+  const m = /^\s*([PB](?:VS|S|M|P|A)\d)(?:[_\s-]+(.+?))?\s*$/i.exec(String(label || ''));
   if (!m) return { code: label, strength: null };
-  const W = { VeryStrong: 'VS', Strong: 'S', Moderate: 'M', Supporting: 'P', StandAlone: 'SA' };
-  return { code: m[1], strength: m[2] ? W[m[2]] || null : null };
+  const key = (m[2] || '').toLowerCase().replace(/[\s_-]+/g, '');
+  return { code: m[1].toUpperCase(), strength: key ? STRENGTH_WORDS[key] || null : null };
+}
+/** a strength a panel's reason gives for a criterion listed without one ("PS4_VERY STRONG APPLIED") */
+export function strengthInText(code, text) {
+  const m = new RegExp(`\\b${code}[_\\s-]*(very[\\s_-]*strong|strong|moderate|supporting)\\b`, 'i').exec(String(text || ''));
+  return m ? STRENGTH_WORDS[m[1].toLowerCase().replace(/[\s_-]+/g, '')] || null : null;
 }

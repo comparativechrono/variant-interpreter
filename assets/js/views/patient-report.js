@@ -30,7 +30,6 @@ const ORDER = { p: 0, lp: 1, vus: 2, lb: 3, b: 4 };
 
 export async function render(body, { patient: pt, variants: vs }) {
   const F = settings.get('framework');
-  const name = settings.get('name') || '';
   pt.report = pt.report || {};
   const S = vs.map((v) => ({ v, s: summariseVariant(v) })).sort((a, b) => (ORDER[a.s.cls] ?? 9) - (ORDER[b.s.cls] ?? 9));
   const unsigned = S.filter((x) => !x.s.final);
@@ -127,12 +126,20 @@ export async function render(body, { patient: pt, variants: vs }) {
 
   // the family's results
   const fam = (await familyList(pt)).filter((r) => r.relation !== 'proband');
-  const withResults = fam.filter((r) => vs.some((v) => (v.familyGenotypes || {})[r.id]));
+  const resultOf = (v, id) => {
+    const g = (v.familyGenotypes || {})[id];
+    return g && g !== 'untested' ? g : null;
+  };
+  const withResults = fam.filter((r) => vs.some((v) => resultOf(v, r.id)));
   if (withResults.length) {
     const GT = { het: 'has it (heterozygous)', hom: 'has it (homozygous)', hemi: 'has it (hemizygous)', ref: 'does not have it' };
+    const GT_CNV = { het: 'has it', hom: 'has it on both copies', hemi: 'has it', ref: 'does not have it' };
     paper.appendChild(h('section.rp-sec', h('h2', 'Relatives tested'),
       h('ul', withResults.map((r) => h('li', `${cap(r.relation)} (${r.label}, ${r.affected === 'affected' ? 'affected' : r.affected === 'unaffected' ? 'unaffected' : 'status not known'}): `,
-        vs.filter((v) => (v.familyGenotypes || {})[r.id]).map((v) => `${summariseVariant(v).short} ${GT[v.familyGenotypes[r.id]] || v.familyGenotypes[r.id]}`).join('; '))))));
+        vs.filter((v) => resultOf(v, r.id)).map((v) => {
+          const g = resultOf(v, r.id);
+          return v.kind === 'cnv' ? `${iscn(v)} ${GT_CNV[g] || g}` : `${summariseVariant(v).short} ${GT[g] || g}`;
+        }).join('; '))))));
   }
 
   // recommendations
@@ -140,15 +147,23 @@ export async function render(body, { patient: pt, variants: vs }) {
   paper.appendChild(h('section.rp-sec', h('h2', 'Recommendations'), recOut));
 
   // methods
-  const fwk = fw(F);
+  // the guidelines the sequence variants were classified with: those each was signed with (else the current ones)
+  const seqS = S.filter((x) => x.v.kind !== 'cnv');
+  const used = Array.from(new Set(seqS.map((x) => (x.s.final && x.s.signed.framework) || F)));
+  const HOW = {
+    acgs2024: 'following the ACGS Best Practice Guidelines for Variant Classification in Rare Disease 2024 (Durkie et al.), with the evidence combined as points (Tavtigian et al. 2018, 2020)',
+    clingen: 'following ClinGen’s guidance for applying them, with the evidence combined as points (Tavtigian et al. 2018, 2020)',
+    acmg2015: 'with the evidence combined by the rules of the 2015 paper'
+  };
+  const how = used.length === 1 ? HOW[used[0]] || HOW.acgs2024 : `${used.map((k) => HOW[k] || HOW.acgs2024).join('; or ')}, as each variant’s classification says`;
   paper.appendChild(h('section.rp-sec.rp-methods', h('h2', 'Methods and limitations'),
-    h('p', `Sequence variants were classified with the ACMG/AMP criteria (Richards et al. 2015) as the ${fwk.label} guidelines apply them${fwk.combine === 'points' ? ', combining the evidence as points (Tavtigian et al. 2018, 2020)' : ', combining the evidence by the 2015 rules'}. Copy-number variants were scored with the ACMG/ClinGen technical standards (Riggs et al. 2020). Evidence was gathered from Ensembl VEP, gnomAD, ClinVar, ClinGen, UniProt, AlphaFold DB and SpliceAI, as each variant’s page lists, on the dates the variants were annotated.`),
+    h('p', `${seqS.length ? `Sequence variants were classified with the ACMG/AMP criteria (Richards et al. 2015), ${how}. ` : ''}${S.length > seqS.length ? 'Copy-number variants were scored with the ACMG/ClinGen technical standards (Riggs et al. 2020). ' : ''}Evidence was gathered from Ensembl VEP, gnomAD, ClinVar, ClinGen, UniProt, AlphaFold DB and SpliceAI, as each variant’s page lists, on the dates the variants were annotated.`),
     h('p', 'Variants are described with HGVS nomenclature on the MANE Select transcript unless stated. The classification of a variant can change as evidence accumulates; variants of uncertain significance should not be used for clinical decisions. This report was produced in a teaching tool and is not validated for clinical use.')));
 
   // sign-off
   const signers = Array.from(new Set(S.filter((x) => x.s.final).map((x) => x.s.signed.by).filter(Boolean)));
   paper.appendChild(h('footer.rp-sign',
-    h('div', h('span.rp-sign-l', 'Classified by'), h('span.rp-sign-v', signers.join(', ') || name || '…………………………')),
+    h('div', h('span.rp-sign-l', 'Classified by'), h('span.rp-sign-v', signers.join(', ') || '…………………………')),
     h('div', h('span.rp-sign-l', 'Checked by'), h('span.rp-sign-v', '…………………………')),
     h('div', h('span.rp-sign-l', 'Date'), h('span.rp-sign-v', today))));
 }
@@ -182,7 +197,7 @@ function draftSummary(pt, S, B) {
     parts.push(key.map(one).join(' '));
     if (pt.assessment && pt.assessment.disease) parts.push(`${key.length === 1 ? 'This is' : 'These are'} consistent with a diagnosis of ${pt.assessment.disease}.`);
   } else if (looked.length) parts.push('No pathogenic or likely pathogenic variant was found to explain the patient’s features.');
-  if (vus.length) parts.push(`${vus.length === 1 ? 'A variant' : vus.length + ' variants'} of uncertain significance ${vus.length === 1 ? 'was' : 'were'} also found (${vus.map(({ v }) => summariseVariant(v).short).join('; ')}); ${vus.length === 1 ? 'it' : 'they'} should not be used for clinical decisions.`);
+  if (vus.length) parts.push(`${vus.length === 1 ? 'A variant' : vus.length + ' variants'} of uncertain significance ${vus.length === 1 ? 'was' : 'were'}${key.length ? ' also' : ''} found (${vus.map(({ v }) => summariseVariant(v).short).join('; ')}); ${vus.length === 1 ? 'it' : 'they'} should not be used for clinical decisions.`);
   if (notYet) parts.push(`${notYet === 1 ? 'One variant has' : notYet + ' variants have'} not been assessed yet.`);
   return parts.join(' ');
 }
@@ -196,11 +211,11 @@ function seqBlock(pt, v, s, F) {
   const met = r.met.slice().sort((a, b) => ORDER_CODES.indexOf(a.code) - ORDER_CODES.indexOf(b.code));
   const notMet = Object.entries(crit).filter(([, x]) => x && !x.met && x.evaluated).map(([k, x]) => ({ code: k, note: x.note || '' }));
   const weighed = new Set(Object.keys(crit).filter((k) => crit[k] && (crit[k].met || crit[k].evaluated)));
-  const notWeighed = CRITERIA.filter((x) => !weighed.has(x.code) && !(x.deprecated && fw(F).retired.includes(x.code))).map((x) => x.code);
   const fk = signed ? signed.framework || F : F;
+  const notWeighed = CRITERIA.filter((x) => !weighed.has(x.code) && !(x.deprecated && fw(fk).retired.includes(x.code))).map((x) => x.code);
   return h('section.rp-sec.rp-var',
     h('h3', s.gene ? h('i', s.gene + ' ') : '', h('span.hgvs', variantLong(v))),
-    h('p.rp-var-cls', clsBadge(s.cls, { band: signed ? signed.band : r.band }), ' ', h('span', `${r.points > 0 ? '+' : ''}${r.points} points (${fw(fk).label})`), signed ? h('span.small.muted', `; signed by ${signed.by || 'not named'}, ${dateStr(signed.at)}`) : h('span.small.muted', '; not signed'),
+    h('p.rp-var-cls', clsBadge(s.cls, { band: signed ? signed.band : r.band }), h('span', `${r.points > 0 ? '+' : ''}${r.points} points (${fw(fk).label})`, signed ? h('span.small.muted', `; signed by ${signed.by || 'not named'}, ${dateStr(signed.at)}`) : h('span.small.muted', '; not signed')),
       signed && signed.calculated && signed.calculated !== signed.cls ? h('span.small', ` Changed from the calculated ${CLS_WORD[signed.calculated].toLowerCase()}: ${signed.reason}`) : null),
     h('p.small.muted', `${genomicText(v)}; ${zygText(v.zygosity).toLowerCase()}; ${inheritanceText(v.inheritance).toLowerCase()}${v.contribution ? '; contribution to the phenotype: ' + contributionText(v.contribution).toLowerCase() : ''}.`),
     signed && signed.summary ? h('p', signed.summary) : null,
@@ -220,7 +235,7 @@ function cnvBlock(pt, v, s, iscnText) {
   return h('section.rp-sec.rp-var',
     h('h3', h('span.hgvs', iscnText)),
     h('p.small.muted', variantLong(v)),
-    h('p.rp-var-cls', clsBadge(s.cls), ' ', h('span', `${fmtPts(sc.total)} points (ACMG/ClinGen CNV, 2020)`), signed ? h('span.small.muted', `; signed by ${signed.by || 'not named'}, ${dateStr(signed.at)}`) : h('span.small.muted', '; not signed')),
+    h('p.rp-var-cls', clsBadge(s.cls), h('span', `${fmtPts(sc.total)} points (ACMG/ClinGen CNV, 2020)`, signed ? h('span.small.muted', `; signed by ${signed.by || 'not named'}, ${dateStr(signed.at)}`) : h('span.small.muted', '; not signed'))),
     v.genesSummary ? h('p.small.muted', `Genes: ${v.genesSummary}.`) : null,
     signed && signed.summary ? h('p', signed.summary) : null,
     sc.rows.length ? h('table.rp-table.rp-small', h('thead', h('tr', h('th', { scope: 'col' }, 'Item'), h('th', { scope: 'col' }, 'Points'), h('th', { scope: 'col' }, 'Evidence'))),

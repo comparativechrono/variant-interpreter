@@ -270,7 +270,9 @@ async function cnvPage(root, { v, pt, section }) {
         const gs = await regionGenes(chrom, start, end, asm);
         const pc = gs.filter((g) => g.pc);
         const n = geneCount(pc);
-        const names = pc.map((g) => g.symbol);
+        // the dosage-sensitive genes first (ClinGen's score 3 for this kind of CNV), then the rest in order
+        const key = v.cnvType === 'gain' ? 'ts' : 'hi';
+        const names = pc.filter((g) => g[key] === 3).concat(pc.filter((g) => g[key] !== 3)).map((g) => g.symbol);
         const summary = names.length ? `${names.slice(0, 6).join(', ')}${names.length > 6 ? ', …' : ''} (${n.counted} protein-coding ${n.counted === 1 ? 'gene' : 'genes'})` : 'No protein-coding genes';
         if (v.genesSummary !== summary) {
           v.genesSummary = summary;
@@ -341,7 +343,9 @@ function drawSummary(ctx, body) {
   if (d.genes) {
     const pc = d.genes.filter((g) => g.pc);
     const n = geneCount(pc);
-    rows.push(['Genes', `${n.counted} protein-coding ${n.counted === 1 ? 'gene' : 'genes'}${pc.length ? `, ${pc.filter((g) => g.whole).length} of them whole` : ''}`, 'genes']);
+    const whole = pc.filter((g) => g.whole).length;
+    // section 3 counts a family of genes (olfactory receptors, say) once; the whole/part split is of every gene
+    rows.push(['Genes', `${n.counted} protein-coding ${n.counted === 1 ? 'gene' : 'genes'}${n.all !== n.counted ? ` as section 3 counts them (${n.all} before each family of genes is counted once)` : ''}${pc.length ? `; ${whole === pc.length ? (pc.length === 1 ? 'it lies' : 'all lie') : `${whole} of the ${pc.length} lie`} wholly inside` : ''}`, 'genes']);
     const key = type === 'loss' ? 'hi' : 'ts';
     const est = pc.filter((g) => g[key] === 3);
     const reg = (d.regions || []).filter((r) => r[key] === 3);
@@ -696,7 +700,7 @@ function drawConclusion(ctx, body) {
     body.appendChild(h('h3.vsub', 'ClinGen’s curation of this region'));
     for (const r of reg) {
       const s = ctx.type === 'loss' ? r.hi : r.ts;
-      body.appendChild(h('p', ext(r.url, r.name || r.id), `: ${ctx.type === 'loss' ? 'haploinsufficiency' : 'triplosensitivity'} ${s} (${s === 3 ? 'sufficient evidence' : 'dosage sensitivity unlikely'}), covering ${pct(Math.min(r.coverOfRegion, r.coverOfCnv))} of each other. ClinGen’s expert curators judged the dosage sensitivity of the region itself: compare it with your points for section 2.`));
+      body.appendChild(h('p', ext(r.url, r.name || r.id), `: ${ctx.type === 'loss' ? 'haploinsufficiency' : 'triplosensitivity'} ${s} (${s === 3 ? 'sufficient evidence' : 'dosage sensitivity unlikely'}). The CNV covers ${pct(r.coverOfRegion)} of the region, and the region ${pct(r.coverOfCnv)} of the CNV. ClinGen’s expert curators judged the dosage sensitivity of the region itself: compare it with your points for section 2.`));
     }
   }
   // the case's answer
