@@ -79,7 +79,7 @@ function drawPopulation(ctx, body) {
   const asm = ctx.asm;
   const gnLink = `https://gnomad.broadinstitute.org/variant/${ctx.v.chrom}-${ctx.v.pos}-${ctx.v.ref}-${ctx.v.alt}?dataset=${asm === 'GRCh37' ? 'gnomad_r2_1' : 'gnomad_r4'}`;
   if (!g.found) {
-    body.appendChild(h('p', h('b', `This variant isn’t in ${g.dataset}. `), 'Either none of the ', asm === 'GRCh37' ? '141,456' : 'roughly 807,000', ' people in it was seen with this variant, or the variant didn’t pass quality control. ', ext(gnLink, 'Open in gnomAD'), '.'));
+    body.appendChild(h('p', h('b', `This variant isn’t in ${g.dataset}. `), 'Either none of the ', asm === 'GRCh37' ? '141,456' : 'roughly 807,000', ' people in the dataset was seen with it, or it didn’t pass quality control. ', ext(gnLink, 'Open in gnomAD'), '.'));
     body.appendChild(note('warn', h('p', 'Before you use absence as evidence for PM2, check that gnomAD sequenced this position well by opening it in gnomAD and looking at the coverage. Absence means little in a poorly covered region, or for complex indels and repeats.')));
   } else {
     const parts = [['Exomes', g.exome], ['Genomes', g.genome], [g.joint && g.joint.combined ? 'Both together' : 'Joint', g.joint]].filter((x) => x[1]);

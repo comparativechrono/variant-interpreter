@@ -379,12 +379,12 @@ function drawSummary(ctx, body) {
     const same = cv.list.filter((x) => x.type === type);
     const similar = same.filter((x) => x.reciprocal >= 0.5);
     const c = clinvarCounts(same);
-    rows.push(['ClinVar', same.length ? `${same.length} ${type === 'loss' ? (same.length === 1 ? 'loss' : 'losses') : same.length === 1 ? 'gain' : 'gains'} ${same.length === 1 ? 'overlaps' : 'overlap'} it (${c.map(([, n, t]) => `${n} ${t.toLowerCase()}`).join(', ')}); ${similar.length} of a similar extent` : `No ${type === 'loss' ? 'losses' : 'gains'} overlap it`, 'clinvar']);
+    rows.push(['ClinVar', same.length ? `${same.length} ${type === 'loss' ? (same.length === 1 ? 'loss' : 'losses') : same.length === 1 ? 'gain' : 'gains'} ${same.length === 1 ? 'overlaps' : 'overlap'} it (${c.map(([, n, t]) => `${n} ${t.toLowerCase()}`).join(', ')}), ${similar.length} of them of a similar extent` : `No ${type === 'loss' ? 'losses' : 'gains'} overlap it`, 'clinvar']);
   } else rows.push(['ClinVar', ctx.status.clinvar === 'error' ? 'Could not be fetched' : '…', 'clinvar']);
-  rows.push(['Inheritance', ctx.pt ? inheritanceText(v.inheritance) : 'Looked up: no patient', 'patient']);
+  rows.push(['Inheritance', ctx.pt ? inheritanceText(v.inheritance) : 'Looked up, with no patient', 'patient']);
   const t = h('table.glance', h('tbody', rows.map(([k, val, key]) => h('tr', h('th', { scope: 'row' }, k), h('td', val), h('td.num', h('a', { href: '#sec-' + key, onclick: (e) => { e.preventDefault(); ctx.scrollTo(key); } }, 'Evidence'))))));
   body.appendChild(t);
-  if (!ctx.pt) body.appendChild(note('', h('p', 'Looked up, not opened from a patient: there is no inheritance or phenotype to weigh in section 5. ', h('b', 'Add it to a patient'), ' (beside the classification) to use them.')));
+  if (!ctx.pt) body.appendChild(note('', h('p', 'This CNV was looked up rather than opened from a patient, so there’s no inheritance or phenotype to weigh in section 5. ', h('b', 'Add it to a patient'), ' with the button beside the classification if you want to use them.')));
 }
 
 function drawGenes(ctx, body) {
