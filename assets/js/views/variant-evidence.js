@@ -119,6 +119,8 @@ function afCalculator(ctx) {
   const moi = geneMOI(ctx.gene) || '';
   const rec = moi === 'AR' || (/AR/.test(moi) && /\//.test(moi) && ctx.v && (ctx.v.zygosity === 'homozygous' || ctx.v.inheritance === 'biparental'));
   const calc = (ctx.calc.af = ctx.calc.af || { inheritance: rec ? 'recessive' : 'dominant', prevalence: '1/10000', allelic: 0.1, genetic: 0.5, penetrance: 0.5 });
+  // until the student sets the values, the inheritance follows the gene (whose curations may arrive after gnomAD)
+  if (!calc.userSet) calc.inheritance = rec ? 'recessive' : 'dominant';
   const out = h('div.calc-out');
   const parseFrac = (x) => {
     const s = String(x).trim();
@@ -213,6 +215,7 @@ function pvs1Tree(ctx) {
     if (s != null) calc.answers = [s];
   }
   const box = h('details.calc.pvs1', { open: d.lofConsequence ? true : null }, h('summary', h('span', { html: icon('route') }), 'The PVS1 decision tree (Abou Tayoun et al. 2018)'));
+  if (!d.lofConsequence) box.appendChild(h('p.small.res-differ', `PVS1 is for null variants (nonsense, frameshift, canonical ±1 or 2 splice site, start-loss, exon deletions and duplications). This variant’s consequence is ${niceConsequence(d.consequence)}, so the tree does not apply to it; it is here to explore.`));
   const inner = h('div');
   box.appendChild(inner);
   const draw = () => {
@@ -231,10 +234,11 @@ function pvs1Tree(ctx) {
     inner.appendChild(ol);
     if (w.done) {
       calc.result = { strength: w.strength, path: w.path, na: !!w.na };
-      inner.appendChild(h('div.tree-result' + (w.na ? '.na' : ''), h('b', RESULT_TEXT[w.na ? 'NA' : w.strength]), w.na ? ': do not use PVS1.' : '. Apply it below (the suggestion says the same).'));
+      inner.appendChild(h('div.tree-result' + (w.na ? '.na' : ''), h('b', RESULT_TEXT[w.na ? 'NA' : w.strength]), w.na ? ': do not use PVS1.' : d.lofConsequence ? '. Apply it below (the suggestion says the same).' : ', had this been a null variant.'));
       if (ctx.gene) {
         const v = bestValidity(ctx.gene);
-        if (v && !/Definitive|Strong/.test(v.classification)) inner.appendChild(note('warn', h('p', `ClinGen rates the gene–disease relationship “${v.classification}”. Abou Tayoun et al. take PVS1 down one or two levels for a gene with only moderate evidence (their Table 1).`)));
+        if (v && /Moderate/.test(v.classification)) inner.appendChild(note('warn', h('p', `ClinGen rates the gene–disease relationship “${v.classification}”. The tree assumes a strong or definitive one: Abou Tayoun et al. take PVS1 down one level for a moderate gene with two or more loss-of-function variants reported and a null mouse model that has the disease, two levels with only one of these (their Table 1).`)));
+        else if (v && !/Definitive|Strong/.test(v.classification)) inner.appendChild(note('warn', h('p', `ClinGen rates the gene–disease relationship “${v.classification}”. The tree assumes a strong or definitive one (a moderate one at lower strength): PVS1 should not be used.`)));
       }
     } else if (w.node) {
       const q = h('div.tree-node', h('p', h('b', w.node.q)), w.node.help ? h('p.small.muted', w.node.help) : null);

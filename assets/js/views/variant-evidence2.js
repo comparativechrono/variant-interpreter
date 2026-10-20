@@ -275,7 +275,13 @@ async function drawFamily(ctx, body) {
       list.appendChild(h('div.calc-row', lab, k, del));
     });
     pmBox.appendChild(calc.pm3.obs.length ? list : h('p.small.muted', 'For recessive disorders: add each affected person in whom the variant was found with another variant.'));
-    pmBox.appendChild(h('div.btn-row', btn('Add an observation', () => { calc.pm3.obs.push({ key: 'P-trans', label: calc.pm3.obs.length ? '' : (pt ? `Patient ${pt.id}` : '') }); drawPm3(); commitPm3(); }, { cls: 'small', icon: 'plus' })));
+    pmBox.appendChild(h('div.btn-row', btn('Add an observation', () => {
+      // the first is this patient: homozygous, or in trans with another variant; later ones are other people
+      const first = !calc.pm3.obs.length;
+      calc.pm3.obs.push({ key: first && v.zygosity === 'homozygous' ? 'hom' : 'P-trans', label: first ? (pt ? `Patient ${pt.id}` : '') : '' });
+      drawPm3();
+      commitPm3();
+    }, { cls: 'small', icon: 'plus' })));
     const r = pm3Points(calc.pm3.obs);
     pmBox.appendChild(h('p.calc-result', `${r.points} ${r.points === 1 ? 'point' : 'points'}`, r.strength ? [': ', critChip('PM3', r.strength), ` (${SW[r.strength]})`] : ''));
   };
@@ -320,11 +326,19 @@ async function drawFamily(ctx, body) {
       const phc = h('input', { type: 'number', min: 0, max: 0.5, step: 0.001, value: mm.phenocopy });
       const res = h('div');
       const run = () => {
-        Object.assign(mm, { mode: mode.value, penetrance: Math.min(1, Math.max(0.05, +pen.value || 0.9)), phenocopy: Math.max(0, +phc.value || 0) });
-        if (mm.phenocopy >= mm.penetrance) mm.phenocopy = mm.penetrance / 10;
+        Object.assign(mm, { mode: mode.value, penetrance: Math.min(1, Math.max(0.05, +pen.value || 0.9)), phenocopy: Math.min(0.5, Math.max(0, +phc.value || 0)) });
+        let adjusted = null;
+        if (mm.phenocopy >= mm.penetrance) {
+          mm.phenocopy = +(mm.penetrance / 10).toPrecision(2);
+          adjusted = `The phenocopy rate (the chance that a relative without the variant is affected) has to be below the penetrance, so it is set to ${mm.phenocopy}.`;
+        }
+        pen.value = mm.penetrance; // the fields show what the calculation uses
+        phc.value = mm.phenocopy;
         const af = ctx.ev && ctx.ev.gnomad && ctx.ev.gnomad.found ? ((ctx.ev.gnomad.joint || ctx.ev.gnomad.exome || ctx.ev.gnomad.genome || {}).af || 0) : 0;
         const q = Math.max(1e-6, Math.min(0.05, af || 1e-5));
+        const qText = af ? `The variant’s frequency (${fmtAF(q)}) is from gnomAD.` : `The variant is not in gnomAD, so a frequency of ${fmtAF(q)} is assumed.`;
         res.innerHTML = '';
+        if (adjusted) res.appendChild(note('warn', h('p', adjusted)));
         if (!cond) {
           res.appendChild(note('warn', h('p', 'Shade the affected people in the pedigree (and name the condition in its key), so that the analysis knows who is affected.')));
           return;
@@ -343,7 +357,7 @@ async function drawFamily(ctx, body) {
           r.direction === 'for'
             ? h('p', st.jarvik || st.bayes ? ['The family supports co-segregation: ', st.jarvik ? [critChip('PP1', st.jarvik), ' by meiosis counting (Jarvik and Browning)'] : 'not enough meioses for PP1 by counting', st.bayes ? ['; ', critChip('PP1', st.bayes === 'VS' ? 'S' : st.bayes), ' by Tavtigian’s odds'] : ''] : 'The family fits co-segregation, but too weakly for PP1.')
             : h('p', 'The family argues against the variant causing the disease: ', st.bayes ? critChip('BS4', st.bayes === 'M' ? 'P' : st.bayes) : 'weakly', '.'),
-          h('p.small.muted', segCounts(r.counts), `${r.counts.untestedAffected ? ` ${r.counts.untestedAffected} affected relatives were not tested.` : ''} The ratio compares the chance of the relatives’ genotypes, given everyone’s phenotypes, if the variant causes the disease (with the penetrance and phenocopy rate above) and if it doesn’t, starting from the proband having it. The variant’s frequency (${fmtAF(q)}) is from gnomAD.`));
+          h('p.small.muted', segCounts(r.counts), `${r.counts.untestedAffected ? ` ${r.counts.untestedAffected} affected relatives were not tested.` : ''} The ratio compares the chance of the relatives’ genotypes, given everyone’s phenotypes, if the variant causes the disease (with the penetrance and phenocopy rate above) and if it doesn’t, starting from the proband having it. ${qText}`));
         ctx.save();
         ctx.refreshSuggestions();
       };
@@ -494,8 +508,11 @@ async function drawConclusion(ctx, body) {
         const reveal = btn(hist.length ? 'Compare with the expert panel' : 'Show the expert panel’s criteria', async () => {
           reveal.remove();
           const why = await er.reasons(x.uuid).catch(() => ({}));
-          const exp = metCodes.map((l) => er.parseCode(l));
+          // BA1 recorded as met in a pathogenic (or uncertain) classification was not counted: an exception to BA1
+          const notCounted = /^(p|lp|vus)$/.test(outcomeKey(x.outcome) || '') ? metCodes.filter((l) => er.parseCode(l).code === 'BA1') : [];
+          const exp = metCodes.filter((l) => !notCounted.includes(l)).map((l) => er.parseCode(l));
           panelBox.appendChild(compareTable(cls, exp.map((e) => (e.strength ? `${e.code}_${{ VS: 'VeryStrong', S: 'Strong', M: 'Moderate', P: 'Supporting', SA: 'StandAlone' }[e.strength]}` : e.code)), outcomeKey(x.outcome), x.panel, why, x.codes.filter((c) => c.status !== 'Met').map((c) => er.parseCode(c.label).code)));
+          if (notCounted.length) panelBox.appendChild(h('p.small.muted', 'The panel recorded BA1 as met, but did not count it: the variant is on its list of exceptions to BA1 (common, yet pathogenic). It is left out of the comparison.'));
         }, { cls: 'small', icon: 'scale' });
         if (!hist.length) panelBox.appendChild(h('p.small.muted', 'Try it yourself first: sign your classification, then compare.'));
         panelBox.appendChild(reveal);

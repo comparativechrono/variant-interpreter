@@ -79,8 +79,27 @@ export async function leftAlign(c, asm) {
  */
 export async function resolveInput(text, asm) {
   const res = await resolveRaw(text, asm);
+  if (res.ok && res.kind === 'vcf') {
+    // a typed reference allele must be what the genome has there: a GRCh37 position read on GRCh38 (or a slip)
+    // would otherwise be annotated as the change the genome's own base gives
+    const c = res.candidates[0];
+    const has = await genomeBase(c, asm);
+    if (has) return { ok: false, refMismatch: true, message: `On ${asm}, the genome has ${has} at ${c.chrom}:${c.pos}${c.ref.length > 1 ? `-${c.pos + c.ref.length - 1}` : ''}, not ${c.ref.toUpperCase()}. Check the position and the alleles, and the genome build: positions on GRCh37 and GRCh38 differ.` };
+  }
   if (res.ok) res.candidates = await Promise.all(res.candidates.map((c) => leftAlign(c, asm)));
   return res;
+}
+/** the genome's own bases where a typed reference allele is, if they differ from it (null if they agree, or can't be checked) */
+async function genomeBase(c, asm) {
+  const ref = String(c.ref || '').toUpperCase();
+  if (!/^[ACGTN]+$/.test(ref) || ref.length > 200) return null;
+  let seq;
+  try {
+    seq = String((await ens.sequence(c.chrom, c.pos, c.pos + ref.length - 1, asm)) || '').toUpperCase();
+  } catch (e) {
+    return null; // the check needs Ensembl: without it, carry on
+  }
+  return seq && seq.length === ref.length && seq !== ref ? seq : null;
 }
 async function resolveRaw(text, asm) {
   const r = readQuery(text);

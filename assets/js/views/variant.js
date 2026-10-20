@@ -4,7 +4,7 @@
    worked on), or for any variant looked up from the search box (which
    can then be added to a patient).
    ===================================================================== */
-import { h, esc, icon, toast, debounce, beforeLeaving, modal, popmenu, copyText, dateStr, nowISO, confirmBox } from '../core.js';
+import { h, bus, esc, icon, toast, debounce, beforeLeaving, modal, popmenu, copyText, dateStr, nowISO, confirmBox } from '../core.js';
 import { go, link, setLeaveGuard } from '../router.js';
 import * as db from '../db.js';
 import * as settings from '../settings.js';
@@ -96,6 +96,14 @@ async function variantPage(root, { v, pt, section, q }) {
 
   const cls = new Classification(v.classification, { showSuggestions: settings.get('suggestions') === 'show' });
   const ctx = { v, pt, asm, cls, calc: v.calc, ev: null, gene: null, clinvarGene: null, sections: {} };
+  // a patient's variant already knows its gene: its curations are there before VEP answers
+  if (v.gene) {
+    ctx.gene = geneInfo(v.gene);
+    if (ctx.gene) {
+      ctx.gene.validity = validity(ctx.gene);
+      ctx.gene.g2p = g2p(ctx.gene);
+    }
+  }
 
   /* ---------- saving: a patient's variant is saved as it is worked on ---------- */
   let dirty = false;
@@ -216,6 +224,10 @@ async function variantPage(root, { v, pt, section, q }) {
     const s = c.criteriaString();
     return s ? s : 'No criteria applied';
   };
+  // another set of guidelines (or the VUS bands switched): the class is worked out again everywhere it is shown
+  const offSettings = bus.on('settings', (e) => {
+    if (e && (e.key === 'framework' || e.key === 'vusBands')) cls.changed(null, true);
+  });
   cls.on(() => {
     const el = head.querySelector('.vhead-cls');
     if (el) {
@@ -305,6 +317,7 @@ async function variantPage(root, { v, pt, section, q }) {
   return () => {
     saveSoon.flush();
     offLeave();
+    if (typeof offSettings === 'function') offSettings();
     io.disconnect();
     setLeaveGuard(null);
     current = null;

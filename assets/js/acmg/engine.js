@@ -21,7 +21,8 @@
    The ACGS 2024 guidelines add that, except for BA1, a class other than
    uncertain needs at least two criteria (so PVS1 alone is a VUS).
    ===================================================================== */
-import { fw, labelFor, baseDefault } from './frameworks.js';
+import { fw, labelFor, baseDefault, fitStrength } from './frameworks.js';
+import { BY_CODE } from './criteria.js';
 
 export const LEVEL = { VS: 4, S: 3, M: 2, P: 1 };
 export const POINTS = { VS: 8, S: 4, M: 2, P: 1, SA: 8 };
@@ -58,11 +59,14 @@ export function posterior(points, prior = PRIOR) {
 }
 
 /** the criteria that are met, as [{code, dir: 'P'|'B', strength}] */
-export function metList(state) {
+export function metList(state, framework) {
   const out = [];
   for (const [code, c] of Object.entries((state && state.criteria) || {})) {
     if (!c || !c.met) continue;
-    out.push({ code, dir: code[0] === 'B' ? 'B' : 'P', strength: c.strength || baseDefault(code) });
+    const given = c.strength || baseDefault(code);
+    // a strength the framework does not allow (marked under another) counts at the nearest one it does
+    const s = framework && BY_CODE[code] ? fitStrength(BY_CODE[code], given, framework) : given;
+    out.push(Object.assign({ code, dir: code[0] === 'B' ? 'B' : 'P', strength: s }, s !== given ? { given } : {}));
   }
   return out;
 }
@@ -148,8 +152,10 @@ export function richards(met, opts = {}) {
 /** the classification; opts.framework (acgs2024, clingen, acmg2015) decides which method gives "the" result */
 export function classify(state, opts = {}) {
   const f = fw(opts.framework || state.framework);
-  const met = metList(state);
+  const met = metList(state, f.key);
   const notes = [];
+  const WORD = { SA: 'stand-alone', VS: 'very strong', S: 'strong', M: 'moderate', P: 'supporting' };
+  for (const m of met) if (m.given) notes.push(`${m.code} is marked ${WORD[m.given]}, which ${f.label} does not use for it: it counts as ${WORD[m.strength]} here.`);
   let pts = pointsOf(met);
   // ClinGen: PM1 and PP3 together count at most 4 points (Pejaver et al. 2022), for the overlap between a hotspot and
   // the predictors. The ACGS 2024 guidelines (PP3 at supporting only) set no such cap.

@@ -80,6 +80,14 @@ ok(r.cls === 'vus', 'PVS1 alone under ACGS: uncertain');
 r = classify({ criteria: { PVS1: { met: true, strength: 'VS' }, PP3: { met: true, strength: 'P' } } }, { framework: 'acmg2015' });
 ok(r.byRules.cls === 'vus', '2015 rules: very strong with one supporting is not enough (that rule came in 2020)');
 
+/* ---------- a strength marked under one framework, counted under another ---------- */
+r = classify({ criteria: { PS4: { met: true, strength: 'VS' }, PM2: { met: true, strength: 'M' } } }, { framework: 'acgs2024' });
+ok(r.points === 6 && r.met.find((m) => m.code === 'PS4').strength === 'S' && r.notes.some((x) => /PS4 is marked very strong/.test(x)), `PS4_VeryStrong counts as strong under ACGS (got ${r.points})`);
+r = classify({ criteria: { PP3: { met: true, strength: 'S' }, PM2: { met: true, strength: 'M' } } }, { framework: 'acgs2024' });
+ok(r.points === 3, 'PP3_Strong counts as supporting under ACGS');
+r = classify({ criteria: { PS4: { met: true, strength: 'VS' }, PM2: { met: true, strength: 'P' } } }, { framework: 'clingen' });
+ok(r.points === 9, 'ClinGen keeps PS4_VeryStrong');
+
 /* ---------- variant types ---------- */
 const lofGene = geneOf('AD', { hi: 3 });
 s = suggest({ ev: ev({ cons: ['start_lost'], hgvsc: 'c.1A>G', hgvsp: 'p.Met1?' }), gene: lofGene, settings: { framework: 'clingen' } });

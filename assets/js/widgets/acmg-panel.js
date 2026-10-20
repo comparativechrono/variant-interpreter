@@ -14,7 +14,7 @@
 import { h, esc, icon, modal, bus } from '../core.js';
 import { CRITERIA, BY_CODE, GROUPS, REFS } from '../acmg/criteria.js';
 import { classify, criteriaString, POINTS } from '../acmg/engine.js';
-import { fw, defaultFor, strengthsFor, labelFor } from '../acmg/frameworks.js';
+import { fw, defaultFor, strengthsFor, labelFor, fitStrength as fitStrengthIn } from '../acmg/frameworks.js';
 import { scale } from './scale.js';
 import { clsBadge, strengthKind } from '../ui.js';
 import * as settings from '../settings.js';
@@ -99,7 +99,7 @@ export function criterionRow(cls, code, opts = {}) {
     row.classList.toggle('met', !!st.met);
     row.classList.toggle('notmet', !st.met && !!st.evaluated);
     const strengths = strengthsFor(c, F);
-    const strength = strengths.includes(st.strength) ? st.strength : defaultFor(code, F);
+    const strength = fitStrengthIn(c, st.strength, F) || defaultFor(code, F); // as the engine counts it
     // a criterion not (yet) met shows its bare code; met, it shows the strength it is used at
     const label = st.met ? labelFor(code, strength, F) : code;
     const chip = h('span.crit.' + strengthKind(code, st.met ? strength : defaultFor(code, F)) + (st.met ? '' : '.idle'), label);

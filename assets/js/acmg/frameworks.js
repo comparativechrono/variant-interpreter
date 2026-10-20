@@ -79,6 +79,15 @@ export function strengthsFor(criterion, key) {
   const f = fw(key);
   return (f.allowed && f.allowed[criterion.code]) || criterion.strengths;
 }
+/** the strength a criterion counts at in a framework: the one given if the framework allows it, else the nearest
+    weaker one it allows (PS4_VeryStrong under the ACGS 2024 guidelines counts as strong), else its weakest */
+export function fitStrength(criterion, s, key) {
+  const allowed = strengthsFor(criterion, key);
+  if (!s || allowed.includes(s)) return s;
+  const order = ['SA', 'VS', 'S', 'M', 'P'];
+  for (let j = order.indexOf(s) + 1; j > 0 && j < order.length; j++) if (allowed.includes(order[j])) return order[j];
+  return allowed[allowed.length - 1];
+}
 
 const CLINGEN_WORD = { VS: 'VeryStrong', S: 'Strong', M: 'Moderate', P: 'Supporting', SA: 'StandAlone' };
 const ACGS_WORD = { VS: 'vstr', S: 'str', M: 'mod', P: 'sup', SA: '' };

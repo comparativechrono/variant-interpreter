@@ -33,4 +33,10 @@ n += 2;
 r = cosegregation({ family: fam, conditionKey: cond, probandId: 'p-proband', genotypes: { 'p-proband': 'het' }, model });
 assert.equal(r.ok, false);
 n++;
+// both parents tested and without it: de novo, not a break of Mendel's laws
+r = cosegregation({ family: fam, conditionKey: cond, probandId: 'p-proband', genotypes: { 'p-proband': 'het', 'p-father': 'ref', 'p-mother': 'ref', 'p-sib1': 'ref' }, model });
+assert.equal(r.ok, false);
+assert.equal(r.denovo, true, r.message);
+assert.match(r.message, /de novo/);
+n += 3;
 console.log(`segregation: ${n} checks passed`);

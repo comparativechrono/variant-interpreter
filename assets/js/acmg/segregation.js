@@ -56,6 +56,12 @@ export function cosegregation({ family, conditionKey, probandId, genotypes, mode
   if (!probandId || !byId.has(probandId)) return { ok: false, message: 'Mark the proband in the pedigree (Pedigree Studio’s “Proband” option) first.' };
   const pg = genotypes[probandId];
   if (!pg || pg === 'untested' || pg === 'ref') return { ok: false, message: 'Give the proband’s genotype: the analysis starts from the proband having the variant.' };
+  // a variant both parents were tested for and lack arose in the proband: there is no segregation to measure
+  const pb = byId.get(probandId);
+  const xMale = (mode === 'XLR' || mode === 'XLD') && pb.sex === 'M';
+  if (pb.mother && genotypes[pb.mother] === 'ref' && (xMale || (pb.father && genotypes[pb.father] === 'ref'))) {
+    return { ok: false, denovo: true, message: `${xMale ? 'The proband’s mother was tested and does not have it' : 'Both of the proband’s parents were tested and neither has it'}: the variant arose in the proband (de novo), or a parent is mosaic. A new variant has not been passed down the family, so co-segregation can’t be measured: weigh it as de novo evidence (PS2 or PM6) instead.` };
+  }
   const tests = {};
   for (const p of base) tests[p.id] = testOf(genotypes[p.id], mode, p.sex);
   const tested = base.filter((p) => tests[p.id] && p.id !== probandId);
@@ -74,7 +80,7 @@ export function cosegregation({ family, conditionKey, probandId, genotypes, mode
   } catch (e) {
     return { ok: false, message: e.message };
   }
-  if (!isFinite(C)) return { ok: false, message: 'These genotypes can’t all be right: they break Mendel’s laws (check the parents’ and children’s results).' };
+  if (!isFinite(C)) return { ok: false, message: 'These genotypes can’t all be right: they break Mendel’s laws (check the parents’ and children’s results, and the mode of inheritance). A variant new in the family, or a parent who is mosaic, can’t be analysed this way.' };
   if (!isFinite(B)) return { ok: false, message: 'The proband’s phenotype and genotype can’t happen under this model: check the model.' };
   const logLR = (A - B) - (C - D);
   const lr = isFinite(logLR) ? Math.exp(logLR) : 0;
