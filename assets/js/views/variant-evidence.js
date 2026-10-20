@@ -83,16 +83,18 @@ function drawPopulation(ctx, body) {
     body.appendChild(note('warn', h('p', 'Before using absence as evidence (PM2), check that gnomAD sequenced this position well: open it in gnomAD and look at the coverage. Absence means little for a region that is poorly covered, or for complex indels and repeats.')));
   } else {
     const parts = [['Exomes', g.exome], ['Genomes', g.genome], [g.joint && g.joint.combined ? 'Both together' : 'Joint', g.joint]].filter((x) => x[1]);
+    // the frequencies first, so that on a phone they are in view without scrolling the table sideways
+    const sexChrom = /^(X|Y)$/.test(ctx.v.chrom);
     body.appendChild(table([
       { key: 'k', label: '' },
+      { key: 'af', label: 'Frequency', num: true, fmt: (r) => h('span.af2', h('span', fmtAF(r.s.af)), r.s.af ? h('span.muted.small', oneIn(r.s.af)) : null) },
+      { key: 'faf', label: 'grpmax FAF', num: true, fmt: (r) => (r.s.faf95 != null ? h('span', fmtAF(r.s.faf95), h('span.muted.small', ' ' + (r.s.faf95Group || ''))) : '–') },
       { key: 'ac', label: 'Allele count', num: true, fmt: (r) => fmt(r.s.ac) },
       { key: 'an', label: 'Allele number', num: true, fmt: (r) => fmt(r.s.an) },
-      { key: 'af', label: 'Frequency', num: true, fmt: (r) => h('span.af2', h('span', fmtAF(r.s.af)), r.s.af ? h('span.muted.small', oneIn(r.s.af)) : null) },
       { key: 'hom', label: 'Homozygotes', num: true, fmt: (r) => fmt(r.s.hom) },
-      { key: 'hemi', label: 'Hemizygotes', num: true, fmt: (r) => (/^(X|Y)$/.test(ctx.v.chrom) ? fmt(r.s.hemi) : '–') },
-      { key: 'faf', label: 'grpmax FAF', num: true, fmt: (r) => (r.s.faf95 != null ? h('span', fmtAF(r.s.faf95), h('span.muted.small', ' ' + (r.s.faf95Group || ''))) : '–') },
+      sexChrom ? { key: 'hemi', label: 'Hemizygotes', num: true, fmt: (r) => fmt(r.s.hemi) } : null,
       { key: 'f', label: 'Filters', fmt: (r) => (r.s.filters && r.s.filters.length ? h('span.tag.warn', r.s.filters.join(', ')) : h('span.tag.ok', 'pass')) }
-    ], parts.map(([k, s]) => ({ k, s })), { compact: true, caption: 'gnomAD frequencies' }));
+    ].filter(Boolean), parts.map(([k, s]) => ({ k, s })), { compact: true, caption: 'gnomAD frequencies' }));
     // by genetic ancestry group
     const s = g.joint || g.exome || g.genome;
     const mine = ancestryOf(ctx.pt);
@@ -101,9 +103,9 @@ function drawPopulation(ctx, body) {
     body.appendChild(h('h3.vsub', 'By genetic ancestry group'));
     body.appendChild(table([
       { key: 'name', label: 'Group', fmt: (r) => h('span', r.name, r.k === mine ? h('span.tag.accent', { style: { marginLeft: '6px' } }, 'the patient’s') : null, !GRPMAX_GROUPS.includes(r.k) ? h('span.muted.small', ' (not in grpmax)') : null) },
+      { key: 'af', label: 'Frequency', num: true, fmt: (r) => h('span.afcell', h('span.afbar', { style: { width: Math.max(1, ((r.af || 0) / maxAF) * 60) + 'px' } }), fmtAF(r.af)) },
       { key: 'ac', label: 'Alleles', num: true, fmt: (r) => `${fmt(r.ac)} / ${fmt(r.an)}` },
-      { key: 'hom', label: 'Hom.', num: true, fmt: (r) => fmt(r.hom) },
-      { key: 'af', label: 'Frequency', num: true, fmt: (r) => h('span.afcell', h('span.afbar', { style: { width: Math.max(1, ((r.af || 0) / maxAF) * 60) + 'px' } }), fmtAF(r.af)) }
+      { key: 'hom', label: 'Hom.', num: true, fmt: (r) => fmt(r.hom) }
     ], groups, { compact: true, caption: 'Frequency by group' }));
     body.appendChild(h('p.small.muted', `${g.dataset}. The grpmax filtering allele frequency (FAF) is the highest frequency, among the large continental groups, that the counts are consistent with (95% confidence): the figure ClinGen and the ACGS compare with BA1 and BS1. `, ext(gnLink, 'Open in gnomAD'), '.'));
     if (g.flags && g.flags.length) body.appendChild(note('warn', h('p', 'gnomAD flags this variant: ' + g.flags.join(', ') + '. Its frequency may be unreliable.')));

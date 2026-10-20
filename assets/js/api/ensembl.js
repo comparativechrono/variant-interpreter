@@ -37,7 +37,7 @@ export async function resolveHGVS(hgvs, asm) {
 }
 /** an rsID → its alleles on the chromosome */
 export async function resolveId(id, asm) {
-  const d = await get(`/vep/human/id/${encodeURIComponent(id)}?vcf_string=1`, asm, 60000);
+  const d = await get(`/vep/human/id/${encodeURIComponent(id)}?vcf_string=1&hgvs=1&canonical=1${asm === 'GRCh37' ? '' : '&mane=1'}`, asm, 60000);
   return fromVcfStrings(d);
 }
 /** a protein change (NP_000537.3:p.Arg273His) → the DNA changes that could make it */
@@ -60,7 +60,11 @@ function fromVcfStrings(d) {
     const list = Array.isArray(v.vcf_string) ? v.vcf_string : v.vcf_string ? [v.vcf_string] : [];
     for (const s of list) {
       const m = /^([\dXYMT]+)-(\d+)-([ACGTN]+)-([ACGTN]*)$/.exec(s);
-      if (m && !out.some((x) => x.vcf === s)) out.push({ chrom: m[1], pos: +m[2], ref: m[3], alt: m[4], vcf: s, input: v.input || v.id });
+      if (!m || out.some((x) => x.vcf === s)) continue;
+      // the change on the MANE Select (or canonical) transcript, so that the choices can be told apart
+      const tcs = (v.transcript_consequences || []).filter((t) => t.variant_allele === m[4] || (m[4] && t.variant_allele === m[4].slice(1)));
+      const tc = tcs.find((t) => t.mane_select) || tcs.find((t) => t.canonical) || null;
+      out.push({ chrom: m[1], pos: +m[2], ref: m[3], alt: m[4], vcf: s, input: v.input || v.id, hgvsc: tc && tc.hgvsc ? tc.hgvsc : '', hgvsp: tc && tc.hgvsp ? tc.hgvsp.split(':').pop() : '', gene: tc ? tc.gene_symbol || '' : '' });
     }
   }
   return out;

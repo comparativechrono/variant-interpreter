@@ -125,7 +125,13 @@ async function resolveRaw(text, asm) {
           const g = geneInfo(r.gene);
           if (g && g.mane) ph = `${r.gene}:${hgvs.split(':')[1]}`;
         }
-        const c = await ens.recode(ph, asm);
+        let c;
+        try {
+          c = await ens.recode(ph, asm);
+        } catch (e) {
+          if (/HTTP 400/.test(String(e.message))) throw e;
+          return { ok: false, message: `Ensembl’s look-up of protein changes did not answer in time (it is slow, and sometimes busy). Give the DNA change on a transcript instead, e.g. NM_000546.6:c.818G>A, or try again in a few minutes.` };
+        }
         return c.length ? { ok: true, kind: 'protein', candidates: c, note: 'A protein change can be made by more than one DNA change: choose the one the test found.' }
           : { ok: false, message: 'Ensembl could not find the DNA changes that make this protein change. Give the change on a transcript (c.) instead.' };
       }

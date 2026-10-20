@@ -112,8 +112,14 @@ async function render() {
     root.innerHTML = '';
     const box = document.createElement('div');
     box.className = 'page narrow';
-    box.innerHTML = '<div class="note bad"><p><b>This page could not be shown.</b></p><p class="err"></p><p>Reload the page to try again. If it keeps happening, export your work (Data) and tell your tutor.</p></div>';
-    box.querySelector('.err').textContent = e && e.message ? e.message : String(e);
+    // a module that does not match the others (the site was updated while this page was open, or a file is still
+    // the old one in the browser's cache) fails to load: a reload, bypassing the cache, fetches the new set
+    const stale = /does not provide an export|Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module/i.test(String(e && e.message));
+    box.innerHTML = stale
+      ? '<div class="note warn"><p><b>The site has just been updated.</b></p><p>Reload the page to use the new version: your work is kept in this browser.</p><p><button type="button" class="btn primary">Reload</button></p></div>'
+      : '<div class="note bad"><p><b>This page could not be shown.</b></p><p class="err"></p><p>Reload the page to try again. If it keeps happening, export your work (Cases and data) and tell your tutor.</p></div>';
+    if (!stale) box.querySelector('.err').textContent = e && e.message ? e.message : String(e);
+    else box.querySelector('button').addEventListener('click', () => location.reload());
     root.appendChild(box);
   }
 }

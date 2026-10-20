@@ -265,22 +265,29 @@ async function cnvPage(root, { v, pt, section }) {
       ctx.redraw(['summary', 'genes', 'dosage', 'population', 'clinvar']);
     }
     const { chrom, start, end } = v;
+    // the CNV in a few words for the lists and the report: a dosage-sensitive ClinGen region it holds, named, then
+    // its dosage-sensitive genes first (ClinGen's score 3 for this kind of CNV) and the rest in order
+    const summarise = () => {
+      const gs = ctx.data.genes;
+      if (!gs) return;
+      const key = v.cnvType === 'gain' ? 'ts' : 'hi';
+      const pc = gs.filter((g) => g.pc);
+      const n = geneCount(pc);
+      const names = pc.filter((g) => g[key] === 3).concat(pc.filter((g) => g[key] !== 3)).map((g) => g.symbol);
+      const genes = names.length ? `${names.slice(0, 6).join(', ')}${names.length > 6 ? ', …' : ''} (${n.counted} protein-coding ${n.counted === 1 ? 'gene' : 'genes'})` : 'No protein-coding genes';
+      const reg = (ctx.data.regions || []).filter((r) => r[key] === 3 && (r.whole || r.coverOfRegion >= 0.9)).sort((a, b) => b.end - b.start - (a.end - a.start))[0];
+      const summary = reg && reg.name ? `${reg.name}: ${genes}` : genes;
+      if (v.genesSummary !== summary) {
+        v.genesSummary = summary;
+        if (v.patientId) ctx.save();
+      }
+    };
     return Promise.all([
       fetchOne('genes', async () => {
         const gs = await regionGenes(chrom, start, end, asm);
-        const pc = gs.filter((g) => g.pc);
-        const n = geneCount(pc);
-        // the dosage-sensitive genes first (ClinGen's score 3 for this kind of CNV), then the rest in order
-        const key = v.cnvType === 'gain' ? 'ts' : 'hi';
-        const names = pc.filter((g) => g[key] === 3).concat(pc.filter((g) => g[key] !== 3)).map((g) => g.symbol);
-        const summary = names.length ? `${names.slice(0, 6).join(', ')}${names.length > 6 ? ', …' : ''} (${n.counted} protein-coding ${n.counted === 1 ? 'gene' : 'genes'})` : 'No protein-coding genes';
-        if (v.genesSummary !== summary) {
-          v.genesSummary = summary;
-          if (v.patientId) ctx.save();
-        }
         return gs;
-      }),
-      fetchOne('regions', () => dosageRegions(chrom, start, end, asm)),
+      }).then(summarise),
+      fetchOne('regions', () => dosageRegions(chrom, start, end, asm)).then(summarise),
       fetchOne('bands', () => cytobands(chrom, start, end, asm)),
       fetchOne('clinvar', () => clinvarCNVs(chrom, start, end, asm, { fresh })),
       fetchOne('gnomad', () => gnomadSVs(chrom, start, end, asm)),

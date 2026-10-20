@@ -145,7 +145,10 @@ export async function render(body, { patient: pt, variants: vs }) {
       tb.appendChild(tr);
     }
     tbl.appendChild(tb);
-    tableBox.appendChild(h('div.table-wrap', tbl));
+    // on a phone each relative becomes a card, the cells labelled by their columns (as the variants table does)
+    const heads = Array.from(head.children).map((th) => th.textContent.trim());
+    tb.querySelectorAll('tr').forEach((tr) => Array.from(tr.children).forEach((td, i) => td.setAttribute('data-label', heads[i] || '')));
+    tableBox.appendChild(h('div.table-wrap.vtable', tbl));
     if (!vs.length) tableBox.appendChild(h('p.small.muted', 'Add the patient’s variants (Variants tab) to record who else has them.'));
     const hints = h('div.fam-hints', { 'aria-live': 'polite' });
     tableBox.appendChild(hints);

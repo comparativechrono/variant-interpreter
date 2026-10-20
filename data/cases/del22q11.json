@@ -253,6 +253,7 @@
    "end": 21160634,
    "cnvType": "loss",
    "copyNumber": 1,
+   "genesSummary": "22q11.2 recurrent (DGS) region (proximal, A-B, A-C, or A-D) (includes TBX1): DGCR6, PRODH, DGCR2, ESS2, TSSK2, GSC2, … (44 protein-coding genes)",
    "inheritance": "denovo-confirmed",
    "cnv": {
     "items": {}

@@ -53,6 +53,7 @@ export async function render(root, params, query) {
   p.appendChild(crumbs([['Home', '/'], ['Variant']]));
   p.appendChild(h('h1', h('span.hgvs', q)));
   const box = h('div', loading(`Finding ${q} on ${asm}…`));
+  if (readQuery(q).ref === 'protein') box.appendChild(h('p.small.muted', 'A protein change is looked up by Ensembl’s variant recoder, which can take a minute.'));
   p.appendChild(box);
   const res = await resolveInput(q, asm);
   box.innerHTML = '';
@@ -64,7 +65,7 @@ export async function render(root, params, query) {
   if (res.candidates.length > 1 && !query.pick) {
     box.appendChild(h('p', res.note || 'This matches more than one variant. Which do you mean?'));
     const list = h('div.btn-row', { style: { flexDirection: 'column', alignItems: 'flex-start' } });
-    for (const c of res.candidates) list.appendChild(linkBtn(`${c.chrom}-${c.pos}-${c.ref}-${c.alt || '-'}${c.hgvsc ? '  (' + c.hgvsc + ')' : ''}`, `/variant/${encodeURIComponent(c.vcf)}?assembly=${asm}`, { cls: 'small' }));
+    for (const c of res.candidates) list.appendChild(linkBtn(`${c.chrom}-${c.pos}-${c.ref}-${c.alt || '-'}${c.hgvsc ? `  (${c.gene ? c.gene + ' ' : ''}${c.hgvsc.split(':').pop()}${c.hgvsp ? ' ' + c.hgvsp : ''})` : ''}`, `/variant/${encodeURIComponent(c.vcf)}?assembly=${asm}`, { cls: 'small' }));
     box.appendChild(list);
     return;
   }

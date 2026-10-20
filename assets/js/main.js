@@ -138,41 +138,75 @@ function setupSearch() {
   });
 }
 
-/** what the search box offers for some text */
+/** a chromosome band as people write it (22q11.2, 1p36, Xq28): its extent on a build, from UCSC's bands, or null */
+async function bandRegion(q, asm) {
+  const m = /^(?:chr)?([0-9]{1,2}|X|Y)([pq])(\d+(?:\.\d+)?)?$/i.exec(q.replace(/\s+/g, ''));
+  if (!m) return null;
+  const chrom = m[1].toUpperCase();
+  const arm = m[2].toLowerCase();
+  const sub = m[3] || '';
+  const K = await import('./widgets/karyogram.js');
+  const B = await K.bands(asm).catch(() => null);
+  const list = B && B[chrom];
+  if (!list) return null;
+  const hits = list.filter(([, , name]) => name && name.startsWith(arm + sub) && (!sub || name.length === (arm + sub).length || /^[.\d]/.test(name.slice((arm + sub).length))));
+  if (!hits.length) return null;
+  return { chrom, start: Math.min(...hits.map((x) => x[0])) + 1, end: Math.max(...hits.map((x) => x[1])), name: `${chrom}${arm}${sub}` };
+}
+
+/** what the search box offers for some text: groups in the order of how well they match (an exact gene symbol or
+    HPO term before a patient whose notes mention the word) */
 async function suggestions(q) {
-  const out = [];
-  if (!q) return out;
+  if (!q) return [];
+  const groups = [];
+  const group = (rank) => {
+    const g = { rank, items: [] };
+    groups.push(g);
+    return g.items;
+  };
+  const out = group(0);
   const r = readQuery(q);
   const enc = encodeURIComponent;
+  const band = r.kind === 'text' || r.kind === 'gene' ? await bandRegion(q, settings.get('assembly')) : null;
+  if (band) out.push({ group: 'Region', kind: 'Band', label: `${band.name}: ${fmtRegion(band.chrom, band.start, band.end)}`, sub: 'Genes, dosage sensitivity and known CNVs in this band', to: `/region/${enc(`${band.chrom}:${band.start}-${band.end}`)}` });
   if (r.kind === 'vcf') out.push({ group: 'Variant', kind: 'Variant', label: `${r.chrom}-${r.pos}-${r.ref}-${r.alt || '-'}`, sub: 'Annotate and classify this variant', to: `/variant/${enc(`${r.chrom}-${r.pos}-${r.ref}-${r.alt || '-'}`)}` });
   if (r.kind === 'hgvs') out.push({ group: 'Variant', kind: 'Variant', label: r.hgvs, sub: r.ref === 'protein' ? 'A protein change: the variant page will look for the DNA changes that make it' : 'Annotate and classify this variant', to: `/variant/${enc(r.hgvs)}` });
   if (r.kind === 'rsid') out.push({ group: 'Variant', kind: 'dbSNP', label: r.id, sub: 'Annotate and classify this variant', to: `/variant/${enc(r.id)}` });
   if (r.kind === 'cnv') out.push({ group: 'Variant', kind: 'CNV', label: `${r.type === 'gain' ? 'Gain' : r.type === 'loss' ? 'Loss' : 'Copy-number change'} of ${fmtRegion(r.chrom, r.start, r.end)}`, sub: 'Classify this copy-number variant (ACMG/ClinGen 2020)', to: `/cnv/${enc(q)}` });
   if (r.kind === 'region' || r.kind === 'cnv') out.push({ group: 'Region', kind: 'Region', label: fmtRegion(r.chrom, r.start, r.end), sub: 'Genes, dosage sensitivity and known CNVs in this region', to: `/region/${enc(`${r.chrom}:${r.start}-${r.end}`)}` });
   if (r.kind === 'hpo') out.push({ group: 'Phenotype', kind: 'HPO', label: r.id, sub: 'The term, its genes and diseases, and your patients with it', to: `/phenotype/${r.id}` });
-  // patients
+  const ql = q.toLowerCase();
+  // patients: by number or reference first; those whose notes merely mention the words last
   try {
     const ps = await db.listPatients();
-    const ql = q.toLowerCase();
-    ps.filter((p) => p.id === q.replace(/^patient\s*/i, '') || (p.ref && p.ref.toLowerCase().includes(ql)) || (q.length >= 3 && (p.summary || '').toLowerCase().includes(ql)))
-      .slice(0, 5)
-      .forEach((p) => out.push({ group: 'Your patients', kind: 'Patient', label: `Patient ${p.id}${p.ref ? ' – ' + p.ref : ''}`, sub: (p.summary || '').slice(0, 90), to: `/patient/${p.id}` }));
+    const named = ps.filter((p) => p.id === q.replace(/^patient\s*/i, '') || (p.ref && p.ref.toLowerCase().includes(ql)));
+    const noted = q.length >= 3 ? ps.filter((p) => !named.includes(p) && (p.summary || '').toLowerCase().includes(ql)) : [];
+    const item = (p) => ({ group: 'Your patients', kind: 'Patient', label: `Patient ${p.id}${p.ref ? ' – ' + p.ref : ''}`, sub: (p.summary || '').slice(0, 90), to: `/patient/${p.id}` });
+    if (named.length) group(1).push(...named.slice(0, 5).map(item));
+    if (noted.length) group(4).push(...noted.slice(0, Math.max(0, 5 - named.length)).map(item));
   } catch (e) {
     /* ignore */
   }
-  // genes
+  // genes: an exact symbol first
   if (r.kind === 'gene' || r.kind === 'text') {
     const G = await geneList();
     if (G) {
-      G.searchGenes(q, 6).forEach((g) => out.push({ group: 'Genes', kind: 'Gene', html: `<i class="gene">${esc(g.symbol)}</i>${g.via ? ` <span class="muted">(${esc(g.via)})</span>` : ''}`, sub: g.name, to: `/gene/${enc(g.symbol)}` }));
+      const gs = G.searchGenes(q, 6);
+      const exact = gs.some((g) => g.symbol.toLowerCase() === ql);
+      group(exact ? 1 : 3).push(...gs.map((g) => ({ group: 'Genes', kind: 'Gene', html: `<i class="gene">${esc(g.symbol)}</i>${g.via ? ` <span class="muted">(${esc(g.via)})</span>` : ''}`, sub: g.name, to: `/gene/${enc(g.symbol)}` })));
     }
   }
-  // HPO terms
+  // HPO terms: an exact name (or synonym) first
   if ((r.kind === 'text' || r.kind === 'gene') && q.length >= 3) {
     const H = await hpo();
-    if (H) H.search(q, { limit: 6 }).forEach((m) => out.push({ group: 'Phenotypes (HPO)', kind: 'HPO', html: esc(m.term.name) + ` <span class="hpo-id">${m.term.id}</span>`, sub: m.via ? `also called ${m.via}` : '', to: `/phenotype/${m.term.id}` }));
+    if (H) {
+      const ms = H.search(q, { limit: 6 });
+      const exact = ms.some((m) => (m.term.name || '').toLowerCase() === ql || (m.via || '').toLowerCase() === ql);
+      group(exact ? 1 : 2).push(...ms.map((m) => ({ group: 'Phenotypes (HPO)', kind: 'HPO', html: esc(m.term.name) + ` <span class="hpo-id">${m.term.id}</span>`, sub: m.via ? `also called ${m.via}` : '', to: `/phenotype/${m.term.id}` })));
+    }
   }
-  return out.slice(0, 16);
+  // groups in order of rank (ties keep this order: variants and regions, patients, genes, phenotypes)
+  return groups.map((g, i) => [g, i]).sort((a, b) => a[0].rank - b[0].rank || a[1] - b[1]).flatMap(([g]) => g.items).slice(0, 16);
 }
 
 /* ---------------- start ---------------- */

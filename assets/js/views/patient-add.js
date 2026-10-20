@@ -254,13 +254,18 @@ export async function importVcfDialog(pt, existing = [], onDone) {
     return;
   }
   const asm = select(ASSEMBLIES, parsed.assembly || settings.get('assembly'));
-  const sample = select(parsed.samples.length ? parsed.samples.map((s, i) => [String(i), s]) : [['0', 'The only sample']], '0');
+  const sample = select(parsed.samples.length ? parsed.samples.map((s, i) => [String(i), s]) : [['0', 'No genotypes in the file']], '0', { disabled: parsed.samples.length ? null : true });
   // how rare: 1% suits most triage; a recessive disorder's common alleles (e.g. CFTR F508del, 1.2% in gnomAD's exomes) need more
   const fRare = select([['', 'Any frequency'], ['0.001', 'Under 0.1% in gnomAD'], ['0.01', 'Under 1% in gnomAD'], ['0.05', 'Under 5% in gnomAD']], '0.01', { 'aria-label': 'Frequency in gnomAD' });
   const fProt = checkbox('Protein-altering or at a splice site', true);
   const panelGenes = new Set();
   const fPanel = checkbox('In the genes of the patient’s panel', false);
   const fCall = checkbox('Called in this person (not 0/0 or ./.)', true);
+  // a VCF of sites only (no sample columns) has no genotypes to filter on: every variant is listed
+  if (!parsed.samples.length) {
+    fCall.box.checked = false;
+    fCall.box.disabled = true;
+  }
   const status = h('div', { 'aria-live': 'polite' });
   const listBox = h('div.vcf-list');
   let ann = null;
@@ -289,8 +294,9 @@ export async function importVcfDialog(pt, existing = [], onDone) {
     });
     rows = rows.filter((x) => {
       if (fCall.box.checked && (x.zyg === 'reference' || x.zyg === 'unknown')) return false;
-      if (ann && fRare.value && x.af != null && x.af >= +fRare.value) return false;
-      if (ann && fProt.box.checked && !(x.a && (x.a.transcript_consequences || []).some((t) => (t.consequence_terms || []).some((c) => PROTEIN_ALTERING.has(c))))) return false;
+      // the annotation's filters apply to annotated variants; one not yet annotated stays, marked as such
+      if (x.a && fRare.value && x.af != null && x.af >= +fRare.value) return false;
+      if (x.a && fProt.box.checked && !(x.a.transcript_consequences || []).some((t) => (t.consequence_terms || []).some((c) => PROTEIN_ALTERING.has(c)))) return false;
       if (fPanel.box.checked && panelGenes.size && !panelGenes.has(x.gene)) return false;
       return true;
     });
@@ -329,11 +335,14 @@ export async function importVcfDialog(pt, existing = [], onDone) {
   const annotateBtn = btn('Annotate with Ensembl VEP', async () => {
     annotateBtn.disabled = true;
     try {
-      const todo = recs.filter((r) => !fCall.box.checked || !['reference', 'unknown'].includes(zygosityOfGT(gtOf(r), r.chrom, pt.sex))).slice(0, 2000);
-      ann = await vepMany(todo, asm.value, (i, n) => {
+      // those the filters let through and not yet annotated (unticking "Called" later annotates the rest)
+      const todo = recs.filter((r) => (!fCall.box.checked || !['reference', 'unknown'].includes(zygosityOfGT(gtOf(r), r.chrom, pt.sex))) && !(ann && ann.has(`${r.chrom}-${r.pos}-${r.ref}-${r.alt}`))).slice(0, 2000);
+      const got = await vepMany(todo, asm.value, (i, n) => {
         status.innerHTML = '';
         status.appendChild(loading(`Annotating: ${i} of ${n}…`));
       });
+      ann = ann || new Map();
+      for (const [k, a] of got) ann.set(k, a);
       view();
     } catch (e) {
       status.innerHTML = '';
