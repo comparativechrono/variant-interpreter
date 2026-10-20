@@ -219,12 +219,12 @@ export function acmgPanel(cls, opts = {}) {
       lines.push(h('div.small', `The probability that it’s pathogenic is ${r.posterior >= 0.999 ? 'above 0.999' : r.posterior <= 0.001 ? 'below 0.001' : r.posterior.toFixed(3)} (Tavtigian et al. 2018).`));
       const br = r.byRules, same = br.cls === r.cls;
       const why = !br.rule ? '' : br.cls === 'vus' ? `, because ${br.rule.text}` : `, with ${br.rule.text}`;
-      lines.push(h('div.small' + (same ? '.muted' : '.res-differ'), `Under the 2015 combining rules it ${same ? 'is also' : 'would be'} ${IS_WORD[br.cls]}${why}.${same ? '' : ' The two methods give different classes here, and the guide explains why.'}`));
+      lines.push(h('div.small' + (same ? '.muted' : '.res-differ'), `Under the 2015 combining rules it${same ? '’s also' : ' would be'} ${IS_WORD[br.cls]}${why}.${same ? '' : ' The two methods give different classes here, and the guide explains why.'}`));
     } else {
       const rule = r.byRules.rule;
       if (rule) lines.push(h('div.small.muted', r.byRules.cls === 'vus' ? `It’s of uncertain significance because ${rule.text}.` : `This meets ${rule.name} in Table 5 of Richards et al. (2015), which asks for ${rule.text}.`));
       const same = r.byPoints.cls === r.cls;
-      lines.push(h('div.small' + (same ? '.muted' : '.res-differ'), `Counted as points (Tavtigian et al. 2020), it ${same ? 'is also' : 'would be'} ${IS_WORD[r.byPoints.cls]}.${same ? '' : ' The two methods give different classes here, and the guide explains why.'}`));
+      lines.push(h('div.small' + (same ? '.muted' : '.res-differ'), `Counted as points (Tavtigian et al. 2020), it${same ? '’s also' : ' would be'} ${IS_WORD[r.byPoints.cls]}.${same ? '' : ' The two methods give different classes here, and the guide explains why.'}`));
     }
     for (const nt of r.notes || []) lines.push(h('div.small.res-note', nt));
     for (const w of warnings(cls)) lines.push(h('div.small.res-warn', { html: icon('warning') + '<span>' + esc(w) + '</span>' }));

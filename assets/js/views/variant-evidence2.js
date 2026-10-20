@@ -523,7 +523,7 @@ async function drawConclusion(ctx, body) {
         const panelBox = h('div.compare');
         const metCodes = x.codes.filter((c) => c.status === 'Met').map((c) => c.label);
         const said = /uncertain/i.test(x.outcome || '') ? 'of uncertain significance' : String(x.outcome || '').toLowerCase();
-        panelBox.appendChild(h('p', h('b', x.panel), ` classified it as ${said} for ${x.condition}.`, x.guideline ? h('span.small.muted', ` It used the ${x.guideline}.`) : null));
+        panelBox.appendChild(h('p', /^the /.test(named(x.panel)) ? 'The ' : '', h('b', x.panel), ` classified it as ${said} for ${x.condition}.`, x.guideline ? h('span.small.muted', ` It used the ${x.guideline}.`) : null));
         const reveal = btn(hist.length ? 'Compare with the expert panel' : 'Show the expert panel’s criteria', async () => {
           reveal.remove();
           const why = await er.reasons(x.uuid).catch(() => ({}));
@@ -550,6 +550,8 @@ async function drawConclusion(ctx, body) {
 const outcomeKey = (s) => ({ 'Pathogenic': 'p', 'Likely Pathogenic': 'lp', 'Likely pathogenic': 'lp', 'Uncertain Significance': 'vus', 'Uncertain significance': 'vus', 'Likely Benign': 'lb', 'Likely benign': 'lb', 'Benign': 'b' })[s] || null;
 
 /** the student's criteria beside someone else's: which agree, which differ in strength, which are missing */
+/** who gave the other answer, to go mid-sentence: "the case’s author", "the ClinGen … expert panel (VCEP)" */
+const named = (who) => (/^(The|A|An) /.test(who) ? who[0].toLowerCase() + who.slice(1) : /^ClinGen\b|\b(VCEP|[Pp]anel|[Gg]roup)\b/.test(who) ? 'the ' + who : who);
 function compareTable(cls, theirs, theirCls, who, why = {}, theirNotMet = []) {
   const W = { VeryStrong: 'VS', Strong: 'S', Moderate: 'M', Supporting: 'P', StandAlone: 'SA' };
   const parse = (s) => {
@@ -567,7 +569,7 @@ function compareTable(cls, theirs, theirCls, who, why = {}, theirNotMet = []) {
   const r = cls.result();
   const agree = rows.filter((x) => x.status === 'Agree').length;
   return h('div',
-    h('p', 'Your class is ', clsBadge(r.cls, { short: true }), `. ${who} gave it `, theirCls ? clsBadge(theirCls, { short: true }) : 'no class', `. You agree on ${agree} of ${rows.length} criteria.`),
+    h('p', 'Your class is ', clsBadge(r.cls, { short: true }), `, and ${named(who)} gave it `, theirCls ? clsBadge(theirCls, { short: true }) : 'no class', `. ${!rows.length ? 'Neither of you has applied any criteria.' : `You agree on ${agree} of the ${rows.length} ${rows.length === 1 ? 'criterion' : 'criteria'} that either of you applied.`}`),
     table([
       { key: 'c', label: 'Criterion', fmt: (x) => h('b.hgvs', x.c) },
       { key: 'm', label: 'Yours', fmt: (x) => (x.m ? critChip(x.c, x.m) : h('span.faint', '–')) },

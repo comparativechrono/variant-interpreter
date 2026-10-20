@@ -125,7 +125,8 @@ export function criterionPage(article, code) {
   article.appendChild(h('h2', 'Its strengths in each set of guidelines'));
   article.appendChild(strengthMatrix(c));
   const notes = [];
-  if (fw('acgs2024').defaults[code] && fw('acgs2024').defaults[code] !== defaultFor(code, 'clingen')) notes.push(`${code} starts at ${SW[defaultFor(code, 'acgs2024')].toLowerCase()} with the ACGS 2024 guidelines and at ${SW[defaultFor(code, 'clingen')].toLowerCase()} with ClinGen’s.`);
+  // (PM2's own section below says this, with what it does to the class)
+  if (code !== 'PM2' && fw('acgs2024').defaults[code] && fw('acgs2024').defaults[code] !== defaultFor(code, 'clingen')) notes.push(`${code} starts at ${SW[defaultFor(code, 'acgs2024')].toLowerCase()} with the ACGS 2024 guidelines and at ${SW[defaultFor(code, 'clingen')].toLowerCase()} with ClinGen’s.`);
   if (fw('acgs2024').allowed[code]) notes.push(`The ACGS 2024 guidelines allow ${code} only at ${fw('acgs2024').allowed[code].map((s) => SW[s].toLowerCase()).join(', ').replace(/, ([^,]*)$/, ' or $1')}.`);
   notes.push('The ACGS writes the strength on every criterion (_vstr, _str, _mod or _sup), but ClinGen writes it only when it isn’t the default. With the 2015 rules you can use your judgement to change a strength, and the site offers the same strengths as it does for ClinGen’s guidance.');
   article.appendChild(h('p.small.muted', notes.join(' ')));

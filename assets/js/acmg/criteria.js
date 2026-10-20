@@ -42,7 +42,7 @@ export const CRITERIA = [
     name: 'Same amino acid change as an established pathogenic variant',
     short: 'A different nucleotide change that gives the same amino acid change as a variant already established as pathogenic.',
     guide: [
-      'For example, if codon 12 is GTG (valine), c.34G>C and c.34G>T both give p.Val12Leu, so if c.34G>C is pathogenic, c.34G>T may meet PS1. This is the example Richards et al. (2015) and the ACGS give.',
+      'For example, if codon 12 is GTG (valine), c.34G>C and c.34G>T both give p.Val12Leu, so if c.34G>C is pathogenic, c.34G>T may meet PS1. This is the example Richards et al. (2015) give.',
       'First rule out a different effect on splicing. If SpliceAI predicts that the established variant or this one changes splicing, the two may not act alike.',
       'The established variant should be pathogenic by a reliable classification, for example from a ClinVar expert panel or several submitters who agree. If it is likely pathogenic, use PS1_Moderate (ACGS 2024 and ClinGen).',
       'ClinGen (Walker et al. 2023) also uses PS1 for splicing. A variant predicted to cause the same splicing change as a pathogenic splice variant, at least as strongly, meets PS1 if it is at the same nucleotide, or PS1_Moderate if it is in the same splice motif.'
