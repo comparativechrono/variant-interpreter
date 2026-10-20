@@ -116,7 +116,7 @@ export async function render(body, { patient: pt, variants: vs }) {
       const isProband = p.id === fam.proband;
       const st = fam.conditions.length ? (p.status || {})[fam.conditions[0].key] || 'unknown' : 'unknown';
       const tr = h('tr' + (isProband ? '.fam-proband' : ''),
-        h('td', h('b', p.label), p.name ? h('span.small.muted', ' ' + p.name) : null, p.deceased ? h('span.small.muted', ' (died)') : null),
+        h('td', h('span', h('b', p.label), p.name ? h('span.small.muted', ' ' + p.name) : null, p.deceased ? h('span.small.muted', ' (died)') : null)),
         h('td', isProband ? 'Proband (the patient)' : cap(fam.rel[p.id] || 'relative')),
         h('td', STATUS[st] || st));
       for (const v of seqs) {
