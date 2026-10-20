@@ -178,10 +178,10 @@ function fromEutils(r, start, end, asm) {
 }
 
 /** ClinVar's copy-number records overlapping: { list, source, note } */
-export async function clinvarCNVs(chrom, start, end, asm = 'GRCh38') {
+export async function clinvarCNVs(chrom, start, end, asm = 'GRCh38', opts = {}) {
   const db = UCSC_DB[asm] || 'hg38';
   try {
-    const rows = await bigBedRegion(`${ucscBase()}/gbdb/${db}/bbi/clinvar/clinvarCnv.bb`, chrom, start, end);
+    const rows = await bigBedRegion(`${ucscBase()}/gbdb/${db}/bbi/clinvar/clinvarCnv.bb`, chrom, start, end, { fresh: opts.fresh });
     const list = rows.map((r) => fromBigBed(r, start, end)).filter((x) => x.type !== 'other');
     return { list, source: 'ClinVar, as copied each month by UCSC' };
   } catch (e) {
@@ -193,9 +193,9 @@ export async function clinvarCNVs(chrom, start, end, asm = 'GRCh38') {
 
 /* ---------------- population CNVs ---------------- */
 /** the Database of Genomic Variants' gold standard set: [{ id, type, start, end, inner: [s, e], af, carriers, tested, studies, coverOfCnv, … }] */
-export async function dgvGold(chrom, start, end, asm = 'GRCh38') {
+export async function dgvGold(chrom, start, end, asm = 'GRCh38', opts = {}) {
   const db = UCSC_DB[asm] || 'hg38';
-  const rows = await bigBedRegion(`${ucscBase()}/gbdb/${db}/dgv/dgvGold.bb`, chrom, start, end);
+  const rows = await bigBedRegion(`${ucscBase()}/gbdb/${db}/dgv/dgvGold.bb`, chrom, start, end, { fresh: opts.fresh });
   return rows.map((r) => {
     const f = r.f;
     const sizes = String(f.blockSizes || '').split(',').filter(Boolean).map(Number);

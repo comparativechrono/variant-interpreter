@@ -28,7 +28,8 @@ const DEFAULTS = {
 let mine = Object.assign({}, DEFAULTS, store.get('settings', {}));
 
 export function get(key) {
-  if (key === 'suggestions') return mine.suggestions || CFG.suggestions || 'button';
+  // a course that switches suggestions off (e.g. for an assessment) overrides a student's own choice
+  if (key === 'suggestions') return CFG.suggestions === 'never' ? 'never' : (mine.suggestions || CFG.suggestions || 'button');
   if (key === 'assembly') return mine.assembly || CFG.defaultAssembly || 'GRCh38';
   if (key === 'framework') return mine.framework || CFG.framework || 'acgs2024';
   return mine[key];

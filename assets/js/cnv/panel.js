@@ -155,13 +155,14 @@ const num = (v, step = 0.05) => {
 function defaultText(it, sc) {
   if (it.kind === 'case') {
     const per = it.perConfirmed != null ? it.perConfirmed : it.per;
-    return `${per > 0 ? '+' : per < 0 ? '−' : ''}${pts2(per)} each${it.perAssumed != null ? ` (${it.perAssumed >= 0 ? '+' : '−'}${pts2(it.perAssumed)} if assumed)` : ''}`;
+    return `${per > 0 ? '+' : per < 0 ? '−' : ''}${pts2(per)} each`;
   }
   if (it.options) return 'by option';
   const p = it.pts || 0;
   return `${p > 0 ? '+' : p < 0 ? '−' : ''}${pts2(p)}`;
 }
 const rangeText = (a, b) => `${a < 0 ? '−' : ''}${pts2(a)} to ${b < 0 ? '−' : ''}${pts2(b)}`;
+const signedPts = (x) => `${x > 0 ? '+' : x < 0 ? '−' : ''}${pts2(x)}`;
 
 /** one item of the rubric, bound to the score: where 'panel' (narrow) or 'sec' (in a section) */
 export function itemRow(sc, code, opts = {}) {
@@ -207,7 +208,7 @@ export function itemRow(sc, code, opts = {}) {
       const bits = [];
       if (it.note) bits.push(it.note);
       if (it.min != null && !it.options) bits.push(`Points from ${rangeText(it.min, it.max)}; the default is ${defaultText(it, sc)}.`);
-      if (it.kind === 'case') bits.push(`Points for each ${it.unit || 'case'}${it.perMin != null ? `, from ${rangeText(it.perMin, it.perMax)}` : ''}${it.max != null ? `; at most ${it.max < 0 ? '−' : '+'}${pts2(it.max)} in all` : ''}${it.cap ? `; 4A to 4C together at most +${pts2(it.cap.max)}` : ''}.`);
+      if (it.kind === 'case') bits.push(`Points for each ${it.unit || 'case'}${it.perAssumed != null ? `: ${signedPts(it.perConfirmed)} if de novo with parentage confirmed, ${signedPts(it.perAssumed)} if assumed` : ''}${it.perMin != null ? `; from ${rangeText(it.perMin, it.perMax)}` : ''}${it.max != null ? `; at most ${it.max < 0 ? '−' : '+'}${pts2(it.max)} in all` : ''}${it.cap ? `; 4A to 4C together at most +${pts2(it.cap.max)}` : ''}.`);
       const ex = sc.mates(code);
       if (ex.length) bits.push(`Excludes ${ex.join(', ')}: using it turns ${ex.length === 1 ? 'that one' : 'them'} off.`);
       if (bits.length) row.appendChild(h('div.cnv-guide.small', bits.join(' ')));
@@ -251,15 +252,22 @@ export function itemRow(sc, code, opts = {}) {
     }
   };
   draw(true);
+  // drawn again after the event that changed the score has finished, so that the focus has moved where
+  // the person sent it (Tab from a points box to the evidence box) and can be kept there
   let seen = false;
-  const off = sc.on((changed) => {
-    if (!row.isConnected) {
-      if (seen) off();
-      return;
-    }
-    seen = true;
-    // every row: turning one item on can turn its mates off, and caps change others' points
-    draw();
+  let pending = false;
+  const off = sc.on(() => {
+    if (pending) return;
+    pending = true;
+    setTimeout(() => {
+      pending = false;
+      if (!row.isConnected) {
+        if (seen) off();
+        return;
+      }
+      seen = true;
+      draw();
+    }, 0);
   });
   return row;
 }
@@ -389,13 +397,15 @@ export function cnvPanel(sc, opts = {}) {
   const which = h('p.small.muted.cnv-which', `ACMG/ClinGen standards for copy-number variants (Riggs et al. 2020): a copy-number ${sc.type}. Points add up across the sections.`);
   const secs = h('div.acmg-crit.cnv-secs');
   const subtotals = {};
+  // on a phone the panel comes before the evidence: its sections start closed there
+  const wide = !(window.matchMedia && window.matchMedia('(max-width: 960px)').matches);
   for (const S of RUBRIC[sc.type]) {
     const sub = h('span.cnv-sub');
     subtotals[S.key] = sub;
     const body = h('div.cnv-sec-b');
     if (S.note) body.appendChild(h('p.small.muted.cnv-sec-note', S.note));
     for (const it of S.items) body.appendChild(itemRow(sc, it.code, { where: 'panel', announce }));
-    secs.appendChild(h('details.acmg-side.cnv-sec', { open: true },
+    secs.appendChild(h('details.acmg-side.cnv-sec', { open: wide || null },
       h('summary', h('span.cnv-sec-n', S.key), h('span.cnv-sec-t', { title: S.title }, (SECTION_TITLES[sc.type] || {})[S.key] || S.title), sub),
       body));
   }

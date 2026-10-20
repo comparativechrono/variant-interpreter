@@ -150,6 +150,7 @@ function drawHead(st) {
   p.appendChild(st.nav);
   st.body = h('div.tab-body.gene-body');
   p.appendChild(st.body);
+  st.retab = () => drawTabs(st, {});
   drawTabs(st, {});
   fillSummary(st);
   fillProtein(st);
@@ -163,7 +164,9 @@ function moiWords(m) {
 function drawTabs(st, counts) {
   st.counts = Object.assign(st.counts || {}, counts);
   st.nav.innerHTML = '';
-  st.nav.appendChild(tabs(TABS.map(([k, label, ic]) => [k, label, `/gene/${st.symbol}${k === 'overview' ? '' : '/' + k}`, st.counts[k] != null ? fmt(st.counts[k]) : null, ic]), st.tab, `${st.symbol}: sections`));
+  // a patient chosen for comparison (?patient=) stays chosen from tab to tab
+  const q = st.query.patient ? '?patient=' + encodeURIComponent(st.query.patient) : '';
+  st.nav.appendChild(tabs(TABS.map(([k, label, ic]) => [k, label, `/gene/${st.symbol}${k === 'overview' ? '' : '/' + k}${q}`, st.counts[k] != null ? fmt(st.counts[k]) : null, ic]), st.tab, `${st.symbol}: sections`));
 }
 
 /** one sentence on what this browser and ClinVar hold for the gene */
@@ -182,7 +185,7 @@ async function fillSummary(st) {
   };
   st.patients().then((rows) => {
     parts.pts = { patients: new Set(rows.map((r) => r.p.id)).size, variants: rows.length };
-    drawTabs(st, { patients: parts.pts.variants || null });
+    drawTabs(st, { patients: parts.pts.patients || null });
     say();
   }).catch(() => null);
   st.gnomad().then((gn) => {

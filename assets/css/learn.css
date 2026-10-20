@@ -25,9 +25,10 @@
 .learn-toc-ic { color: var(--muted); display: inline-flex; }
 .learn-toc-list > li > a[aria-current='page'] .learn-toc-ic { color: var(--accent); }
 /* the 28 codes, as a compact grid under "The 28 criteria" */
-.learn-codes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; margin: 2px 0 6px 13px; }
+.learn-codes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; margin: 2px 0 6px 13px; padding: 0; list-style: none; }
 .learn-codes + .learn-codes { margin-top: 6px; }
-.learn-codes a { font-family: var(--mono); font-size: 0.76rem; font-weight: 700; text-align: center; padding: 2px 0; border-radius: var(--r-s); text-decoration: none; color: var(--ink-2); background: transparent; border: 1px solid transparent; }
+.learn-codes li { margin: 0; }
+.learn-codes a { display: block; font-family: var(--mono); font-size: 0.76rem; font-weight: 700; text-align: center; padding: 2px 0; border-radius: var(--r-s); text-decoration: none; color: var(--ink-2); background: transparent; border: 1px solid transparent; }
 .learn-codes a.p { color: #8c2f2f; }
 .learn-codes a.b { color: #234f7d; }
 .learn-codes a:hover { background: var(--sunk); }

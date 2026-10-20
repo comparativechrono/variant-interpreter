@@ -144,6 +144,9 @@ for (const entry of index.cases) {
       ok(v.hgvsc === v.input && v.hgvsc.startsWith(v.transcript + ':c.'), `${vw}: the transcript and the HGVS agree`);
       ok(ZYGOSITY.has(v.zygosity), `${vw}: zygosity`);
       ok(v.classification && v.classification.criteria && !Object.keys(v.classification.criteria).length, `${vw}: no criteria filled in for the student`);
+      // the calculators' inputs may be set up (the segregation model), but not their answers
+      ok(v.calc && typeof v.calc === 'object' && !v.calc.seg && !(v.calc.af && v.calc.af.userSet), `${vw}: no calculator answers filled in`);
+      if (v.calc.segModel) ok(['AD', 'AR', 'XLR', 'XLD'].includes(v.calc.segModel.mode) && v.calc.segModel.penetrance > v.calc.segModel.phenocopy, `${vw}: the segregation model`);
     } else {
       ok(v.kind === 'cnv', `${vw}: kind`);
       ok(Number.isInteger(v.start) && Number.isInteger(v.end) && v.start < v.end, `${vw}: start and end`);

@@ -28,6 +28,9 @@ import { sectionNote } from './evidence-common.js';
 import { THRESH } from '../genes.js';
 
 const KIND = { loss: 'Loss', gain: 'Gain' };
+const kindWord = (type, n) => (type === 'loss' ? (n === 1 ? 'deletion' : 'deletions') : n === 1 ? 'duplication' : 'duplications');
+/** how common: 'is in 0.35% of people' or 'has a frequency of 1.9 × 10⁻⁴' */
+const afPhrase = (af) => (af == null ? 'has no frequency given' : af >= 0.001 ? `is in ${(af * 100).toFixed(af >= 0.1 ? 0 : 2)}% of people` : `has a frequency of ${fmtAF(af)}`);
 const signed = (x) => `${x > 0 ? '+' : x < 0 ? '−' : ''}${pts2(x)}`;
 const hashQuery = () => new URLSearchParams((location.hash.split('?')[1]) || '');
 
@@ -286,9 +289,9 @@ async function cnvPage(root, { v, pt, section }) {
       }),
       fetchOne('regions', () => dosageRegions(chrom, start, end, asm)),
       fetchOne('bands', () => cytobands(chrom, start, end, asm)),
-      fetchOne('clinvar', () => clinvarCNVs(chrom, start, end, asm)),
+      fetchOne('clinvar', () => clinvarCNVs(chrom, start, end, asm, { fresh })),
       fetchOne('gnomad', () => gnomadSVs(chrom, start, end, asm)),
-      fetchOne('dgv', () => dgvGold(chrom, start, end, asm)),
+      fetchOne('dgv', () => dgvGold(chrom, start, end, asm, { fresh })),
       fetchOne('family', () => parentsOf(pt))
     ]);
   };
@@ -364,7 +367,7 @@ function drawSummary(ctx, body) {
   const g = d.gnomad;
   if (g && !g.skipped) {
     const same = g.list.filter((x) => (x.type === type || x.type === 'both') && x.coverOfCnv >= 0.5).sort((a, b) => (b.af || 0) - (a.af || 0));
-    rows.push(['Population', same.length ? `${same.length} ${type === 'loss' ? 'deletions' : 'duplications'} in ${g.dataset} cover at least half of it; the most frequent in ${same[0].af >= 0.001 ? (same[0].af * 100).toFixed(2) + '%' : fmtAF(same[0].af)} of people` : `No ${type === 'loss' ? 'deletion' : 'duplication'} in ${g.dataset} covers half of it`, 'population']);
+    rows.push(['Population', same.length ? `${same.length} ${kindWord(type, same.length)} in ${g.dataset} ${same.length === 1 ? 'covers' : 'cover'} at least half of it; ${same.length === 1 ? 'it' : 'the most frequent'} ${afPhrase(same[0].af)}` : `No ${kindWord(type, 1)} in ${g.dataset} covers half of it`, 'population']);
   } else rows.push(['Population', g && g.skipped ? 'Too large to compare with gnomAD’s structural variants here' : ctx.status.gnomad === 'error' ? 'Could not be fetched' : '…', 'population']);
   // ClinVar
   const cv = d.clinvar;
@@ -372,7 +375,7 @@ function drawSummary(ctx, body) {
     const same = cv.list.filter((x) => x.type === type);
     const similar = same.filter((x) => x.reciprocal >= 0.5);
     const c = clinvarCounts(same);
-    rows.push(['ClinVar', same.length ? `${same.length} ${type === 'loss' ? 'losses' : 'gains'} overlap it (${c.map(([, n, t]) => `${n} ${t.toLowerCase()}`).join(', ')}); ${similar.length} of a similar extent` : `No ${type === 'loss' ? 'losses' : 'gains'} overlap it`, 'clinvar']);
+    rows.push(['ClinVar', same.length ? `${same.length} ${type === 'loss' ? (same.length === 1 ? 'loss' : 'losses') : same.length === 1 ? 'gain' : 'gains'} ${same.length === 1 ? 'overlaps' : 'overlap'} it (${c.map(([, n, t]) => `${n} ${t.toLowerCase()}`).join(', ')}); ${similar.length} of a similar extent` : `No ${type === 'loss' ? 'losses' : 'gains'} overlap it`, 'clinvar']);
   } else rows.push(['ClinVar', ctx.status.clinvar === 'error' ? 'Could not be fetched' : '…', 'clinvar']);
   rows.push(['Inheritance', ctx.pt ? inheritanceText(v.inheritance) : 'Looked up: no patient', 'patient']);
   const t = h('table.glance', h('tbody', rows.map(([k, val, key]) => h('tr', h('th', { scope: 'row' }, k), h('td', val), h('td.num', h('a', { href: '#sec-' + key, onclick: (e) => { e.preventDefault(); ctx.scrollTo(key); } }, 'Evidence'))))));
@@ -473,13 +476,15 @@ function drawPopulation(ctx, body) {
 /** population CNVs of the same kind: those covering at least half of ours first, the rest on request */
 function popBlock(ctx, list, name, kind) {
   const type = ctx.type;
-  const same = list.filter((x) => x.type === type || x.type === 'both').sort((a, b) => b.coverOfCnv - a.coverOfCnv || (b.af || 0) - (a.af || 0));
+  // those that passed the study's filters first, then by how much of this CNV they cover
+  const failed = (x) => ((x.filters || []).length ? 1 : 0);
+  const same = list.filter((x) => x.type === type || x.type === 'both').sort((a, b) => failed(a) - failed(b) || b.coverOfCnv - a.coverOfCnv || (b.af || 0) - (a.af || 0));
   const big = same.filter((x) => x.coverOfCnv >= 0.5 || x.reciprocal >= 0.5);
   const box = h('div');
   const common = big.filter((x) => x.af >= 0.01);
   box.appendChild(h('p', same.length
-    ? `${same.length} ${type === 'loss' ? 'deletions' : 'duplications'} overlap it; ${big.length} cover at least half of it${common.length ? `, ${common.length} of them in 1% of people or more` : ''}.`
-    : `No ${type === 'loss' ? 'deletion' : 'duplication'} in ${name} overlaps it.`));
+    ? `${same.length} ${kindWord(type, same.length)} ${same.length === 1 ? 'overlaps' : 'overlap'} it; ${big.length} ${big.length === 1 ? 'covers' : 'cover'} at least half of it${common.length ? `, ${common.length} of them in 1% of people or more` : ''}.${same.some(failed) ? ` Those that failed ${name}’s quality filters are listed last, marked.` : ''}`
+    : `No ${kindWord(type, 1)} in ${name} overlaps it.`));
   if (!same.length) return box;
   let all = false;
   const first = big.length ? big.slice(0, 25) : same.slice(0, 5);
@@ -580,12 +585,14 @@ async function drawPatient(ctx, body) {
       else if (fam.noProband) body.appendChild(h('p', 'The pedigree has no proband marked: mark the patient as the proband on the ', h('a', { href: link(`/patient/${pt.id}/family`) }, 'Family tab'), '.'));
       else body.appendChild(h('p', `In the pedigree, the mother is ${fam.hasMother ? word(fam.mother) : 'not drawn'} and the father ${fam.hasFather ? word(fam.father) : 'not drawn'}. `, h('a', { href: link(`/patient/${pt.id}/family`) }, 'The Family tab'), '.'));
     }
-    // the patient's phenotype against the diseases of the genes in the CNV
+    // the patient's phenotype against the diseases of the genes in the CNV (filled in when it is worked out)
     const obs = (pt.phenotypes || []).filter((t) => t.observed !== false).map((t) => t.id);
     const exc = (pt.phenotypes || []).filter((t) => t.observed === false).map((t) => t.id);
-    const fit = h('div');
+    const fit = h('div', { 'aria-live': 'polite' });
     body.appendChild(h('h3.vsub', 'The patient’s phenotype and the genes’ diseases'));
     body.appendChild(fit);
+    body.appendChild(itemsBox(ctx.sc, codes, 'Points from the patient and family'));
+    body.appendChild(sectionNote(ctx, 'patient'));
     if (!obs.length) fit.appendChild(h('p.muted', 'No phenotype recorded yet. ', h('a', { href: link(`/patient/${pt.id}/phenotypes`) }, 'Add the patient’s features'), ' to see which of the genes’ diseases they fit.'));
     else if (!ctx.data.genes) fit.appendChild(loading('Waiting for the genes…'));
     else {
@@ -611,9 +618,9 @@ async function drawPatient(ctx, body) {
     }
   } else {
     body.appendChild(note('', h('p', 'Section 5 is about the patient: whether the CNV is de novo or inherited, and whether it segregates in the family. Add the CNV to a patient (beside the classification) to record that.')));
+    body.appendChild(itemsBox(ctx.sc, codes, 'Points from the patient and family'));
+    body.appendChild(sectionNote(ctx, 'patient'));
   }
-  body.appendChild(itemsBox(ctx.sc, codes, 'Points from the patient and family'));
-  body.appendChild(sectionNote(ctx, 'patient'));
 }
 
 function drawBrowser(ctx, body) {

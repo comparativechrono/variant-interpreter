@@ -269,7 +269,14 @@
    "classification": {
     "criteria": {}
    },
-   "calc": {},
+   "calc": {
+    "segModel": {
+     "mode": "AR",
+     "penetrance": 0.9,
+     "phenocopy": 0.001,
+     "families": "one"
+    }
+   },
    "familyGenotypes": {
     "p-proband": "het",
     "p-mother": "het",
@@ -314,7 +321,14 @@
    "classification": {
     "criteria": {}
    },
-   "calc": {},
+   "calc": {
+    "segModel": {
+     "mode": "AR",
+     "penetrance": 0.9,
+     "phenocopy": 0.001,
+     "families": "one"
+    }
+   },
    "familyGenotypes": {
     "p-proband": "het",
     "p-father": "het",

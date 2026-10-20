@@ -18,6 +18,9 @@ import { clsBadge, seg, strengthKind } from '../ui.js';
 import { scale } from '../widgets/scale.js';
 import { critLink, table, SW, SECTIONS } from './learn-criteria.js';
 
+/* scroll smoothly, unless the reader has asked for less motion */
+const smooth = () => { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'; } catch (e) { return 'auto'; } };
+
 const CLS = { p: 'Pathogenic', lp: 'Likely pathogenic', vus: 'Uncertain significance', lb: 'Likely benign', b: 'Benign' };
 const pct = (x) => (x >= 0.9995 ? 'above 0.999' : x <= 0.0005 ? 'below 0.001' : x.toFixed(3));
 const sgn = (n) => (n < 0 ? '−' + Math.abs(n) : String(n)); // a real minus sign
@@ -360,7 +363,8 @@ function usingSite(a) {
       ['Make one with ', go('/patient/new', 'New patient'), ': a reference of your own (not a real name), sex, age, the stage of life the condition began, ancestry (for comparing frequencies with the patient’s gnomAD group), whether the parents are related, the reason for testing and the test done, with its gene panel from Genomics England PanelApp if it had one.'],
       ['Or open a case from ', go('/data', 'Cases and data'), ': a fictional patient with their phenotype, family and variants, ready to interpret.']]],
     ['phenotype', 'Phenotypes', [
-      ['Search the Human Phenotype Ontology by name, synonym or id, or paste a clinical note and pick the terms the site finds in it. Mark each as observed or excluded. The diseases that fit the patient’s terms best are listed beside them, with their genes, and each variant’s Gene and disease section compares the patient with the gene’s diseases (for PP4).']]],
+      ['Search the Human Phenotype Ontology by name, synonym or id, or paste a clinical note and pick the terms the site finds in it. Mark each as observed or excluded. The diseases that fit the patient’s terms best are listed beside them, with their genes, and each variant’s Gene and disease section compares the patient with the gene’s diseases (for PP4).'],
+      [go('/match', 'Phenotype match'), ' ranks diseases and genes against any set of terms, shows which features matched which, and finds the patients in this browser with similar features.']]],
     ['pedigree', 'Family and pedigree', [
       ['Draw the family in Pedigree Studio (the Hearn lab’s pedigree editor), or start from a few questions about parents, siblings and children. Shade the affected people and name the condition in the drawing’s key. Then give each relative’s genotype for each variant: the Patient and family section of the variant’s page uses them for co-segregation.']]],
     ['dna', 'Variants', [
@@ -376,7 +380,7 @@ function usingSite(a) {
     ['genome', 'The genome browser', [
       ['igv.js, with genes, ClinVar, ClinGen’s dosage curations and DGV’s population CNVs; on a patient’s Genome browser tab, their own variants too, coloured by class. From the top bar, any region on either build.']]],
     ['report', 'The report', [
-      ['The patient, their phenotype and test, each variant with its class, criteria and evidence summary, and the criteria met and not met, laid out to print or save as a PDF from the browser.']]],
+      ['Laid out as a laboratory’s report: the result and what it means first, then each variant’s classification with its evidence, criterion by criterion, the phenotype and family it was weighed against, methods and limitations, and who classified it. The summary and recommendations are in your own words. A variant not yet signed is reported with its class so far, and the report says so. Print it, or save it as a PDF from the browser.']]],
     ['database', 'Keeping your work', [
       ['The site keeps everything in this browser’s storage for its address. Shared and university computers often clear it when you log out, so download your work at the end of each session (', go('/data', 'Cases and data'), ', Download all patients): the file opens again here or on any other computer, and is how you hand work in. Removing everything is on the same page.']]],
     ['import', 'Cases from your tutor', [
@@ -438,7 +442,7 @@ const GLOSSARY = [
 function glossary(a) {
   a.append(h('h1', 'Glossary'), h('p.learn-lede', 'The words and numbers of variant interpretation, briefly. The criteria have pages of their own: ', go('/learn/criteria', 'the 28 criteria'), '.'));
   const letters = [...new Set(GLOSSARY.map(([t]) => t[0].toUpperCase()))].sort();
-  const jump = h('nav.gl-jump', { 'aria-label': 'Letters' }, letters.map((L) => h('button', { type: 'button', onclick: () => document.getElementById('gl-' + L).scrollIntoView({ behavior: 'smooth', block: 'start' }) }, L)));
+  const jump = h('nav.gl-jump', { 'aria-label': 'Letters' }, letters.map((L) => h('button', { type: 'button', onclick: () => document.getElementById('gl-' + L).scrollIntoView({ behavior: smooth(), block: 'start' }) }, L)));
   a.appendChild(jump);
   const dl = h('dl.learn-dl.gloss');
   let last = '';
@@ -455,7 +459,7 @@ function glossary(a) {
    ==================================================================== */
 const MORE_REFS = [
   { text: 'Bergquist T et al. (2025) Calibration of additional computational tools expands ClinGen recommendation options for variant classification with PP3/BP4 criteria. Genet Med 27:101402', url: 'https://doi.org/10.1016/j.gim.2025.101402' },
-  { text: 'Collins RL et al. (2022) A cross-disorder dosage sensitivity map of the human genome. Cell 185:3041–3055 (pHaplo and pTriplo)', url: 'https://zenodo.org/records/6347673' },
+  { text: 'Collins RL et al. (2022) A cross-disorder dosage sensitivity map of the human genome. Cell 185:3041 (pHaplo and pTriplo)', url: 'https://zenodo.org/records/6347673' },
   { text: 'Gargano MA et al. (2024) The Human Phenotype Ontology in 2024: phenotypes around the world. Nucleic Acids Res 52:D1333–D1346', url: 'https://doi.org/10.1093/nar/gkad1005' },
   { text: 'Riggs ER et al. (2021) Correction: Technical standards for the interpretation and reporting of constitutional copy-number variants. Genet Med 23:2230', url: 'https://doi.org/10.1038/s41436-021-01150-9' },
   { text: 'Thompson D, Easton DF and Goldgar DE (2003) A full-likelihood method for the evaluation of causality of sequence variants from family data. Am J Hum Genet 73:652–655', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC1180690/' }

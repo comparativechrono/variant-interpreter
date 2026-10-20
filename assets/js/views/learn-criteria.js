@@ -16,6 +16,9 @@ import { MEIOSES, BAYES_ODDS } from '../acmg/segregation.js';
 import { POINTS, classify } from '../acmg/engine.js';
 import { strengthKind } from '../ui.js';
 
+/* scroll smoothly, unless the reader has asked for less motion */
+const smooth = () => { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'; } catch (e) { return 'auto'; } };
+
 export const SW = { VS: 'Very strong', S: 'Strong', M: 'Moderate', P: 'Supporting', SA: 'Stand-alone' };
 const ORDER = ['SA', 'VS', 'S', 'M', 'P'];
 
@@ -167,7 +170,7 @@ function strengthMatrix(c) {
     body.appendChild(h('tr',
       h('th', { scope: 'row' }, fw(k).label),
       cols.map((s) => {
-        if (!allowed.includes(s) && s !== d) return h('td.no', h('span', { 'aria-label': 'not used' }, '–'));
+        if (!allowed.includes(s) && s !== d) return h('td.no', h('span', { 'aria-hidden': 'true' }, '–'), h('span.visually-hidden', 'not used'));
         const label = labelFor(c.code, s, k);
         return h('td' + (s === d ? '.def' : ''), h('span.crit.' + strengthKind(c.code, s), label), s === d ? h('span.def-mark', 'default') : null);
       })));
@@ -211,7 +214,7 @@ function pvs1Tree(article) {
         ' ',
         o.result
           ? h('span.tq-r' + (o.result === 'NA' ? '.na' : ''), o.result === 'NA' ? RESULT_TEXT.NA : h('span.crit.' + strengthKind('PVS1', o.result), labelFor('PVS1', o.result, 'clingen')))
-          : h('button.tq-go', { type: 'button', onclick: () => document.getElementById('pvs1-q' + numOf[o.next]).scrollIntoView({ behavior: 'smooth', block: 'center' }) }, `question ${numOf[o.next]}`)))));
+          : h('button.tq-go', { type: 'button', onclick: () => document.getElementById('pvs1-q' + numOf[o.next]).scrollIntoView({ behavior: smooth(), block: 'center' }) }, `question ${numOf[o.next]}`)))));
     ol.appendChild(li);
   }
   article.appendChild(ol);

@@ -31,12 +31,14 @@ export async function render(root, params, query) {
   }));
   const ps = await db.listPatients();
   const withTerms = ps.filter((x) => (x.phenotypes || []).some((t) => t.observed !== false));
+  const asked = query.patient && ps.some((x) => x.id === query.patient) ? query.patient : null;
   const st = {
-    mode: query.terms ? 'adhoc' : query.patient || withTerms.length ? 'patient' : 'adhoc',
-    patientId: query.patient || (withTerms[0] ? withTerms[0].id : ''),
+    mode: query.terms ? 'adhoc' : asked || withTerms.length ? 'patient' : 'adhoc',
+    patientId: asked || (withTerms[0] ? withTerms[0].id : ps[0] ? ps[0].id : ''),
     adhoc: { obs: splitIds(query.terms), exc: splitIds(query.not) },
     token: 0
   };
+  if (query.patient && !asked) p.appendChild(note('warn', h('p', `There is no Patient ${query.patient} in this browser${ps.length ? ': choose another below' : ''}.`)));
   const srcBox = h('div.match-src');
   const termsBox = h('div.match-terms');
   const resBox = h('div.match-res');
@@ -258,7 +260,7 @@ export async function render(root, params, query) {
         const ctx = await H.scoreContext(obs, ranked[0].score, 200);
         if (token !== st.token || !ctx) return;
         const box = dzSec.querySelector('.match-context');
-        if (box) box.textContent = `For comparison: ${obs.length} features drawn at random score ${fmt(ctx.median, 2)} against a random disease (the median of 200 tries); the best score here, ${fmt(ranked[0].score, 2)}, beats ${ctx.p <= 0.005 ? 'all but ' + (ctx.p * 100 < 1 ? 'fewer than 1%' : Math.round(ctx.p * 100) + '%') : Math.round((1 - ctx.p) * 100) + '%'} of them.`;
+        if (box) box.textContent = `For comparison: ${obs.length} ${obs.length === 1 ? 'feature' : 'features'} drawn at random score ${fmt(ctx.median, 2)} against a random disease (the median of 200 tries); the best fit here, ${fmt(ranked[0].score, 2)}, is higher than ${ctx.p < 0.01 ? 'more than 99%' : Math.round((1 - ctx.p) * 100) + '%'} of those tries.`;
       }
     } catch (e) {
       if (token !== st.token) return;

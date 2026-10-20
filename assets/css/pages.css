@@ -90,7 +90,7 @@
 .gene-notes li { margin: 4px 0; }
 .gene-notes .crit-list { margin-right: 4px; }
 .pheno-cell b { color: var(--ink); }
-.gene-body table.data .hgvs { overflow-wrap: normal; }
+.gene-body table.data .hgvs { overflow-wrap: normal; white-space: nowrap; }
 
 /* ---------------- an HPO term's page ---------------- */
 .pheno-defn { font-size: 1.02rem; max-width: 75ch; color: var(--ink-2); }

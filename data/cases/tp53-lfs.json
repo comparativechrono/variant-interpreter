@@ -495,7 +495,14 @@
    "classification": {
     "criteria": {}
    },
-   "calc": {},
+   "calc": {
+    "segModel": {
+     "mode": "AD",
+     "penetrance": 0.9,
+     "phenocopy": 0.001,
+     "families": "one"
+    }
+   },
    "familyGenotypes": {
     "p-proband": "het",
     "p-brother": "het",

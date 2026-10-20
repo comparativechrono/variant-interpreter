@@ -73,12 +73,12 @@ export const CRITERIA = [
     refs: ['brnich2019', 'richards2015', 'acgs2024']
   },
   {
-    code: 'PS4', dir: 'P', def: 'S', strengths: ['S', 'M', 'P'], group: 'population', section: 'clinvar',
+    code: 'PS4', dir: 'P', def: 'S', strengths: ['VS', 'S', 'M', 'P'], group: 'population', section: 'clinvar',
     name: 'More common in patients than in controls',
     short: 'The variant is significantly more frequent in affected people than in controls (a case-control odds ratio over 5, with a confidence interval that does not include 1), or has been seen in several unrelated patients with the same phenotype.',
     guide: [
       'With a case-control study: an odds ratio above 5 whose 95% confidence interval excludes 1.',
-      'For rare variants, counting unrelated affected people is used instead. ACGS 2024: moderate for two or more unrelated people with a rare, specific phenotype, the variant absent from gnomAD; supporting for one. ClinGen’s expert panels set their own counts for their genes.',
+      'For rare variants, counting unrelated affected people is used instead. ACGS 2024: moderate for two or more unrelated people with a rare, specific phenotype, the variant absent from gnomAD; supporting for one. ClinGen’s expert panels set their own counts for their genes, and some (e.g. TP53’s) allow PS4 up to very strong when many probands meet their criteria.',
       'For recessive disorders use PM3, not PS4. A case counts towards PS4 or PP4, not both.',
       'Don’t count relatives as separate probands (they belong to segregation, PP1).'
     ],

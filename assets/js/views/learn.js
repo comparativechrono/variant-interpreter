@@ -91,12 +91,12 @@ function contents(current) {
     if (t.key === 'criteria') {
       // the 28 codes, pathogenic then benign, as a compact grid of links
       for (const [dir, label] of [['P', 'Pathogenic'], ['B', 'Benign']]) {
-        const grid = h('div.learn-codes', { role: 'list', 'aria-label': `${label} criteria` });
+        const grid = h('ul.learn-codes', { 'aria-label': `${label} criteria` });
         for (const c of CRITERIA.filter((x) => x.dir === dir)) {
-          grid.appendChild(h('a', {
-            role: 'listitem', href: link('/learn/' + c.code), title: c.name, 'aria-current': c.code === current ? 'page' : null,
+          grid.appendChild(h('li', h('a', {
+            href: link('/learn/' + c.code), title: c.name, 'aria-label': `${c.code}: ${c.name}`, 'aria-current': c.code === current ? 'page' : null,
             class: (c.deprecated ? 'retired ' : '') + (dir === 'B' ? 'b' : 'p')
-          }, c.code));
+          }, c.code)));
         }
         li.appendChild(grid);
       }

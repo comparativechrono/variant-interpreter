@@ -327,7 +327,14 @@
    "classification": {
     "criteria": {}
    },
-   "calc": {},
+   "calc": {
+    "segModel": {
+     "mode": "AR",
+     "penetrance": 0.9,
+     "phenocopy": 0.001,
+     "families": "one"
+    }
+   },
    "familyGenotypes": {
     "p-proband": "hom",
     "p-sister": "hom",

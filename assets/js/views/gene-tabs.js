@@ -5,15 +5,14 @@
    browser. Each draws itself into a box from the page's shared data
    (st: see makeState in gene.js) and may return a function to tidy up.
    ===================================================================== */
-import { h, fmt, modal, toast } from '../core.js';
-import { link, go } from '../router.js';
+import { h, fmt, toast } from '../core.js';
+import { link } from '../router.js';
 import * as db from '../db.js';
 import { note, loading, table, btn, linkBtn, ext, empty, select, field, clsBadge } from '../ui.js';
 import { CV_CLASSES, CONSEQ_GROUPS, cvClass, consequenceGroup, clinvarSummary, geneNotes, hotspots, starCount } from '../gene-stats.js';
 import { starsEl } from './gene-parts.js';
 import { niceConsequence } from '../annotate.js';
-import { patientFacts, inheritanceText, contributionText, ZYGOSITY, INHERITANCE, CONTRIBUTION, SEX } from '../summary.js';
-import { fmtSize } from '../parse.js';
+import { patientFacts, inheritanceText, contributionText, ZYGOSITY, CONTRIBUTION, SEX } from '../summary.js';
 
 export async function draw(tab, st, box) {
   if (tab === 'phenotypes') return drawPhenotypes(st, box);
@@ -25,7 +24,7 @@ export async function draw(tab, st, box) {
 }
 
 /** a patient chooser for marking shared features: the patients with a variant in the gene, or anyone in this browser */
-async function contextPicker(st, rows, onChange) {
+async function contextPicker(st, rows, onChange, hint) {
   const ps = await db.listPatients();
   const withVar = new Set(rows.map((r) => r.p.id));
   const opts = [['', withVar.size ? `Your patients with a variant in ${st.symbol}` : 'No one']]
@@ -36,10 +35,11 @@ async function contextPicker(st, rows, onChange) {
     // keep the choice in the address, so that it can be shared or reloaded
     const q = sel.value ? '?patient=' + encodeURIComponent(sel.value) : '';
     history.replaceState(null, '', `#/gene/${st.symbol}/${st.tab}${q}`);
+    if (st.retab) st.retab();
     onChange(sel.value ? ps.find((p) => p.id === sel.value) : null);
   });
   const chosen = st.query.patient ? ps.find((p) => p.id === st.query.patient) || null : null;
-  return { el: field('Mark the features shared with', sel, 'Shared: the same feature, or a more specific or more general one'), chosen };
+  return { el: field('Compare with', sel, hint), chosen };
 }
 
 /* ================================================================
@@ -87,8 +87,8 @@ async function drawPhenotypes(st, box) {
   const ctxBox = h('div.gene-ctx');
   const listBox = h('div');
   const side = h('aside.gene-side');
-  box.append(h('p.lede', `The features of ${st.symbol}’s ${ds.length} ${ds.length === 1 ? 'disease' : 'diseases'} in the HPO’s annotations (${feats.size} features), by body system. Features shared with your patients are in bold, with who has them.`), ctxBox, h('div.cols', listBox, side));
-  const pick = await contextPicker(st, rows, (pt) => paint(pt));
+  box.append(h('p.lede', `The features of ${st.symbol}’s ${ds.length} ${ds.length === 1 ? 'disease' : 'diseases'} in the HPO’s annotations (${feats.size} features), by body system. A feature your patients have (or a more specific form of it) is in bold, with who has it; one they have only in a more general form is noted under it.`), ctxBox, h('div.cols', listBox, side));
+  const pick = await contextPicker(st, rows, (pt) => paint(pt), 'Shared: the patient has the feature, or a more specific form of it');
   ctxBox.appendChild(pick.el);
 
   const paint = (ctxPatient) => {
@@ -112,14 +112,19 @@ async function drawPhenotypes(st, box) {
       const ul = h('ul.feat-list');
       let shared = 0;
       for (const x of xs) {
-        const with_ = who.filter((p) => p.terms.some((t) => X.lineage(t, x.n)));
+        // has it: the feature, or a more specific form of it; near it: only a more general form (seizures, for myoclonic seizures)
+        const with_ = who.filter((p) => p.terms.some((t) => H.ancestors(t).has(x.n)));
+        const near = who.filter((p) => !with_.includes(p) && p.terms.some((t) => t !== 118 && H.ic(t) >= 1 && H.ancestors(x.n).has(t)))
+          .map((p) => ({ p, as: p.terms.filter((t) => H.ancestors(x.n).has(t) && t !== 118) }));
         if (with_.length) shared++;
         const name = h('a', { href: link('/phenotype/' + H.hpId(x.n)) }, H.name(x.n));
         ul.appendChild(h('li' + (with_.length ? '.shared' : ''),
           h('span.feat-name', with_.length ? h('b', name) : name, ' ', h('span.hpo-id', H.hpId(x.n))),
           h('span.feat-freq.small', X.freqWord(x.known ? x.freq : null)),
           h('span.feat-dz.small.muted', { title: x.diseases.join('; ') }, ds.length > 1 ? `in ${x.diseases.length} of ${ds.length} diseases` : ''),
-          with_.length ? h('span.feat-who.small', with_.map((p, i) => [i ? ', ' : '', h('a', { href: link('/patient/' + p.id + '/phenotypes') }, 'Patient ' + p.id)])) : null));
+          with_.length || near.length ? h('span.feat-who.small',
+            with_.map((p, i) => [i ? ', ' : '', h('a', { href: link('/patient/' + p.id + '/phenotypes') }, 'Patient ' + p.id)]),
+            near.length ? h('span.muted', `${with_.length ? '; ' : ''}${near.map((n) => `Patient ${n.p.id} only as ${n.as.map((t) => H.name(t)).join(', ')}`).join('; ')}`) : null) : null));
       }
       sharedN += shared;
       const label = `${gname.replace(/^Abnormality of (the )?/, (m) => m)} (${xs.length}${shared ? `, ${shared} shared` : ''})`;
@@ -399,7 +404,7 @@ async function drawPatients(st, box) {
     h('div.fields.cv-filters', field('Sex', sexSel), field('Kind of variant', kindSel), field('Class', clsSel), field('Contribution', conSel), field('Inheritance', inhSel), field('Zygosity', zygSel), field('Phenotype', txt)),
     ctxBox, count, tblBox, shareBox);
   let ctxPatient = null;
-  const pick = await contextPicker(st, rows, (pt) => { ctxPatient = pt; paint(); });
+  const pick = await contextPicker(st, rows, (pt) => { ctxPatient = pt; paint(); }, 'Their features shared with this patient are in bold: the same feature, or a more specific or more general form of it');
   ctxPatient = pick.chosen;
   ctxBox.appendChild(pick.el);
   const paint = () => {
@@ -487,4 +492,3 @@ async function drawBrowser(st, box) {
   return () => handle.destroy();
 }
 
-export { fmtSize };
