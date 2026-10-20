@@ -136,8 +136,9 @@ export async function openCase(c) {
     wide: true,
     actions: [
       ['Cancel', null, 'ghost'],
-      have.length ? ['Go to your copy', () => go('/patient/' + have[0].id)] : null,
-      [have.length ? 'Open a fresh copy' : 'Open the case', () => importDoc(doc, null, { caseId: c.id }), 'primary']
+      // with a copy already, going back to it is the usual wish; a fresh copy is the other choice
+      have.length ? ['Open a fresh copy', () => importDoc(doc, null, { caseId: c.id })] : null,
+      have.length ? ['Go to your copy', () => go('/patient/' + have[0].id), 'primary'] : ['Open the case', () => importDoc(doc, null, { caseId: c.id }), 'primary']
     ].filter(Boolean)
   });
 }

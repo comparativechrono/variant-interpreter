@@ -64,7 +64,8 @@ editor with relatives' genotypes and an exact co-segregation likelihood
 ratio for PP1 and BS4; calculators for ClinGen's de novo (PS2, PM6) and
 in-trans (PM3) points, for OddsPath (PS3, BS3) and for the highest credible
 allele frequency (BS1); the ACGS 2024 points with the bands of uncertain
-significance (hot to ice cold), beside the 2015 rules and the Bayesian
+significance (hot to ice cold, as NHS England's GeNotes names them), beside
+the 2015 rules and the Bayesian
 probability of pathogenicity; comparison, once a classification is
 signed, with a case's answer and with ClinGen expert panels' classifications
 from their Evidence Repository; signed classifications with their history;
@@ -77,7 +78,8 @@ The three sets of guidelines (`assets/js/acmg/frameworks.js`):
 | Combining | points (Tavtigian et al.) | points | the rules of Richards et al., Table 5 |
 | PM2 starts at | moderate | supporting | moderate |
 | PP3 and BP4 | supporting only (REVEL ≥ 0.7, < 0.4) | calibrated, up to strong (Pejaver et al. 2022) | by judgement |
-| Two or more criteria for any class but uncertain (BA1 apart) | yes | no | no |
+| Two or more criteria for any class but uncertain | yes (BA1 apart, and BS1_Strong for a highly penetrant dominant disorder) | no | no |
+| PM1 and PP3 together | no cap | at most 4 points (Pejaver et al. 2022) | no cap |
 | Strengths written | `PM2_mod`, `PVS1_vstr` | `PM2_Supporting` | as ClinGen |
 
 ## How students use it
@@ -155,8 +157,9 @@ The site is the repository as it is: `index.html` at the top, with
 
 The empty file `.nojekyll` stops GitHub processing the site. The site does
 not need `build/` or `tests/`. Students' work is kept by each browser for the
-site's address (IndexedDB, under the name `varint`), so it survives updates
-to the site; a copy at another address starts empty.
+site's address (IndexedDB, under the name `varint`, with each save first
+copied to localStorage so that a reload or a closed tab cannot lose it), so it
+survives updates to the site; a copy at another address starts empty.
 
 ## Try it on your own computer
 

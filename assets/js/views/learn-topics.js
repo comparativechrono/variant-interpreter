@@ -99,7 +99,6 @@ function frameworks(a) {
     h('h1', 'Three sets of guidelines'),
     h('p.learn-lede', 'The 28 criteria are the same everywhere. What differs is how they are combined, the strength some start at, the strengths they may be given, and how a strength is written. Choose the set to follow in Settings, or beside the criteria on any variant’s page.'));
   const keys = FRAMEWORK_LIST;
-  const yes = (x) => (x ? 'Yes' : 'No');
   const writeEx = (k) => [labelFor('PM2', 'P', k), labelFor('PS3', 'S', k), labelFor('PVS1', 'S', k)].join(', ');
   const spl = (k) => {
     const s = fw(k).splice;
@@ -112,13 +111,14 @@ function frameworks(a) {
     ['PP3 and BP4 (missense)', pp3],
     ['SpliceAI for PP3 and BP4', spl],
     ['Retired criteria', (k) => (fw(k).retired.length ? fw(k).retired.join(' and ') : 'None: PP5 and BP6 in use')],
-    ['A class other than uncertain needs two or more criteria (BA1 apart)', (k) => yes(fw(k).minTwo)],
+    ['A class other than uncertain needs two or more criteria', (k) => (fw(k).minTwo ? 'Yes: BA1 apart, and BS1_Strong for a highly penetrant dominant disorder' : 'No')],
+    ['PM1 and PP3 together', (k) => (k === 'clingen' ? 'At most 4 points (Pejaver et al. 2022)' : 'No cap')],
     ['How strengths are written', writeEx]
   ];
   a.appendChild(table(['', ...keys.map((k) => fw(k).label)], rows.map(([label, fn]) => [h('b', label), ...keys.map((k) => fn(k))]), []));
 
   a.appendChild(h('h2', FRAMEWORKS.acgs2024.label));
-  a.appendChild(h('p', `The ${FRAMEWORKS.acgs2024.long} (Durkie et al., the Association for Clinical Genomic Science), followed by NHS laboratories. They use Tavtigian’s points and keep PM2 at moderate strength. They use PP3 and BP4 at supporting strength only, with REVEL for missense variants and SpliceAI for splicing. They need at least two criteria for any class but uncertain, except when BA1 is met, so a variant with PVS1 alone stays uncertain. They write every strength out, as _vstr, _str, _mod or _sup. And they rule out some combinations that count the same evidence twice:`));
+  a.appendChild(h('p', `The ${FRAMEWORKS.acgs2024.long} (Durkie et al., the Association for Clinical Genomic Science), followed by NHS laboratories. They use Tavtigian’s points and keep PM2 at moderate strength. They use PP3 and BP4 at supporting strength only, with REVEL for missense variants and SpliceAI for splicing. They need at least two criteria for any class but uncertain, so a variant with PVS1 alone stays uncertain; the exceptions are BA1, and BS1_Strong for a highly penetrant dominant disorder. They write every strength out, as _vstr, _str, _mod or _sup. And they rule out some combinations that count the same evidence twice:`));
   a.appendChild(h('ul', [
     ['PVS1 with PM4', 'they describe the same effect on the protein'],
     ['PVS1 with PP3', 'nor with PM1 or PP2; and not PS3 alongside full-strength PVS1'],
@@ -127,7 +127,7 @@ function frameworks(a) {
   a.appendChild(h('p.small.muted', 'In the 2024 document the benign threshold appears as −6 points in the text and −7 in the figure; the site uses −7, as Tavtigian et al. (2020) do. ', ref('acgs2024'), '.'));
 
   a.appendChild(h('h2', FRAMEWORKS.clingen.label));
-  a.appendChild(h('p', `ClinGen’s Sequence Variant Interpretation working group refined most of the criteria from 2018 to 2023: PVS1 by a decision tree, PM2 at supporting strength, PS2 and PM6 and PM3 by points, PS3 and BS3 by OddsPath, PP3 and BP4 by calibrated predictors, and splicing evidence across several criteria. In April 2025 the working group was retired, and its recommendations continue as ClinGen’s Variant Classification Guidance. ClinGen’s expert panels (VCEPs) adapt the criteria for the genes they cover; their rules are in ClinGen’s Criteria Specification Registry (CSpec), which the Gene and disease section shows for the variant’s gene. Strengths are written only when they are not the default, in full: PM2_Supporting, PVS1_Strong.`));
+  a.appendChild(h('p', `ClinGen’s Sequence Variant Interpretation working group refined most of the criteria from 2018 to 2023: PVS1 by a decision tree, PM2 at supporting strength, PS2 and PM6 and PM3 by points, PS3 and BS3 by OddsPath, PP3 and BP4 by calibrated predictors, and splicing evidence across several criteria. In April 2025 the working group was retired, and its recommendations continue as ClinGen’s Variant Classification Guidance. ClinGen’s expert panels (VCEPs) adapt the criteria for the genes they cover; their rules are in ClinGen’s Criteria Specification Registry (CSpec), which the Gene and disease section shows for the variant’s gene. Strengths are written only when they are not the default, in full: PM2_Supporting, PVS1_Strong. With calibrated predictors, PM1 and PP3 together count at most 4 points, because a hotspot and the predictors partly measure the same thing (Pejaver et al. 2022).`));
   a.appendChild(h('p', 'A variant classified by an expert panel has a three-star ClinVar record, and its criteria are in ClinGen’s Evidence Repository: the Conclusion section of a variant’s page fetches them, so that you can compare them with your own.'));
 
   a.appendChild(h('h2', FRAMEWORKS.acmg2015.label));
