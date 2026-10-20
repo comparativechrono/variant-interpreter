@@ -147,9 +147,9 @@ function afCalculator(ctx) {
     const faf = grpmaxFAF(g);
     const an = g && g.found ? (g.joint || g.exome || g.genome || {}).an : null;
     if (!calc.userSet) out.appendChild(h('p.small.res-differ', 'These are example values, not this disorder’s: set the prevalence, heterogeneity and penetrance for the disorder before using the answer.'));
-    out.append(h('p', 'Highest credible allele frequency: ', h('b', fmtAF(max)), ` (${oneIn(max)}).`,
+    out.append(...[h('p', 'Highest credible allele frequency: ', h('b', fmtAF(max)), ` (${oneIn(max)}).`,
       an ? ` Among ${fmt(an)} alleles, a pathogenic variant at that frequency would be seen at most about ${fmt(maxTolerableAC(max, an))} times (95%).` : ''),
-    faf && calc.userSet ? h('p', faf.faf > max ? h('b.res-differ', `The grpmax FAF (${fmtAF(faf.faf)}) is above it: too common for this disorder (BS1).`) : `The grpmax FAF (${fmtAF(faf.faf)}) is below it: not too common for this disorder.`) : null);
+    faf && calc.userSet ? h('p', faf.faf > max ? h('b.res-differ', `The grpmax FAF (${fmtAF(faf.faf)}) is above it: too common for this disorder (BS1).`) : `The grpmax FAF (${fmtAF(faf.faf)}) is below it: not too common for this disorder.`) : null].filter(Boolean));
     if (byUser === true) {
       ctx.save();
       ctx.refreshSuggestions();

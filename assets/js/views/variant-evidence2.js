@@ -401,9 +401,9 @@ function drawFunctional(ctx, body) {
         out.appendChild(h('p', r.message));
       } else {
         calc.result = r.strength ? { code: r.strength.code, strength: r.strength.strength, odds: r.odds } : null;
-        out.append(h('p.calc-result', `OddsPath ${r.odds.toFixed(2)}`, r.strength ? [': ', critChip(r.strength.code, r.strength.strength), ` (${SW[r.strength.strength]})`] : ': indeterminate (between 0.48 and 2.1)'),
+        out.append(...[h('p.calc-result', `OddsPath ${r.odds.toFixed(2)}`, r.strength ? [': ', critChip(r.strength.code, r.strength.strength), ` (${SW[r.strength.strength]})`] : ': indeterminate (between 0.48 and 2.1)'),
           r.strength && r.strength.capped ? h('p.small', 'With 10 controls or fewer, Brnich et al. allow supporting strength at most.') : null,
-          h('p.small.muted', `From ${r.controls} controls: the chance that a variant is pathogenic before the assay (${(r.P1 * 100).toFixed(0)}% of the controls) and after this readout (${(r.P2 * 100).toFixed(0)}%), assuming one control misclassified so the odds are finite (Brnich et al. 2019).`));
+          h('p.small.muted', `From ${r.controls} controls: the chance that a variant is pathogenic before the assay (${(r.P1 * 100).toFixed(0)}% of the controls) and after this readout (${(r.P2 * 100).toFixed(0)}%), assuming one control misclassified so the odds are finite (Brnich et al. 2019).`)].filter(Boolean));
       }
     }
     ctx.save();
@@ -431,10 +431,10 @@ async function drawConclusion(ctx, body) {
     const met = r.met;
     const evaluated = Object.entries(cls.state.criteria).filter(([, c]) => c.evaluated && !c.met).map(([k]) => k);
     top.innerHTML = '';
-    top.append(
+    top.append(...[
       h('div.row', clsBadge(r.cls, { big: true, band: r.band }), h('span.res-pts', `${r.points > 0 ? '+' : ''}${r.points} ${Math.abs(r.points) === 1 ? 'point' : 'points'}`), h('span.small.muted', `${fw(F).label}`)),
       h('p', met.length ? h('span.hgvs', criteriaString(met, F)) : h('span.muted', 'No criteria met yet.')),
-      evaluated.length ? h('p.small.muted', 'Looked at and not met: ', evaluated.sort().join(', ')) : null);
+      evaluated.length ? h('p.small.muted', 'Looked at and not met: ', evaluated.sort().join(', ')) : null].filter(Boolean));
   };
   drawTop();
   let seen = false;
