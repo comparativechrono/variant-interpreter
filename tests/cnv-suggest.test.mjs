@@ -72,6 +72,8 @@ for (const [type, k, code] of [['loss', 24, '3A'], ['loss', 25, '3B'], ['loss', 
 const fam = geneCount([gene('OR4F5'), gene('OR4F29'), gene('OR4F16'), gene('KRTAP1-1'), gene('KRTAP1-3'), gene('TBX1')]);
 assert.equal(fam.all, 6); assert.equal(fam.counted, 3); assert.equal(fam.families.length, 2); n += 3;
 assert.deepEqual(SECTION3.loss.map((x) => x[2]), ['3A', '3B', '3C']); n++;
+const one = geneCount([gene('TAS2R1'), gene('TRIO')]);
+assert.equal(one.counted, 2); assert.equal(one.families.length, 0, 'a family of one is not told of'); n += 2;
 
 /* ---------------- 4O: common in the population ---------------- */
 s = suggestCNV({ type: 'loss', genes: genes(1), regions: [], pop: [{ source: 'gnomAD', type: 'loss', af: 0.02, coverOfCnv: 0.95 }] });

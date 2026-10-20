@@ -11,7 +11,7 @@ import * as settings from '../settings.js';
 import { criterionRow, framework } from '../widgets/acmg-panel.js';
 import { loading, note, select, field, table, btn, clsBadge } from '../ui.js';
 import { niceConsequence, sameResidue, LOF_TERMS } from '../annotate.js';
-import { GROUPS as GN_GROUPS, grpmaxFAF, maxGroupAF, VERSION as GN_VERSION, gene as gnomadGene } from '../api/gnomad.js';
+import { GROUPS as GN_GROUPS, GRPMAX_GROUPS, grpmaxFAF, maxGroupAF, VERSION as GN_VERSION, gene as gnomadGene } from '../api/gnomad.js';
 import { PREDICTORS, predictorStrength, thresholdMarks, SPLICEAI } from '../acmg/thresholds.js';
 import { maxCredibleAF, maxTolerableAC, denovoPoints, DENOVO_PHENO, pm3Points, PM3_ROWS, oddsPath, strengthOfPoints } from '../acmg/calculators.js';
 import { TREE, walk, startAnswer, RESULT_TEXT } from '../acmg/pvs1.js';
@@ -100,7 +100,7 @@ function drawPopulation(ctx, body) {
     const maxAF = Math.max(...groups.map((x) => x.af || 0), 1e-9);
     body.appendChild(h('h3.vsub', 'By genetic ancestry group'));
     body.appendChild(table([
-      { key: 'name', label: 'Group', fmt: (r) => h('span', r.name, r.k === mine ? h('span.tag.accent', { style: { marginLeft: '6px' } }, 'the patient’s') : null, ['asj', 'fin', 'ami', 'remaining', 'oth', 'mid'].includes(r.k) ? h('span.muted.small', ' (not in grpmax)') : null) },
+      { key: 'name', label: 'Group', fmt: (r) => h('span', r.name, r.k === mine ? h('span.tag.accent', { style: { marginLeft: '6px' } }, 'the patient’s') : null, !GRPMAX_GROUPS.includes(r.k) ? h('span.muted.small', ' (not in grpmax)') : null) },
       { key: 'ac', label: 'Alleles', num: true, fmt: (r) => `${fmt(r.ac)} / ${fmt(r.an)}` },
       { key: 'hom', label: 'Hom.', num: true, fmt: (r) => fmt(r.hom) },
       { key: 'af', label: 'Frequency', num: true, fmt: (r) => h('span.afcell', h('span.afbar', { style: { width: Math.max(1, ((r.af || 0) / maxAF) * 60) + 'px' } }), fmtAF(r.af)) }
@@ -115,7 +115,10 @@ function drawPopulation(ctx, body) {
 
 /** the highest credible allele frequency for the disorder (Whiffin et al. 2017) */
 function afCalculator(ctx) {
-  const calc = (ctx.calc.af = ctx.calc.af || { inheritance: geneMOI(ctx.gene) === 'AR' ? 'recessive' : 'dominant', prevalence: '1/10000', allelic: 0.1, genetic: 0.5, penetrance: 0.5 });
+  // dominant unless the gene's disorders are recessive (or, for a gene with both, the patient has two copies)
+  const moi = geneMOI(ctx.gene) || '';
+  const rec = moi === 'AR' || (/AR/.test(moi) && /\//.test(moi) && ctx.v && (ctx.v.zygosity === 'homozygous' || ctx.v.inheritance === 'biparental'));
+  const calc = (ctx.calc.af = ctx.calc.af || { inheritance: rec ? 'recessive' : 'dominant', prevalence: '1/10000', allelic: 0.1, genetic: 0.5, penetrance: 0.5 });
   const out = h('div.calc-out');
   const parseFrac = (x) => {
     const s = String(x).trim();

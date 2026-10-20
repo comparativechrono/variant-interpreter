@@ -239,7 +239,7 @@
      {
       "id": "p-sister",
       "shape": "female",
-      "x": 400,
+      "x": 440,
       "y": 320,
       "text": "Well at 49\nEcho normal",
       "deceased": false,
@@ -336,7 +336,7 @@
      "#1a2332": "Hypertrophic cardiomyopathy"
     },
     "legendVisible": true,
-    "legendX": 570,
+    "legendX": 610,
     "legendY": 160,
     "numberingMode": "numbers",
     "partnerGapMultiplier": 2,

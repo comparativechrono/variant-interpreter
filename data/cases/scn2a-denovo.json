@@ -186,7 +186,7 @@
      {
       "id": "p-brother",
       "shape": "male",
-      "x": 270,
+      "x": 250,
       "y": 320,
       "text": "Well at 5",
       "deceased": false,
@@ -214,9 +214,9 @@
      {
       "id": "p-proband",
       "shape": "female",
-      "x": 390,
+      "x": 410,
       "y": 320,
-      "text": "Epileptic spasms\n14 months",
+      "text": "Epileptic spasms\nAge 14 months",
       "deceased": false,
       "proband": true,
       "centerText": "",
@@ -270,7 +270,7 @@
      "#1a2332": "Developmental and epileptic encephalopathy"
     },
     "legendVisible": true,
-    "legendX": 570,
+    "legendX": 580,
     "legendY": 160,
     "numberingMode": "numbers",
     "partnerGapMultiplier": 2,

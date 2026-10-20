@@ -96,8 +96,9 @@ export function cosegregation({ family, conditionKey, probandId, genotypes, mode
     out.strength = { bayes: lr === 0 ? 'S' : strengthBayes(1 / lr), jarvik: null };
     if (out.strength.bayes === 'VS') out.strength.bayes = 'S';
   }
-  // who tells us what: affected carriers, unaffected carriers, affected non-carriers, unaffected non-carriers
-  const counts = { affectedCarriers: 0, unaffectedCarriers: 0, affectedNonCarriers: 0, unaffectedNonCarriers: 0, untestedAffected: 0 };
+  // who tells us what. "Carriers" here are those with the genotype that causes the disease under the model: one copy
+  // for a dominant disorder; two for a recessive one (one copy for a man with an X-linked recessive disorder)
+  const counts = { affectedCarriers: 0, unaffectedCarriers: 0, affectedNonCarriers: 0, unaffectedNonCarriers: 0, untestedAffected: 0, mode };
   for (const p of base) {
     if (p.id === probandId) continue;
     const t = tests[p.id];
@@ -105,7 +106,7 @@ export function cosegregation({ family, conditionKey, probandId, genotypes, mode
       if (p.affected === true) counts.untestedAffected++;
       continue;
     }
-    const carrier = t !== 'none';
+    const carrier = mode === 'AR' ? t === 'homozygous' : mode === 'XLR' ? (p.sex === 'M' ? t === 'variant' : t === 'homozygous') : t !== 'none';
     if (p.affected === true) carrier ? counts.affectedCarriers++ : counts.affectedNonCarriers++;
     else if (p.affected === false) carrier ? counts.unaffectedCarriers++ : counts.unaffectedNonCarriers++;
   }

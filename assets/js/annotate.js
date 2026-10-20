@@ -28,11 +28,61 @@ export const niceConsequence = (t) => String(t || '').replace(/_variant$/, '').r
 export const LOF_TERMS = ['transcript_ablation', 'splice_acceptor_variant', 'splice_donor_variant', 'stop_gained', 'frameshift_variant', 'start_lost'];
 
 /**
+ * An insertion or deletion moved to its left-most position, with one base before it: how gnomAD and
+ * ClinVar (and VCF files, by convention) write it. VEP describes a deletion in a repeat at its 3′-most
+ * position, so without this, F508del (7-117559591-TCTT-T as VEP gives it) would not be found in gnomAD,
+ * which has it as 7-117559590-ATCT-A. Substitutions are returned as they are.
+ */
+export async function leftAlign(c, asm) {
+  let ref = String(c.ref || '').toUpperCase(), alt = String(c.alt || '').toUpperCase();
+  if (ref.length === alt.length) return c;
+  let pos = c.pos;
+  const winStart = Math.max(1, pos - 300);
+  let seq;
+  try {
+    seq = String((await ens.sequence(c.chrom, winStart, pos + Math.max(ref.length, 1) - 1, asm)) || '').toUpperCase();
+  } catch (e) {
+    return c;
+  }
+  // the reference allele must be what the genome has there
+  if (!seq || (ref && seq.slice(pos - winStart, pos - winStart + ref.length) !== ref)) return c;
+  for (let guard = 0; guard < 2000; guard++) {
+    let changed = false;
+    if (ref.length && alt.length && ref[ref.length - 1] === alt[alt.length - 1]) {
+      ref = ref.slice(0, -1);
+      alt = alt.slice(0, -1);
+      changed = true;
+    }
+    if (!ref.length || !alt.length) {
+      if (pos - 1 < winStart) break;
+      const b = seq[pos - 1 - winStart];
+      ref = b + ref;
+      alt = b + alt;
+      pos -= 1;
+      changed = true;
+    }
+    if (!changed) break;
+  }
+  while (ref.length > 1 && alt.length > 1 && ref[0] === alt[0]) {
+    ref = ref.slice(1);
+    alt = alt.slice(1);
+    pos += 1;
+  }
+  if (pos === c.pos && ref === c.ref && alt === (c.alt || '')) return c;
+  return Object.assign({}, c, { pos, ref, alt, vcf: `${c.chrom}-${pos}-${ref}-${alt}`, shiftedFrom: c.vcf || `${c.chrom}-${c.pos}-${c.ref}-${c.alt}` });
+}
+
+/**
  * From what was typed to the variant on the chromosome.
  * → { ok: true, candidates: [{chrom, pos, ref, alt, vcf, input, hgvsc?}], input, kind }  (one or more)
  *   { ok: false, message }
  */
 export async function resolveInput(text, asm) {
+  const res = await resolveRaw(text, asm);
+  if (res.ok) res.candidates = await Promise.all(res.candidates.map((c) => leftAlign(c, asm)));
+  return res;
+}
+async function resolveRaw(text, asm) {
   const r = readQuery(text);
   try {
     if (r.kind === 'vcf') return { ok: true, kind: 'vcf', candidates: [{ chrom: r.chrom, pos: r.pos, ref: r.ref, alt: r.alt, vcf: `${r.chrom}-${r.pos}-${r.ref}-${r.alt}`, input: text }] };

@@ -313,7 +313,7 @@ async function drawFamily(ctx, body) {
       if (proband && !gts[proband]) gts[proband] = v.zygosity === 'homozygous' ? 'hom' : v.zygosity === 'hemizygous' ? 'hemi' : 'het';
       const tested = Object.entries(gts).filter(([k, g]) => g && g !== 'untested' && k !== proband);
       const cond = fam.conditions[0];
-      calc.segModel = calc.segModel || { mode: moiMode(geneMOI(ctx.gene)), penetrance: 0.9, phenocopy: 0.001, families: 'one' };
+      calc.segModel = calc.segModel || { mode: startMode(ctx, others), penetrance: 0.9, phenocopy: 0.001, families: 'one' };
       const mm = calc.segModel;
       const mode = select([['AD', 'Autosomal dominant'], ['AR', 'Autosomal recessive'], ['XLR', 'X-linked recessive'], ['XLD', 'X-linked dominant']], mm.mode);
       const pen = h('input', { type: 'number', min: 0.05, max: 1, step: 0.05, value: mm.penetrance });
@@ -343,7 +343,7 @@ async function drawFamily(ctx, body) {
           r.direction === 'for'
             ? h('p', st.jarvik || st.bayes ? ['The family supports co-segregation: ', st.jarvik ? [critChip('PP1', st.jarvik), ' by meiosis counting (Jarvik and Browning)'] : 'not enough meioses for PP1 by counting', st.bayes ? ['; ', critChip('PP1', st.bayes === 'VS' ? 'S' : st.bayes), ' by Tavtigian’s odds'] : ''] : 'The family fits co-segregation, but too weakly for PP1.')
             : h('p', 'The family argues against the variant causing the disease: ', st.bayes ? critChip('BS4', st.bayes === 'M' ? 'P' : st.bayes) : 'weakly', '.'),
-          h('p.small.muted', `${r.counts.affectedCarriers} affected relatives carry it, ${r.counts.unaffectedNonCarriers} unaffected relatives don’t; ${r.counts.affectedNonCarriers} affected relatives don’t carry it and ${r.counts.unaffectedCarriers} unaffected ones do.${r.counts.untestedAffected ? ` ${r.counts.untestedAffected} affected relatives were not tested.` : ''} The ratio compares the chance of the relatives’ genotypes, given everyone’s phenotypes, if the variant causes the disease (with the penetrance and phenocopy rate above) and if it doesn’t, starting from the proband having it. The variant’s frequency (${fmtAF(q)}) is from gnomAD.`));
+          h('p.small.muted', segCounts(r.counts), `${r.counts.untestedAffected ? ` ${r.counts.untestedAffected} affected relatives were not tested.` : ''} The ratio compares the chance of the relatives’ genotypes, given everyone’s phenotypes, if the variant causes the disease (with the penetrance and phenocopy rate above) and if it doesn’t, starting from the proband having it. The variant’s frequency (${fmtAF(q)}) is from gnomAD.`));
         ctx.save();
         ctx.refreshSuggestions();
       };
@@ -359,6 +359,24 @@ async function drawFamily(ctx, body) {
   body.appendChild(sectionNote(ctx, 'family'));
 }
 const moiMode = (moi) => (moi === 'AR' ? 'AR' : moi === 'XL' ? 'XLR' : 'AD');
+/** the inheritance to start the segregation model with: the gene's, and for a gene with both dominant and recessive
+    disorders, recessive when the patient has two copies, got it from both parents, or has another variant in the gene */
+export function startMode(ctx, others = []) {
+  const moi = geneMOI(ctx.gene) || '';
+  if (!/\//.test(moi)) return moiMode(moi);
+  const v = ctx.v || {};
+  if (/AR/.test(moi) && (v.zygosity === 'homozygous' || v.inheritance === 'biparental' || others.length)) return 'AR';
+  return /AD/.test(moi) ? 'AD' : /XL/.test(moi) ? 'XLR' : 'AR';
+}
+/** who in the family fits and who doesn't, in words that suit the model */
+function segCounts(c) {
+  const n = (k) => c[k] || 0;
+  if (c.mode === 'AR' || c.mode === 'XLR') {
+    const two = c.mode === 'AR' ? 'have both copies affected' : 'have the disease genotype (a man with it, or a woman with two copies)';
+    return `${n('affectedCarriers')} affected relatives ${two}, and ${n('unaffectedNonCarriers')} unaffected relatives don’t (one copy or none: carriers are expected to be well); ${n('affectedNonCarriers')} affected relatives lack it and ${n('unaffectedCarriers')} unaffected ones have it.`;
+  }
+  return `${n('affectedCarriers')} affected relatives carry it, ${n('unaffectedNonCarriers')} unaffected relatives don’t; ${n('affectedNonCarriers')} affected relatives don’t carry it and ${n('unaffectedCarriers')} unaffected ones do.`;
+}
 
 /* ================================================================
    Functional evidence

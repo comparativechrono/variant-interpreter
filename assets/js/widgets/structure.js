@@ -35,7 +35,7 @@ function loadMolstar() {
 const BANDS = [[90, 'very high'], [70, 'confident'], [50, 'low'], [0, 'very low']];
 const band = (v) => (BANDS.find(([t]) => v >= t) || [0, 'very low'])[1];
 
-/** showStructure(holder, { accession, residue, label, gene, clinvar }) */
+/** showStructure(holder, { accession, residue, label, gene, clinvar, what }) – what: the words for the marked residue */
 export async function showStructure(holder, opts) {
   holder.innerHTML = '';
   const status = h('p.small.muted', { 'aria-live': 'polite' }, 'Asking AlphaFold DB for the model…');
@@ -78,7 +78,7 @@ export async function showStructure(holder, opts) {
   status.textContent = '';
   info.append(
     h('p', `AlphaFold model ${entry.modelEntityId || entry.entryId} of ${entry.uniprotDescription || opts.accession} (version ${entry.latestVersion}). `,
-      'The variant’s residue is dark; ', pRes.length ? `${pRes.length} residues with pathogenic missense variants in ClinVar are red. ` : '',
+      `${opts.what || 'The variant’s residue'} is dark; `, pRes.length ? `${pRes.length} residues with pathogenic missense variants in ClinVar are red. ` : '',
       conf != null ? h('b', `AlphaFold’s confidence at residue ${opts.residue}: ${conf.toFixed(0)} (${band(conf)}).`) : ''),
     h('p.muted', 'A predicted model, not an experimental structure: where its confidence is low, the shape is unreliable. Drag to turn it, scroll to zoom. ', h('a', { href: `https://alphafold.ebi.ac.uk/entry/${opts.accession}`, target: '_blank', rel: 'noopener' }, 'AlphaFold DB'), '.'));
   return viewer;

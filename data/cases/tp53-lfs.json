@@ -315,7 +315,7 @@
      {
       "id": "p-brother",
       "shape": "male",
-      "x": 140,
+      "x": 110,
       "y": 480,
       "text": "Osteosarcoma at 15\nNow 36",
       "deceased": false,
@@ -343,7 +343,7 @@
      {
       "id": "p-proband",
       "shape": "female",
-      "x": 260,
+      "x": 270,
       "y": 480,
       "text": "Breast cancer at 29\nNow 33",
       "deceased": false,
@@ -371,7 +371,7 @@
      {
       "id": "p-sister",
       "shape": "female",
-      "x": 380,
+      "x": 430,
       "y": 480,
       "text": "Well at 30\nNot tested",
       "deceased": false,

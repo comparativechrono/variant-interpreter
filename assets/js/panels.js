@@ -20,10 +20,36 @@ async function cached(key, days, fn) {
   return v;
 }
 
+/** every panel (about 430, in pages of 100), kept for a week: PanelApp's own search parameter is ignored by its API */
+export async function allPanels() {
+  return cached('panelapp:all', 7, async () => {
+    const out = [];
+    let url = `${BASE()}/panels/?format=json`;
+    for (let page = 0; url && page < 12; page++) {
+      const d = await q1(() => fetchJSON(url, { retries: 1 }, 30000));
+      for (const p of d.results || []) {
+        out.push({ id: p.id, name: p.name, version: p.version, genes: p.stats ? p.stats.number_of_genes : null, relevantDisorders: p.relevant_disorders || [], group: [p.disease_group, p.disease_sub_group].filter(Boolean).join(': ') });
+      }
+      url = d.next;
+    }
+    return out;
+  });
+}
+
+/** panels whose name, disease group or test code (e.g. R27) matches the words: names that start with them first */
 export async function searchPanels(text) {
-  const url = `${BASE()}/panels/?search=${encodeURIComponent(text)}&format=json`;
-  const d = await q1(() => fetchJSON(url, {}, 20000));
-  return (d.results || []).map((p) => ({ id: p.id, name: p.name, version: p.version, genes: p.stats ? p.stats.number_of_genes : null, relevantDisorders: p.relevant_disorders || [] }));
+  const words = String(text || '').toLowerCase().split(/\s+/).filter(Boolean);
+  if (!words.length) return [];
+  const all = await allPanels();
+  const scored = [];
+  for (const p of all) {
+    const name = p.name.toLowerCase();
+    const hay = `${name} ${(p.group || '').toLowerCase()} ${p.relevantDisorders.join(' ').toLowerCase()}`;
+    if (!words.every((w) => hay.includes(w))) continue;
+    const score = (name.startsWith(words[0]) ? 0 : name.includes(words[0]) ? 1 : 2) + (p.relevantDisorders.some((r) => r.toLowerCase() === words[0]) ? -1 : 0);
+    scored.push([score, p]);
+  }
+  return scored.sort((a, b) => a[0] - b[0] || a[1].name.localeCompare(b[1].name)).map((x) => x[1]).slice(0, 25);
 }
 
 /** a panel's genes: [{symbol, rating, moi, phenotypes}] */
@@ -76,9 +102,10 @@ export class PanelPicker {
       try {
         const ps = await searchPanels(t);
         this.list.innerHTML = '';
-        if (!ps.length) this.list.appendChild(h('div.sg-h', 'No panel has that in its name.'));
+        if (!ps.length) this.list.appendChild(h('div.sg-h', 'No panel matches that (search by name, disease group, or a test code such as R27).'));
         for (const p of ps.slice(0, 12)) {
-          const b = h('button', { type: 'button' }, h('span.sg-kind', 'Panel ' + p.id), h('span.sg-main', p.name, h('span.sg-sub', `${p.genes != null ? p.genes + ' genes, ' : ''}version ${p.version}`)));
+          const codes = (p.relevantDisorders || []).filter((r) => /^R\d+$/.test(r));
+          const b = h('button', { type: 'button' }, h('span.sg-kind', 'Panel ' + p.id), h('span.sg-main', p.name, h('span.sg-sub', `${p.genes != null ? p.genes + ' genes, ' : ''}version ${p.version}${codes.length ? `; test ${codes.join(', ')}` : ''}`)));
           b.addEventListener('mousedown', (e) => e.preventDefault());
           b.addEventListener('click', () => {
             this.v = { id: p.id, name: p.name, version: p.version, source: 'PanelApp' };

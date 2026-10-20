@@ -151,7 +151,7 @@
      {
       "id": "p-sister",
       "shape": "female",
-      "x": 270,
+      "x": 240,
       "y": 320,
       "text": "Well at 4\nNormal newborn screen",
       "deceased": false,
@@ -179,9 +179,9 @@
      {
       "id": "p-proband",
       "shape": "male",
-      "x": 390,
+      "x": 420,
       "y": 320,
-      "text": "Phenylketonuria\n6 weeks",
+      "text": "Phenylketonuria\nAge 6 weeks",
       "deceased": false,
       "proband": true,
       "centerText": "",
@@ -235,7 +235,7 @@
      "#1a2332": "Phenylketonuria"
     },
     "legendVisible": true,
-    "legendX": 570,
+    "legendX": 590,
     "legendY": 160,
     "numberingMode": "numbers",
     "partnerGapMultiplier": 2,

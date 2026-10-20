@@ -26,10 +26,10 @@ const SEC4_LEAD = {
 function section4(type) {
   const lead = SEC4_LEAD[type];
   return [
-    { code: '4A', kind: 'case', group: '4ABCD', cap: { key: '4ABC', max: 90 }, text: `${lead} highly specific to this gene or region and essentially unique to it`, perConfirmed: 45, perAssumed: 30, perMin: 15, perMax: 45, unit: 'de novo case' },
-    { code: '4B', kind: 'case', group: '4ABCD', cap: { key: '4ABC', max: 90 }, text: `${lead} consistent with it and highly specific, but not unique`, perConfirmed: 30, perAssumed: 15, perMin: 0, perMax: 45, unit: 'de novo case' },
-    { code: '4C', kind: 'case', group: '4ABCD', cap: { key: '4ABC', max: 90 }, text: `${lead} consistent with it but not specific, or genetically heterogeneous`, perConfirmed: 15, perAssumed: 10, perMin: 0, perMax: 30, unit: 'de novo case' },
-    { code: '4D', kind: 'case', group: '4ABCD', text: `${lead} not consistent with what is known of the gene or region, or between cases`, per: 0, perMin: -30, perMax: 0, max: -30, unit: 'case' },
+    { code: '4A', kind: 'case', cap: { key: '4ABC', max: 90 }, text: `${lead} highly specific to this gene or region and essentially unique to it`, perConfirmed: 45, perAssumed: 30, perMin: 15, perMax: 45, unit: 'de novo case' },
+    { code: '4B', kind: 'case', cap: { key: '4ABC', max: 90 }, text: `${lead} consistent with it and highly specific, but not unique`, perConfirmed: 30, perAssumed: 15, perMin: 0, perMax: 45, unit: 'de novo case' },
+    { code: '4C', kind: 'case', cap: { key: '4ABC', max: 90 }, text: `${lead} consistent with it but not specific, or genetically heterogeneous`, perConfirmed: 15, perAssumed: 10, perMin: 0, perMax: 30, unit: 'de novo case' },
+    { code: '4D', kind: 'case', text: `${lead} not consistent with what is known of the gene or region, or between cases`, per: 0, perMin: -30, perMax: 0, max: -30, unit: 'case' },
     { code: '4E', kind: 'case', text: 'A reported proband with a highly specific phenotype consistent with this gene or region, whose inheritance is not known (not for developmental delay or autism alone)', per: 10, perMin: 0, perMax: 15, max: 30, unit: 'case' },
     { code: '4F', kind: 'choice', group: '4FGH', text: 'Segregation with a consistent phenotype among affected relatives: 3 or 4 segregations', pts: 15, note: 'Count relatives who have both the CNV and the phenotype, and obligate carriers; families can be added together' },
     { code: '4G', kind: 'choice', group: '4FGH', text: '5 or 6 segregations', pts: 30 },
@@ -69,7 +69,7 @@ function section5() {
     ] },
     { code: '5F', kind: 'choice', group: '5', text: 'Inheritance not known or not informative', pts: 0 },
     { code: '5G', kind: 'choice', group: '5', text: 'Inheritance not known; non-specific phenotype, consistent with the cases reported', pts: 10, min: 0, max: 15 },
-    { code: '5H', kind: 'choice', group: '5', text: 'Inheritance not known; highly specific phenotype, consistent with the cases reported', pts: 15, min: 0, max: 30, note: 'The 2021 correction changed the default for losses from 0.30 to 0.15' }
+    { code: '5H', kind: 'choice', group: '5', text: 'Inheritance not known; highly specific phenotype, consistent with the cases reported', pts: 15, min: 0, max: 30, note: 'The 2021 correction to the paper changed the default for losses from 0.30 to 0.15 (ClinGen’s online calculator still shows 0.30)' }
   ];
 }
 

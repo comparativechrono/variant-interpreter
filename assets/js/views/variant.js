@@ -197,7 +197,7 @@ async function variantPage(root, { v, pt, section, q }) {
     head.innerHTML = '';
     const g = d && d.gene;
     const title = h('h1.vtitle',
-      g ? h('a.gene', { href: link('/gene/' + g) }, g) : null,
+      g ? h('a.gene', { href: link('/gene/' + g + (pt ? '?patient=' + pt.id : '')), title: pt ? `The gene, compared with Patient ${pt.id}` : 'The gene' }, g) : null,
       h('span.hgvs', d && d.hgvsc ? d.hgvsc.split(':')[1] : `${v.chrom}-${v.pos}-${v.ref}-${v.alt || '-'}`),
       d && d.hgvsp ? h('span.hgvs.vp', d.hgvsp.replace(/^p\.\(?/, 'p.(').replace(/\)?$/, ')')) : null);
     const facts = factList([

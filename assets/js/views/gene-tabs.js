@@ -29,7 +29,7 @@ async function contextPicker(st, rows, onChange, hint) {
   const withVar = new Set(rows.map((r) => r.p.id));
   const opts = [['', withVar.size ? `Your patients with a variant in ${st.symbol}` : 'No one']]
     .concat(ps.map((p) => [p.id, `Patient ${p.id}${p.ref ? ' – ' + p.ref : ''}${withVar.has(p.id) ? '' : ' (no variant in the gene)'}`]));
-  const sel = select(opts, st.query.patient || '', { 'aria-describedby': 'ctx-hint' });
+  const sel = select(opts, st.query.patient || '');
   sel.addEventListener('change', () => {
     st.query.patient = sel.value || undefined;
     // keep the choice in the address, so that it can be shared or reloaded
@@ -322,7 +322,7 @@ async function drawProtein(st, box) {
     const m = await import('../widgets/structure.js');
     const aa = up.sequence ? up.sequence[residue - 1] : '';
     try {
-      viewer = await m.showStructure(holder3d, { accession: up.accession, residue, label: `${aa || 'residue '}${residue}`, gene: g.symbol, clinvar: cv });
+      viewer = await m.showStructure(holder3d, { accession: up.accession, residue, label: `${aa || 'residue '}${residue}`, gene: g.symbol, clinvar: cv, what: 'The marked residue' });
     } catch (e) {
       holder3d.innerHTML = '';
       holder3d.appendChild(note('bad', h('p', 'The 3D model could not be shown: ' + e.message)));

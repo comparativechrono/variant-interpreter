@@ -48,7 +48,7 @@ export class CNVScore {
   /** the items that exclude this one (its group). 4A to 4D are categories for each reported case, so they go together */
   mates(code) {
     const it = itemOf(this.type, code);
-    if (!it || !it.group || it.group === '4ABCD') return [];
+    if (!it || !it.group) return [];
     return exclusions(this.type, code);
   }
   /** change an item; turning it on turns off the items it excludes. Returns the codes turned off */

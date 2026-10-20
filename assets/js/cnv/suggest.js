@@ -46,7 +46,8 @@ export function geneCount(genes) {
     if (f) fams.set(f[1], (fams.get(f[1]) || 0) + 1);
     else n++;
   }
-  return { all: pc.length, counted: n + fams.size, families: Array.from(fams, ([name, k]) => ({ name, n: k })) };
+  // (a family with one gene here counts as that gene: only those with two or more are told of)
+  return { all: pc.length, counted: n + fams.size, families: Array.from(fams, ([name, k]) => ({ name, n: k })).filter((f) => f.n >= 2) };
 }
 
 /* the bands of section 3, by the number of genes */

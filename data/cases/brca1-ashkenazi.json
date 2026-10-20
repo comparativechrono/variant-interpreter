@@ -262,7 +262,7 @@
      {
       "id": "p-proband",
       "shape": "female",
-      "x": 200,
+      "x": 180,
       "y": 480,
       "text": "Breast cancer at 37\nNow 38",
       "deceased": false,
@@ -290,7 +290,7 @@
      {
       "id": "p-sister",
       "shape": "female",
-      "x": 320,
+      "x": 360,
       "y": 480,
       "text": "Well at 35\nNot tested",
       "deceased": false,

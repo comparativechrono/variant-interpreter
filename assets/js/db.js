@@ -284,7 +284,8 @@ export async function importData(doc, opts = {}) {
     const p = Object.assign(blankPatient(), clone(src));
     const old = p.id;
     const taken = old ? await getPatient(old) : null;
-    if (!old || taken || opts.renumber) {
+    // patients are numbered here: a case file's own ids (e.g. "case-tp53") and taken numbers get the next number
+    if (!old || taken || opts.renumber || !/^\d+$/.test(String(old))) {
       p.id = null;
     }
     if (opts.caseId) p.caseId = opts.caseId;
