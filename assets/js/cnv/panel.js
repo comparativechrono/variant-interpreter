@@ -361,7 +361,8 @@ export function cnvWarnings(sc) {
   const out = [];
   const s4 = Object.keys(sc.items).filter((k) => /^4[A-N]$/.test(k) && on(k));
   if (on('2A') && s4.length) out.push(`Section 2 already gives points for an established ${sc.type === 'loss' ? 'haploinsufficient' : 'triplosensitive'} gene or region (2A): the standards go straight to section 5, without ${s4.join(', ')}.`);
-  if (sc.type === 'loss' && on('2H') && on('2A')) out.push('2H is for when no established haploinsufficient gene or region is in the CNV: not with 2A.');
+  const hiItems = ['2A', '2B', '2C-1', '2C-2', '2D-1', '2D-2', '2D-3', '2D-4'].filter((k) => sc.items[k] && on(k));
+  if (sc.type === 'loss' && on('2H') && hiItems.length) out.push(`2H is for when no established haploinsufficient gene or region is involved: the ACGS 2024 guidelines do not use it once 2A to 2D-4 apply (here ${hiItems.join(', ')}).`);
   if (on('4O') && on('2A')) out.push('4O (common in the population) and 2A (an established dosage-sensitive gene or region) contradict each other: look again at both.');
   if (on('1B') && (on('2A') || on('3B') || on('3C'))) out.push('1B says there are no protein-coding genes or functional elements, which the other items contradict.');
   const s3 = ['3A', '3B', '3C'].some(on);

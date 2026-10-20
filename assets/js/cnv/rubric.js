@@ -97,7 +97,7 @@ export const RUBRIC = {
       ] },
       { code: '2F', kind: 'once', text: 'Completely contained within an established benign CNV region', pts: -100, min: -100, max: 0 },
       { code: '2G', kind: 'once', text: 'Overlaps an established benign CNV, but includes more genomic material', pts: 0 },
-      { code: '2H', kind: 'once', text: 'Two or more haploinsufficiency predictors suggest that at least one gene in the interval is haploinsufficient', pts: 15, note: 'E.g. pLI ≥ 0.9, LOEUF < 0.35 (gnomAD v2; v4 uses < 0.6) and pHaplo ≥ 0.86. Not when the interval already contains a gene with an HI score of 3.' }
+      { code: '2H', kind: 'once', text: 'Two or more haploinsufficiency predictors suggest that at least one gene in the interval is haploinsufficient', pts: 15, note: 'E.g. pHaplo ≥ 0.86 with gnomAD’s constraint (pLI ≥ 0.9, or LOEUF < 0.35 in v2 and < 0.6 in v4). pLI and LOEUF come from the same data, so together they count as one predictor (ACGS 2024). Counted once, however many genes; not once 2A to 2D-4 apply.' }
     ] },
     { key: '3', title: 'The number of protein-coding RefSeq genes, whole or in part', note: 'Families of genes of no known clinical relevance (e.g. olfactory receptors) count as one gene; clusters linked to disease count gene by gene.', items: [
       { code: '3A', kind: 'choice', group: '3', text: '0 to 24 genes', pts: 0, genes: [0, 24] },

@@ -77,12 +77,12 @@ export const TREE = {
   },
   dup: {
     q: 'Is the duplication in tandem, and what does it do to the reading frame?',
-    help: 'A duplication must be wholly within the gene, and in tandem (next to the original copy) to disrupt it.',
+    help: 'A duplication must be wholly within the gene, and in tandem (next to the original copy) to disrupt it. Where its location has not been shown, it is presumed to be in tandem.',
     options: [
       { label: 'Proven in tandem; the frame is disrupted and NMD is predicted', result: 'VS' },
-      { label: 'Presumed in tandem; the frame is disrupted and NMD is predicted', result: 'S' },
-      { label: 'Proven in tandem, but the frame is kept or NMD is not predicted', result: 'NA' },
-      { label: 'Not in tandem, or not known', result: 'NA' }
+      { label: 'Location not proven (presumed in tandem); the frame is disrupted and NMD is predicted', result: 'S' },
+      { label: 'In tandem (proven or presumed), but no effect, or an unknown effect, on the frame or NMD', result: 'NA' },
+      { label: 'Proven not in tandem (inserted elsewhere in the genome)', result: 'NA' }
     ]
   },
   initiation: {

@@ -105,7 +105,7 @@ function frameworks(a) {
     const s = fw(k).splice;
     return `PP3 ${s.pp3Strict ? '>' : '≥'} ${s.pp3}, BP4 ${s.bp4Strict ? '<' : '≤'} ${s.bp4}`;
   };
-  const pp3 = (k) => (k === 'acgs2024' ? `Supporting only (REVEL ≥ ${fw(k).predictor.REVEL.pp3.P}, < ${fw(k).predictor.REVEL.bp4.P})` : k === 'clingen' ? 'Calibrated tools, up to PP3 strong and BP4 very strong (Pejaver et al. 2022)' : 'Supporting by default; stronger by judgement');
+  const pp3 = (k) => (k === 'acgs2024' ? `Supporting only (REVEL ≥ ${fw(k).predictor.REVEL.pp3.P}, < ${fw(k).predictor.REVEL.bp4.P})` : k === 'clingen' ? 'Calibrated tools, up to PP3 strong and BP4 strong (Pejaver et al. 2022)' : 'Supporting by default; stronger by judgement');
   const rows = [
     ['Combining', (k) => (fw(k).combine === 'points' ? 'Points (Tavtigian et al. 2018, 2020)' : 'The rules of Table 5 (Richards et al. 2015)')],
     ['PM2 starts at', (k) => SW[defaultFor('PM2', k)]],
@@ -202,11 +202,11 @@ function combining(a) {
 
   // the bands of a VUS
   a.appendChild(h('h2', 'The bands of uncertain significance'));
-  a.appendChild(h('p', 'A variant of uncertain significance may be close to likely pathogenic or nowhere near it. UK laboratories (the ACGS) describe this with bands, by points; the site shows one band for each whole number of points from 0 to 5:'));
+  a.appendChild(h('p', 'A variant of uncertain significance may be close to likely pathogenic or nowhere near it. The ACGS 2024 guidelines split it into three groups by points (0–1, 2–3 and 4–5, in their Figure 3), for use within the laboratory and not on reports. NHS England’s GeNotes names six bands, from ice cold to hot, one for each whole number of points from 0 to 5; the site shows those:'));
   const bands = h('ul.vus-bands');
   for (const b of VUS_BANDS) bands.appendChild(h('li', h('span.vusband.' + b.key, b.label), h('span', `${b.points} ${b.points === 1 ? 'point' : 'points'}`), h('span.small.muted', `probability ${pct(posterior(b.points))}`)));
   a.appendChild(bands);
-  a.appendChild(h('p.small.muted', 'A hot VUS may be worth more work (testing relatives, a functional study); an ice-cold one is unlikely to become pathogenic. Negative points make a variant likely benign, so a VUS always has 0 to 5 points.'));
+  a.appendChild(h('p.small.muted', 'A hot VUS may be worth more work (testing relatives, a functional study); an ice-cold one is unlikely to become pathogenic. Negative points make a variant likely benign and six or more likely pathogenic, so the bands cover 0 to 5 points. A VUS outside that range (a single criterion under the ACGS rule of two, or conflicting evidence under the 2015 rules) has no band.'));
 
   // examples, worked by the engine
   a.appendChild(h('h2', 'Examples'));
@@ -436,7 +436,7 @@ const GLOSSARY = [
   ['SpliceAI', 'A deep-learning tool (Jaganathan et al. 2019) that predicts how a variant changes the chance that nearby bases are used as splice acceptors or donors, as four scores from 0 to 1.'],
   ['Splice site, canonical', 'The two bases at each end of an intron (GT at the 5′ end, AG at the 3′ end): the ±1 and ±2 positions, which PVS1 covers.'],
   ['VUS', 'A variant of uncertain significance: there is not enough evidence to call it pathogenic or benign. It should not be used to make clinical decisions.'],
-  ['VUS bands', 'The ACGS’s grading of a VUS by its points, from ice cold (0) to hot (5): how near it is to likely pathogenic.'],
+  ['VUS bands', 'A grading of a VUS by its points, from ice cold (0) to hot (5), as NHS England’s GeNotes names them (the ACGS groups them in three): how near it is to likely pathogenic.'],
   ['Zygosity', 'How many copies of the variant a person has: heterozygous, homozygous or hemizygous (or mosaic).']
 ];
 function glossary(a) {

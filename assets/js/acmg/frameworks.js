@@ -30,7 +30,7 @@ export const FRAMEWORKS = {
     naming: 'acgs',
     defaults: { PM2: 'M' },
     allowed: {
-      PP3: ['P'], BP4: ['P'], PM2: ['M', 'P'], PP4: ['S', 'M', 'P'], PS4: ['S', 'M', 'P'], PM1: ['S', 'M', 'P'], PM4: ['M', 'P'], PM5: ['S', 'M', 'P'], PS1: ['S', 'M'], BS1: ['S', 'P'], BP7: ['S', 'P']
+      PP3: ['P'], BP4: ['P'], PM2: ['M', 'P'], PP4: ['S', 'M', 'P'], PS4: ['S', 'M', 'P'], PM1: ['S', 'M', 'P'], PM4: ['M', 'P'], PM5: ['S', 'M', 'P'], PS1: ['S', 'M', 'P'], BS1: ['S', 'P'], BP7: ['S', 'P']
     },
     retired: ['PP5', 'BP6'],
     predictor: { REVEL: { pp3: { P: 0.7 }, bp4: { P: 0.4, strict: true } } },

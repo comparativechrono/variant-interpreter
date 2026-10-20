@@ -325,9 +325,9 @@
     "notes": {
      "PS2": "De novo with maternity and paternity confirmed in at least four published people with consistent phenotypes; this patient is another (the trio exome confirms parentage). Under the panel’s current specification (v2.0) each such person with a complex neurodevelopmental disorder scores 1 point: 2 points is strong, 4 very strong.",
      "PS3": "Patch-clamp studies: peak sodium current 51% of normal.",
-     "PM1": "In a region of the channel enriched for pathogenic variants.",
+     "PM1": "Moderate, the only strength the panel uses: the residue is in one of its pathogenic-enriched regions of the channel (the panel’s PM1 table).",
      "PM2": "Supporting: absent from gnomAD (v4.1, and v2.1.1 when the panel curated it).",
-     "PP3": "Moderate: REVEL 0.95, above the panel’s threshold of 0.773 (Pejaver et al. 2022). The ACGS 2024 guidelines would use PP3 at supporting strength only."
+     "PP3": "Moderate: REVEL 0.95 would reach strong by ClinGen’s calibration (0.932; Pejaver et al. 2022), but the panel caps PP3 at moderate, and PM1 with PP3 at strong in all. The ACGS 2024 guidelines would use PP3 at supporting strength only."
     }
    }
   }

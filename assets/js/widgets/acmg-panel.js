@@ -233,7 +233,7 @@ export function warnings(cls) {
   if (F === 'acgs2024' && m('PVS1') && s('PVS1') === 'VS' && m('PS3')) out.push('The ACGS 2024 guidelines don’t use PS3 alongside full-strength PVS1.');
   if (m('PM2') && (m('BS1') || m('BA1'))) out.push('PM2 (absent or very rare) and BS1 or BA1 (too common) contradict each other.');
   if (m('PS1') && m('PM5')) out.push('PS1 (the same amino acid change) and PM5 (a different one at the residue) are not usually both used for one variant.');
-  if (m('PM1') && m('PP3') && (s('PP3') === 'S' && s('PM1') !== 'P')) out.push('PM1 and PP3 together count at most as strong (Pejaver et al. 2022): with PP3_Strong, PM1 can add only supporting.');
+  if (m('PM1') && m('PP3') && F !== 'acmg2015' && POINTS[s('PM1')] + POINTS[s('PP3')] > 4) out.push('PM1 and PP3 together count at most 4 points (Pejaver et al. 2022): the points here are capped, so part of PM1 does not count.');
   if (m('PS2') && m('PM6')) out.push('PS2 and PM6 are one tally of de novo occurrences: use one code, at the strength the points reach.');
   if (m('PP1') && m('BS4')) out.push('PP1 and BS4 both describe the segregation in the family: they should not both be met.');
   if (m('BP7') && !m('BP4') && F !== 'acmg2015') out.push('ClinGen (Walker et al. 2023) uses BP7 only when BP4 is met for the splicing prediction.');

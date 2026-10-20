@@ -348,17 +348,18 @@
     "criteria": [
      "PVS1",
      "PS4",
-     "PM3_VeryStrong"
+     "PM3_VeryStrong",
+     "PP1"
     ],
-    "source": "ClinGen Hearing Loss expert panel (VCEP), Evidence Repository; ClinVar VCV000017004 (Pathogenic, reviewed by expert panel, 2018-09-20).",
+    "source": "ClinGen Hearing Loss expert panel (VCEP), Evidence Repository; ClinVar VCV000017004 (Pathogenic, reviewed by expert panel, 2018-09-20). PP1 is from this family, by the panel’s rule.",
     "notes": {
-     "PVS1": "GJB2 has a single coding exon and loss of function is the well-known mechanism: a frameshift at codon 12 removes almost all of the protein.",
+     "PVS1": "GJB2 has a single coding exon and loss of function is the well-known mechanism: a frameshift at codon 12 removes almost all of the protein. The panel applied PVS1 at full strength for that reason. The decision tree, followed step by step, gives PVS1_Strong: a premature stop in the last (here the only) coding exon escapes nonsense-mediated decay, and the lost part is more than 10% of the protein. The class is pathogenic either way.",
      "PS4": "Far commoner in people with hearing loss than in controls: about 37% of European hearing-loss alleles in a meta-analysis of 52 studies, against under 1% of gnomAD’s European alleles.",
      "PM3": "Very strong: more than 15 people homozygous, or compound heterozygous with other pathogenic GJB2 variants, in a single published series.",
-     "BA1": "Met by the frequency (a filtering allele frequency of 0.92% when the panel curated it, 0.81% in gnomAD v4.1: above the panel’s BA1 threshold of 0.5% for recessive hearing loss) but not counted: the variant is on the panel’s list of exceptions, as GJB2 c.109G>A is on ClinGen’s general list. A pathogenic variant of a recessive disorder can be common, because carriers are well.",
+     "BA1": "Met by the frequency (a filtering allele frequency of 0.92% when the panel curated it, 0.81% in gnomAD v4.1: above the panel’s BA1 threshold of 0.5% for recessive hearing loss) but not counted: the variant is on the panel’s list of exceptions, as GJB2 c.109G>A is on ClinGen’s general list. A pathogenic variant of a recessive disorder can be common, because carriers are well. The panel’s record lists BA1 as met but not counted; don’t tick it on this site, where BA1 makes a variant benign outright.",
      "BS1": "Not met, for the same reason (the panel’s BS1 threshold for recessive hearing loss is 0.3%).",
      "PM2": "Not met: common in gnomAD (about 0.8% of European alleles).",
-     "PP1": "Not applied by the panel. In this family the affected sister is homozygous and the hearing brother is not: a likelihood ratio of about 5, moderate by Tavtigian’s odds but fewer than 3 meioses by counting. It would not change the class."
+     "PP1": "Supporting, by the panel’s own rule (v2.0): for a recessive disorder, segregation in one affected relative is supporting, two moderate and three strong. Here the affected sister is homozygous and the hearing brother is not. The calculator gives a likelihood ratio of about 5: moderate by Tavtigian’s odds, but not met by counting meioses as the ACGS do. The panel’s own classification had no family data. It would not change the class."
     }
    }
   }

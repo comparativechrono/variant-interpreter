@@ -106,14 +106,32 @@ export function maxCredibleAF({ inheritance, prevalence, allelic, genetic, penet
   return (p * g * a) / (2 * f);
 }
 
+/* Poisson sums in log space: the terms e^−λ λ^k / k! underflow to 0 once λ passes about 745, which a common
+   variant in gnomAD's 1.6 million alleles easily does (a frequency of 0.05% is enough) */
+const logAdd = (a, b) => (a === -Infinity ? b : b === -Infinity ? a : a > b ? a + Math.log1p(Math.exp(b - a)) : b + Math.log1p(Math.exp(a - b)));
+/** ln P(X ≤ k) for X ~ Poisson(λ) */
+export function logPoissonCdf(k, lambda) {
+  if (!(lambda > 0)) return 0;
+  if (k < 0) return -Infinity;
+  const lnL = Math.log(lambda);
+  let logTerm = -lambda, logCum = logTerm;
+  for (let i = 1; i <= k; i++) {
+    logTerm += lnL - Math.log(i);
+    logCum = logAdd(logCum, logTerm);
+  }
+  return Math.min(0, logCum);
+}
+
 /** the largest allele count consistent (at 95% confidence) with a true frequency of af among an alleles (Poisson) */
 export function maxTolerableAC(af, an, conf = 0.95) {
   const lambda = af * an;
-  let k = 0, cum = Math.exp(-lambda), term = cum;
-  while (cum < conf && k < 1e6) {
+  if (!(lambda > 0)) return 0;
+  const lnL = Math.log(lambda), lnConf = Math.log(conf);
+  let k = 0, logTerm = -lambda, logCum = logTerm;
+  while (logCum < lnConf && k < 1e7) {
     k++;
-    term *= lambda / k;
-    cum += term;
+    logTerm += lnL - Math.log(k);
+    logCum = logAdd(logCum, logTerm);
   }
   return k;
 }
@@ -122,16 +140,10 @@ export function maxTolerableAC(af, an, conf = 0.95) {
     allele count would still be likely to be seen 5% of the time or more (Poisson, one-sided) */
 export function faf95(ac, an) {
   if (!an || !ac) return 0;
+  // for large counts the Poisson is close to normal: λ = ac − 1.645 √ac
+  if (ac > 5000) return Math.max(0, ac - 1.6449 * Math.sqrt(ac)) / an;
   let lo = 0, hi = Math.max(1e-12, Math.min(1, (ac / an) * 10 + 1e-3));
-  const pAtLeast = (af) => {
-    const lambda = af * an;
-    let cum = 0, term = Math.exp(-lambda);
-    for (let k = 0; k < ac; k++) {
-      cum += term;
-      term *= lambda / (k + 1);
-    }
-    return 1 - cum; // P(X ≥ ac)
-  };
+  const pAtLeast = (af) => 1 - Math.exp(logPoissonCdf(ac - 1, af * an)); // P(X ≥ ac)
   for (let i = 0; i < 60; i++) {
     const mid = (lo + hi) / 2;
     if (pAtLeast(mid) > 0.05) hi = mid;

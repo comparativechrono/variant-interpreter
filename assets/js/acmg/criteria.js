@@ -29,10 +29,10 @@ export const CRITERIA = [
     name: 'Null variant where loss of function causes disease',
     short: 'A nonsense, frameshift, canonical ±1 or 2 splice site, start-loss or deletion of exons, in a gene where loss of function is a known way of causing the disease.',
     guide: [
-      'Use it only when the gene–disease relationship is strong or definitive (the ACGS accepts moderate) and loss of function (LoF) is an established cause of the disease: e.g. several pathogenic LoF variants in ClinVar, a ClinGen haploinsufficiency score of 3, or Gene2Phenotype’s “loss of function” mechanism. Constraint (pLI, LOEUF) shows the gene is intolerant of LoF, not that LoF causes this disease. Never when the disease is caused by gain of function.',
+      'Use it only when the gene–disease relationship is at least moderate (the decision tree assumes a ClinGen validity of moderate, strong or definitive, as the ACGS repeats) and loss of function (LoF) is an established cause of the disease: e.g. several pathogenic LoF variants in ClinVar, a ClinGen haploinsufficiency score of 3, or Gene2Phenotype’s “loss of function” mechanism. Constraint (pLI, LOEUF) shows the gene is intolerant of LoF, not that LoF causes this disease. Never when the disease is caused by gain of function.',
       'Work out the strength with the ClinGen decision tree (Abou Tayoun et al. 2018), built into the PVS1 section of the variant’s page. A premature stop that triggers nonsense-mediated decay (NMD) usually keeps very strong; one that escapes NMD (in the last exon, or within 50 bases of the end of the penultimate one) is strong if it removes a critical region or more than 10% of the protein, moderate otherwise.',
       'Check the transcript: a variant in an exon that is skipped in the transcripts expressed in the relevant tissue may not cause LoF.',
-      'Never with PM4, and not with PP3 for the same effect (ACGS: not with PP3 at all, nor with PM1, PP2, or PS3 alongside full-strength PVS1). With PM2_Supporting it makes a variant likely pathogenic (ClinGen 2020).',
+      'Never with PM4, nor with PP3 for the same effect. The ACGS 2024 guidelines: never with PM1, PM4, PP2 or PP3; and not with PS3 when PVS1 is very strong (for a variant that escapes NMD, functional evidence may raise PVS1 instead). With PM2_Supporting it makes a variant likely pathogenic (ClinGen 2020).',
       'The ACGS adds: a canonical +2T>C needs a SpliceAI score of 0.8 or more (or RNA evidence) before PVS1 is used, and +2C>T does not meet PVS1; a stop-loss with no in-frame stop in the 3′ UTR (nonstop decay) can meet PVS1.'
     ],
     refs: ['abou2018', 'richards2015', 'acgs2024']
@@ -67,7 +67,7 @@ export const CRITERIA = [
     guide: [
       'The assay must reflect the disease mechanism and have been validated with known pathogenic and benign variants (Brnich et al. 2019). Without a formal calculation, 10 controls or fewer allow supporting strength, 11 or more (of both kinds) moderate. With the odds of pathogenicity (OddsPath) worked out from the controls, any strength: above 2.1 supporting, 4.3 moderate, 18.7 strong, 350 very strong. The calculator in the Functional section does it.',
       'ACGS 2024: assays of the protein only; tests at the level of the gene or tissue (an enzyme assay, a biopsy) are evidence for PP4 instead.',
-      'Patient-derived material (e.g. RNA from blood showing exon skipping) counts as functional evidence, and an RNA study of splicing may be used under PVS1 instead, but not both.',
+      'Not for RNA studies of splicing (from the patient’s blood, or a minigene): ClinGen (Walker et al. 2023) and the ACGS 2024 guidelines put those under PVS1 (RNA) when splicing is abnormal, or BP7 (RNA) when it is normal. PS3 is for assays of the protein’s function; using it as well would count the splicing twice.',
       'Don’t count the same experiment twice under PS3 and PM1.'
     ],
     refs: ['brnich2019', 'richards2015', 'acgs2024']
@@ -92,7 +92,7 @@ export const CRITERIA = [
       'For missense and in-frame changes. Look at the gene’s protein view: are pathogenic missense variants clustered here, and are benign ones absent from the region?',
       'Many ClinGen expert panels define the gene’s hotspots or critical residues (the CSpec registry, shown in the Gene section). The ACGS 2024 guidelines allow PM1_Strong for some (e.g. FBN1’s calcium-binding EGF cysteines, glycines of a collagen triple helix) and PM1_Supporting for others; not for truncating or splicing variants.',
       'Don’t reuse the same evidence for PM5 or PP2.',
-      'ClinGen (Pejaver et al. 2022) caps PM1 and PP3 together at strong: if PP3 is strong, PM1 can add at most supporting.'
+      'ClinGen (Pejaver et al. 2022) limits PM1 and PP3 together to 4 points (strong): with PP3_Moderate, PM1 adds at most moderate; with PP3_Strong, PM1 adds nothing. The points on this site are capped that way.'
     ],
     refs: ['richards2015', 'pejaver2022', 'acgs2024']
   },
@@ -102,7 +102,7 @@ export const CRITERIA = [
     short: 'Absent from population databases such as gnomAD, or at a frequency far too low to matter (for recessive disorders).',
     guide: [
       'The strength depends on the guidelines followed. ClinGen (2020) applies PM2 at supporting strength: PM2_Supporting. The ACGS 2024 guidelines keep it at moderate (PM2_mod), and use supporting when the population data are weak; with the ACGS, the frequency must also be at least ten times below the disorder’s BS1 threshold.',
-      'ClinGen’s guidance for gnomAD v4 (2025): compare with a threshold calculated for the disorder rather than demand complete absence.',
+      'ClinGen’s expert panels set their own PM2 thresholds for their genes (the CSpec registry, shown in the Gene section), often a grpmax filtering allele frequency below a set value, with no homozygotes, rather than complete absence.',
       'Check the coverage: absence means something only where gnomAD sequenced the region well. Indels and repeats are called less reliably.',
       'For a recessive disorder a rare frequency can still meet PM2_Supporting, below the gene’s threshold (e.g. a grpmax filtering allele frequency below 0.0001, or one the frequency calculator gives).',
       'A variant cannot meet both PM2 and BS1 or BA1.'
@@ -127,7 +127,8 @@ export const CRITERIA = [
     guide: [
       'Not for indels in repetitive regions (use BP3 there if the region has no known function).',
       'Not together with PVS1 for the same variant.',
-      'A single amino acid deletion may warrant PM4_Supporting.'
+      'ACGS 2024: a deletion or insertion of a single amino acid is PM4_Supporting unless the gene gives reason for moderate; not where the region is not conserved. A stop-loss with another stop codon in frame in the 3′ UTR is PM4; with none, nonstop decay is expected and PVS1 applies instead.',
+      'A truncating variant in the last exon of a gene whose disease comes from gain of function (e.g. SRCAP, NOTCH2) is PM4, not PVS1 (ACGS 2024).'
     ],
     refs: ['richards2015', 'acgs2024']
   },
@@ -211,7 +212,7 @@ export const CRITERIA = [
     short: 'The allele frequency is above 5% in a population of gnomAD (or another large database).',
     guide: [
       'ClinGen (Ghosh et al. 2018): above 0.05 in a continental population with at least 2,000 alleles; for gnomAD v4, use the filtering allele frequency of the group with the highest one (grpmax FAF), which leaves out the Amish, Ashkenazi Jewish, Finnish and unassigned groups.',
-      'Nine variants are exceptions, common yet pathogenic, among them HFE p.Cys282Tyr and p.His63Asp, GJB2 p.Val37Ile, BTD p.Asp444His and ACAD9 c.-44_-41dup (ClinGen’s list, which the site checks).',
+      'Nine variants are exceptions, common yet pathogenic, among them HFE p.Cys282Tyr and p.His63Asp, GJB2 p.Val37Ile, BTD p.Asp424His (p.Asp444His on the older transcript) and ACAD9 c.-44_-41dup (ClinGen’s list, which the site checks).',
       'BA1 alone makes a variant benign.'
     ],
     refs: ['ghosh2018', 'richards2015']
@@ -223,7 +224,8 @@ export const CRITERIA = [
     guide: [
       'Work out the highest credible allele frequency for a pathogenic variant (Whiffin et al. 2017) with the calculator in the Population section, and compare it with the grpmax filtering allele frequency.',
       'For a recessive disorder, use the carrier frequency; for a dominant one with incomplete penetrance, allow for it.',
-      'BS1_Supporting is used by some expert panels just above their PM2 threshold.'
+      'BS1_Supporting is used by some expert panels just above their PM2 threshold.',
+      'ACGS 2024: for a highly penetrant dominant disorder, BS1_Strong alone can make a variant likely benign (an exception to its rule of at least two criteria).'
     ],
     refs: ['whiffin2017', 'richards2015', 'acgs2024']
   },
@@ -277,11 +279,11 @@ export const CRITERIA = [
     refs: ['richards2015']
   },
   {
-    code: 'BP4', dir: 'B', def: 'P', strengths: ['VS', 'S', 'M', 'P'], group: 'computational', section: 'predictions',
+    code: 'BP4', dir: 'B', def: 'P', strengths: ['S', 'M', 'P'], group: 'computational', section: 'predictions',
     name: 'Computational evidence for no impact',
     short: 'Computer predictions agree that the variant has no effect on the gene or its product.',
     guide: [
-      'With one calibrated predictor (Pejaver et al. 2022): e.g. REVEL ≤ 0.290 supporting, ≤ 0.183 moderate, ≤ 0.016 strong and ≤ 0.003 very strong. The ACGS 2024 guidelines use BP4 at supporting strength only, with REVEL < 0.4.',
+      'With one calibrated predictor (Pejaver et al. 2022): e.g. REVEL ≤ 0.290 supporting, ≤ 0.183 moderate and ≤ 0.016 strong; they recommend no more than strong. The ACGS 2024 guidelines use BP4 at supporting strength only, with REVEL < 0.4.',
       'For splicing, SpliceAI ≤ 0.1 meets BP4 at supporting strength (Walker et al. 2023).',
       'For a synonymous or deep intronic variant with no predicted splicing effect, see BP7.'
     ],
@@ -306,8 +308,8 @@ export const CRITERIA = [
     name: 'Synonymous (or deep intronic) with no predicted splicing effect',
     short: 'A synonymous change, or an intronic one beyond the splice region, predicted not to affect splicing, at a position that is not highly conserved.',
     guide: [
-      'ClinGen (Walker et al. 2023): only when BP4 is met for splicing (SpliceAI ≤ 0.1), and then the two are used together. Not at the first base or the last three bases of an exon. For intronic variants: +7 or further into the intron at its 5′ end, −21 or further at its 3′ end (−4 at the least).',
-      'The ACGS 2024 guidelines also ask that the nucleotide is not highly conserved (e.g. phyloP below 0.1), and allow BP7 for untranslated regions.'
+      'ClinGen (Walker et al. 2023): only when BP4 is met for splicing (SpliceAI ≤ 0.1), and then the two are used together. Not at the first base or the last three bases of an exon. For intronic variants: at or beyond +7 at the intron’s 5′ end, or −21 at its 3′ end. An RNA study showing normal splicing gives BP7_Strong (RNA), wherever the variant is.',
+      'The ACGS 2024 guidelines also ask that the nucleotide is not highly conserved (e.g. phyloP below 0.1), and allow BP7 for untranslated regions. Walker et al. advise against weighing conservation for synonymous and intronic variants.'
     ],
     refs: ['walker2023', 'richards2015']
   }
@@ -316,13 +318,19 @@ export const CRITERIA = [
 export const BY_CODE = Object.fromEntries(CRITERIA.map((c) => [c.code, c]));
 
 /* ClinGen's BA1 exceptions (July 2018): common, yet pathogenic. Gene and coding change */
+/* ClinGen's exceptions to BA1 (Ghosh et al. 2018): [gene, change on the MANE Select transcript, ClinGen allele id,
+   change as the paper wrote it]. BTD's MANE transcript (NM_001370658.1) numbers its exception c.1270G>C p.(Asp424His);
+   the paper, on NM_000060, wrote c.1330G>C p.(Asp444His). Matched by allele id where gnomAD gives one. */
 export const BA1_EXCEPTIONS = [
-  ['ACAD9', 'c.-44_-41dup'], ['GJB2', 'c.109G>A'], ['HFE', 'c.187C>G'], ['HFE', 'c.845G>A'], ['MEFV', 'c.1105C>T'],
-  ['MEFV', 'c.1223G>A'], ['PIBF1', 'c.1214G>A'], ['ACADS', 'c.511C>T'], ['BTD', 'c.1330G>C']
+  ['ACAD9', 'c.-44_-41dup', 'CA114709'], ['GJB2', 'c.109G>A', 'CA172210'], ['HFE', 'c.187C>G', 'CA113797'], ['HFE', 'c.845G>A', 'CA113795'],
+  ['MEFV', 'c.1105C>T', 'CA280114'], ['MEFV', 'c.1223G>A', 'CA280116'], ['PIBF1', 'c.1214G>A', 'CA210261'], ['ACADS', 'c.511C>T', 'CA312214'],
+  ['BTD', 'c.1270G>C', 'CA090886', 'c.1330G>C']
 ];
-export function isBA1Exception(gene, hgvsc) {
+export function isBA1Exception(gene, hgvsc, caid) {
+  const id = /^(?:CAR:)?CA0*(\d+)$/i.exec(String(caid || ''));
+  if (id && BA1_EXCEPTIONS.some((x) => +x[2].slice(2) === +id[1])) return true;
   const c = String(hgvsc || '').split(':').pop().replace(/dupTAAG$/, 'dup');
-  return BA1_EXCEPTIONS.some(([g, x]) => g === gene && x === c);
+  return BA1_EXCEPTIONS.some(([g, x, , old]) => g === gene && (x === c || old === c));
 }
 
 /* the papers the criteria's guidance comes from */

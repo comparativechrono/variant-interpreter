@@ -16,7 +16,7 @@ import { strengthKind } from '../ui.js';
 /* one sentence on each set of guidelines, from what acmg/frameworks.js sets */
 const ABOUT_FW = {
   acgs2024: 'The UK’s guidelines: points, PM2 at moderate strength, PP3 and BP4 at supporting strength only (REVEL and SpliceAI), and at least two criteria for any class but uncertain.',
-  clingen: 'ClinGen’s guidance and its expert panels’ practice: points, PM2 at supporting strength, and predictors calibrated up to PP3_Strong and BP4_VeryStrong.',
+  clingen: 'ClinGen’s guidance and its expert panels’ practice: points, PM2 at supporting strength, and predictors calibrated up to PP3_Strong and BP4_Strong.',
   acmg2015: 'The original combining rules of Richards et al. (2015), counting criteria at each strength, with PP5 and BP6 still in use.'
 };
 const SUGGEST = [
@@ -139,7 +139,7 @@ function displaySection() {
     return h('label.set-check', b, h('span', h('b', label), h('span.set-choice-d', about)));
   };
   return section('The classification panel', null,
-    box('vusBands', 'Show the bands of uncertain significance', 'A variant of uncertain significance is also given its band, from ice cold (0 points) to hot (5), as UK laboratories grade them.', 'The bands of uncertain significance are shown.', 'The bands of uncertain significance are hidden.'),
+    box('vusBands', 'Show the bands of uncertain significance', 'A variant of uncertain significance is also given its band, from ice cold (0 points) to hot (5), as NHS England’s GeNotes names them.', 'The bands of uncertain significance are shown.', 'The bands of uncertain significance are hidden.'),
     box('showDeprecated', 'Show retired criteria', 'PP5 and BP6, which ClinGen and the ACGS no longer use, are offered with the other criteria.', 'PP5 and BP6 are shown.', 'PP5 and BP6 are hidden (unless already met).'));
 }
 

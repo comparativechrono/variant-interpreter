@@ -121,10 +121,10 @@ export function richards(met, opts = {}) {
   const ba = b.filter((m) => m.strength === 'SA').length;
   const bs = b.filter((m) => m.strength === 'S' || m.strength === 'VS').length;
   const bm = b.filter((m) => m.strength === 'M').length;
-  // a benign moderate counts as two supporting (Pejaver et al. 2022's interim advice)
+  // a benign moderate counts as two supporting (Brnich et al. 2019, Table 3; Pejaver et al. 2022 likewise)
   const bp = b.filter((m) => m.strength === 'P').length + 2 * bm;
   const notes = [];
-  if (bm) notes.push('Benign evidence at moderate strength is not in the 2015 rules: each counts as two supporting, as Pejaver et al. (2022) advise.');
+  if (bm) notes.push('Benign evidence at moderate strength is not in the 2015 rules: each counts as two supporting, as Brnich et al. (2019) and Pejaver et al. (2022) advise.');
   let pRule = null;
   for (const r of P_RULES) if (fits(r.slots, pLevels)) { pRule = { cls: 'p', ...r }; break; }
   if (!pRule) for (const r of LP_RULES) if (fits(r.slots, pLevels)) { pRule = { cls: 'lp', ...r }; break; }
@@ -149,17 +149,28 @@ export function richards(met, opts = {}) {
 export function classify(state, opts = {}) {
   const f = fw(opts.framework || state.framework);
   const met = metList(state);
-  const pts = pointsOf(met);
+  const notes = [];
+  let pts = pointsOf(met);
+  // PM1 and PP3 together count at most 4 points (Pejaver et al. 2022): the overlap between a hotspot and the predictors
+  const pm1 = met.find((m) => m.code === 'PM1'), pp3 = met.find((m) => m.code === 'PP3');
+  if (f.key !== 'acmg2015' && pm1 && pp3 && (POINTS[pm1.strength] || 0) + (POINTS[pp3.strength] || 0) > 4) {
+    const over = (POINTS[pm1.strength] || 0) + (POINTS[pp3.strength] || 0) - 4;
+    pts -= over;
+    notes.push(`PM1 and PP3 together count at most 4 points (Pejaver et al. 2022): ${over} ${over === 1 ? 'point' : 'points'} of PM1 ${over === 1 ? 'does' : 'do'} not count.`);
+  }
   const hasBA1 = met.some((m) => m.code === 'BA1' && m.strength === 'SA');
   const byPoints = { cls: classOfPoints(pts, hasBA1), points: pts, posterior: hasBA1 ? 0 : posterior(pts) };
-  const byRules = richards(met, opts);
-  const notes = [];
-  // ACGS 2024: at least two criteria for any class but uncertain, except BA1
+  // the 2020 rule that very strong and supporting make a variant likely pathogenic is ClinGen's, not the 2015 paper's
+  const byRules = richards(met, Object.assign({ sviPVS1PM2: f.key !== 'acmg2015' }, opts));
+  // ACGS 2024: at least two criteria for any class but uncertain, except BA1; and BS1_Strong alone may make a
+  // variant likely benign (for a highly penetrant dominant disorder)
   if (f.minTwo && !hasBA1 && byPoints.cls !== 'vus') {
     const side = byPoints.cls === 'p' || byPoints.cls === 'lp' ? 'P' : 'B';
-    const n = met.filter((m) => m.dir === side).length;
-    if (n < 2) {
-      notes.push(`ACGS 2024: a ${byPoints.cls === 'p' || byPoints.cls === 'lp' ? 'pathogenic' : 'benign'} class needs at least two criteria (BA1 apart), so with one this stays uncertain.`);
+    const own = met.filter((m) => m.dir === side);
+    const loneBS1 = side === 'B' && own.length === 1 && own[0].code === 'BS1' && own[0].strength === 'S';
+    if (loneBS1) notes.push('ACGS 2024: BS1_Strong alone may make a variant likely benign, but only for a highly penetrant dominant disorder.');
+    else if (own.length < 2) {
+      notes.push(`ACGS 2024: a ${side === 'P' ? 'pathogenic' : 'benign'} class needs at least two criteria (BA1 apart${side === 'B' ? ', and BS1_Strong for a highly penetrant dominant disorder' : ''}), so with one this stays uncertain.`);
       byPoints.capped = byPoints.cls;
       byPoints.cls = 'vus';
     }

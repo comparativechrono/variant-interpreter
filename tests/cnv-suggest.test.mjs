@@ -63,6 +63,14 @@ s = suggestCNV({ type: 'loss', genes: [gene('A', { hiWhy: ['pHaplo 0.95 ≥ 0.86
 assert.equal(s['2H'].pts, 15); n++;
 s = suggestCNV({ type: 'loss', genes: [gene('A', { hiWhy: ['pHaplo 0.95 ≥ 0.86'] })], regions: [], pop: [] });
 assert.equal(s['2H'], undefined); n++;
+// pLI and LOEUF are the same gnomAD data: one predictor between them (ACGS 2024)
+s = suggestCNV({ type: 'loss', genes: [gene('A', { hiWhy: ['LOEUF 0.20 < 0.6', 'pLI 1.00 ≥ 0.9'] })], regions: [], pop: [] });
+assert.equal(s['2H'], undefined, 'pLI with LOEUF is one predictor'); n++;
+s = suggestCNV({ type: 'loss', genes: [gene('A', { hiWhy: ['pHaplo 0.95 ≥ 0.86', 'LOEUF 0.20 < 0.6', 'pLI 1.00 ≥ 0.9'] })], regions: [], pop: [] });
+assert.equal(s['2H'].pts, 15); n++;
+// not once an established HI gene is involved (2A to 2D-4)
+s = suggestCNV({ type: 'loss', genes: [gene('NSD1', { hi: 3, whole: false, five: false, three: true }), gene('B', { hiWhy: ['pHaplo 0.95 ≥ 0.86', 'LOEUF 0.20 < 0.6'] })], regions: [], pop: [] });
+assert.ok(s['2D-4'] && s['2H'] === undefined, 'no 2H with 2D-4'); n++;
 
 /* ---------------- section 3: the bands, and families of genes counted once ---------------- */
 for (const [type, k, code] of [['loss', 24, '3A'], ['loss', 25, '3B'], ['loss', 34, '3B'], ['loss', 35, '3C'], ['gain', 34, '3A'], ['gain', 35, '3B'], ['gain', 49, '3B'], ['gain', 50, '3C']]) {

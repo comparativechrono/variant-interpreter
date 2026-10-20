@@ -272,7 +272,7 @@
      "PVS1": "A canonical splice acceptor (−1) of PTEN, where loss of function causes disease: full strength by the decision tree.",
      "PM6": "Strong, by the panel’s rule: one assumed de novo occurrence (parents tested, parentage not confirmed) counts as strong in a person with a highly specific phenotype, such as macrocephaly with developmental delay. This patient is such a case.",
      "PM2": "Supporting: absent from gnomAD v4.1.",
-     "PP3": "Not met: SpliceAI gives only 0.33 for this change, and a canonical site variant is assessed under PVS1. A low SpliceAI score doesn’t undo PVS1 at a canonical site.",
+     "PP3": "Not met: SpliceAI gives only 0.33 for this change, and a canonical site variant is assessed under PVS1. A low SpliceAI score doesn’t undo PVS1 at a canonical site, with one exception in the ACGS 2024 guidelines: a +2T>C change, which can leave a working GC donor, needs SpliceAI of 0.8 or more. This variant is at an acceptor’s −1, so the exception does not apply.",
      "BP7": "Not met: it is at the −1 position of an intron, not a synonymous or deep intronic change."
     }
    }

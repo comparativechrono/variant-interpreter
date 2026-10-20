@@ -226,8 +226,9 @@ npm test
 
 runs the tests in `tests/` with Node (version 18 or later, no packages to
 install): the classification engine (the 2015 rules, the points and the
-probabilities), the co-segregation likelihood ratio, the CNV points, and
-the site's other modules and example cases. Each file says what it checks,
+probabilities), the suggestion rules (each one a point of the guidelines
+the site must keep), the co-segregation likelihood ratio, the CNV points,
+and the site's other modules and example cases. Each file says what it checks,
 and can be run on its own (`node tests/acmg-engine.test.mjs`).
 
 ## Privacy

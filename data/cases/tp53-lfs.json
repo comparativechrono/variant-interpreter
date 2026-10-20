@@ -536,7 +536,7 @@
      "PM2": "Supporting: below the VCEP’s thresholds (under 0.003% overall, and under 0.004% in any group with more than one allele, founder groups such as Ashkenazi Jewish ignored). In gnomAD v4.1 it is 1.1 in 100,000 alleles overall and 1.2 in 100,000 European alleles.",
      "PP3": "BayesDel 0.52 and Align-GVGD class C25: above the VCEP’s thresholds.",
      "PP4": "Moderate, by a TP53 VCEP rule: found at a variant allele fraction of 5 to 25% in at least two people.",
-     "PP1": "This family: both affected relatives tested carry it, and the unaffected uncle does not (likelihood ratio about 14: just under 4 meioses, so supporting by counting as the ACGS do; moderate by Tavtigian’s odds).",
+     "PP1": "Supporting, from this family: both affected relatives tested carry it, and the unaffected uncle does not. The likelihood ratio is about 14, just under 4 informative meioses. The TP53 panel counts meioses (3 to 4 supporting, 5 to 6 moderate, 7 or more across more than one family strong), as the ACGS do; Tavtigian’s odds would make it moderate.",
      "PM5": "Not met: five other missense changes at codon 273 are in ClinVar, but the VCEP had not curated them."
     }
    }

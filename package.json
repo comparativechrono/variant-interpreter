@@ -4,7 +4,7 @@
   "description": "A teaching site for variant interpretation: patients, phenotypes, families and ACMG/AMP classification, in the browser. No build step: this file only lets Node run the tests.",
   "type": "module",
   "scripts": {
-    "test": "node tests/acmg-engine.test.mjs && node tests/segregation.test.mjs && node tests/cnv-rubric.test.mjs && node tests/app.test.mjs && node tests/gene-pheno.test.mjs && node tests/cnv-suggest.test.mjs && node tests/cases.test.mjs"
+    "test": "node tests/acmg-engine.test.mjs && node tests/suggest.test.mjs && node tests/segregation.test.mjs && node tests/cnv-rubric.test.mjs && node tests/app.test.mjs && node tests/gene-pheno.test.mjs && node tests/cnv-suggest.test.mjs && node tests/cases.test.mjs"
   },
   "license": "MIT"
 }

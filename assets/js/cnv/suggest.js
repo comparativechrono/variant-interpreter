@@ -58,6 +58,14 @@ const pctTxt = (x) => `${Math.round(x * 100)}%`;
 const DENOVO = ['denovo-confirmed', 'denovo-assumed', 'denovo-mosaic'];
 const INHERITED = ['maternal', 'paternal', 'maternal-mosaic', 'paternal-mosaic'];
 
+/* The items of section 2 that involve an established haploinsufficient gene or region: 2H is not used with them (ACGS 2024) */
+export const HI_GENE_ITEMS = ['2A', '2B', '2C-1', '2C-2', '2D-1', '2D-2', '2D-3', '2D-4'];
+/** how many independent haploinsufficiency predictors a gene meets: pLI and LOEUF both come from gnomAD's constraint, so count once */
+export function hiSources(why = []) {
+  const kinds = new Set(why.map((w) => (/^(pLI|LOEUF)\b/.test(w) ? 'gnomAD constraint' : w.split(' ')[0])));
+  return kinds.size;
+}
+
 export function suggestCNV(input) {
   const type = input.type === 'gain' ? 'gain' : 'loss';
   const genes = input.genes || [];
@@ -99,9 +107,11 @@ export function suggestCNV(input) {
     const inBenign = benign.find((r) => r.inside);
     if (inBenign) add('2F', { pts: -100, why: `Lies entirely within ClinGen’s established benign region ${inBenign.name || inBenign.id} (score 40).` });
     else if (benign.length) add('2G', { pts: 0, why: `Overlaps ClinGen’s established benign region ${benign[0].name || benign[0].id}, but includes more: score the rest.` });
-    if (!out['2A']) {
-      const pred = pc.filter((g) => (g.hiWhy || []).length >= 2 && g.hi !== 3);
-      if (pred.length) add('2H', { pts: 15, why: `Two or more predictors say at least one gene is haploinsufficient: ${list(pred.map((g) => `${g.symbol} (${g.hiWhy.join('; ')})`), 3)}.` });
+    // ACGS 2024: not once 2A–2D-4 apply (an established HI gene or region is involved), and pLI and LOEUF,
+    // from the same gnomAD data, count as one predictor
+    if (!HI_GENE_ITEMS.some((k) => out[k])) {
+      const pred = pc.filter((g) => hiSources(g.hiWhy) >= 2 && g.hi !== 3);
+      if (pred.length) add('2H', { pts: 15, why: `Two or more independent predictors say at least one gene is haploinsufficient: ${list(pred.map((g) => `${g.symbol} (${g.hiWhy.join('; ')})`), 3)}. Count 2H once, however many genes.` });
     }
   } else {
     const tsWhole = pc.filter((g) => g.ts === 3 && g.whole);

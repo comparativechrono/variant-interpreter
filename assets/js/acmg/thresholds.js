@@ -17,8 +17,8 @@ export const PREDICTORS = {
   REVEL: {
     label: 'REVEL', key: 'revel', range: [0, 1],
     pp3: { P: 0.644, M: 0.773, S: 0.932 },
-    bp4: { P: 0.290, M: 0.183, S: 0.016, VS: 0.003 },
-    about: 'A meta-predictor of missense pathogenicity (Ioannidis et al. 2016), combining 13 tools. ClinGen’s calibration takes it to PP3_Strong and BP4_VeryStrong; the ACGS 2024 guidelines use it, at supporting strength, with REVEL ≥ 0.7 and < 0.4.'
+    bp4: { P: 0.290, M: 0.183, S: 0.016 },
+    about: 'A meta-predictor of missense pathogenicity (Ioannidis et al. 2016), combining 13 tools. ClinGen’s calibration takes it to PP3_Strong and BP4_Strong (Pejaver et al. 2022 recommend no more than strong either way); the ACGS 2024 guidelines use it, at supporting strength, with REVEL ≥ 0.7 and < 0.4.'
   },
   BayesDel: {
     label: 'BayesDel (no AF)', key: 'bayesdel', range: [-1.3, 0.8],
@@ -72,7 +72,7 @@ export function predictorStrength(name, score, framework) {
     return null;
   }
   for (const s of ['S', 'M', 'P']) if (p.pp3[s] != null && score >= p.pp3[s]) return { code: 'PP3', strength: s, threshold: '≥ ' + p.pp3[s] };
-  for (const s of ['VS', 'S', 'M', 'P']) if (p.bp4[s] != null && score <= p.bp4[s]) return { code: 'BP4', strength: s, threshold: '≤ ' + p.bp4[s] };
+  for (const s of ['S', 'M', 'P']) if (p.bp4[s] != null && score <= p.bp4[s]) return { code: 'BP4', strength: s, threshold: '≤ ' + p.bp4[s] };
   return null;
 }
 
@@ -84,6 +84,6 @@ export function thresholdMarks(name, framework) {
   const out = [];
   const cap = fw(framework).key === 'acgs2024';
   for (const s of ['P', 'M', 'S']) if (p.pp3[s] != null && (!cap || s === 'P')) out.push({ at: p.pp3[s], code: 'PP3', strength: s });
-  for (const s of ['P', 'M', 'S', 'VS']) if (p.bp4[s] != null && (!cap || s === 'P')) out.push({ at: p.bp4[s], code: 'BP4', strength: s });
+  for (const s of ['P', 'M', 'S']) if (p.bp4[s] != null && (!cap || s === 'P')) out.push({ at: p.bp4[s], code: 'BP4', strength: s });
   return out;
 }

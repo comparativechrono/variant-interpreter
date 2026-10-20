@@ -346,7 +346,7 @@
     "source": "ClinGen Phenylketonuria expert panel (VCEP), Evidence Repository, specifications v2.0.0; ClinVar VCV000000607 (Pathogenic, reviewed by expert panel, 2024-12-30).",
     "notes": {
      "PVS1": "Strong, from RNA: the change makes a new splice acceptor, so the patient’s mRNA has 9 extra bases between exons 10 and 11 (an in-frame insertion of three amino acids), with only traces of the normal product; liver from a patient had no enzyme activity (PMID 1769645). The splicing is shown, not just predicted.",
-     "PM3": "Very strong: in trans with known pathogenic PAH variants in at least 15 people with PKU (5.5 points; PMIDs 23500595, 8990013).",
+     "PM3": "Very strong: compound heterozygous with known pathogenic PAH variants in at least 15 people with PKU, the phase not confirmed for all of them (5.5 points by the panel’s count; PMIDs 23500595, 8990013). This patient adds one more, in trans by his parents’ results.",
      "PP4": "Moderate: phenylalanine levels typical of PKU, with BH4 deficiency excluded.",
      "PP3": "Not met by the panel, although SpliceAI predicts an acceptor gain (0.98): the same splicing effect is already counted under PVS1, with RNA evidence, and ClinGen’s splicing guidance doesn’t count it twice.",
      "PM2": "Not met: about 3 in 10,000 alleles in gnomAD, above the panel’s threshold of 0.0002."

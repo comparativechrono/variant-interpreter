@@ -280,7 +280,7 @@ function bp7Notes(article) {
 function ba1List(article) {
   article.appendChild(h('h2', 'ClinGen’s exceptions'));
   article.appendChild(h('p', `Common in some populations and yet pathogenic: BA1 is not used for these ${BA1_EXCEPTIONS.length} variants (Ghosh et al. 2018), and the site does not suggest it for them.`));
-  article.appendChild(table(['Gene', 'Variant'], BA1_EXCEPTIONS.map(([g, v]) => [h('i.gene', g), h('span.hgvs', v)]), [false, false]));
+  article.appendChild(table(['Gene', 'Variant (MANE Select)', 'ClinGen allele'], BA1_EXCEPTIONS.map(([g, v, ca, old]) => [h('i.gene', g), h('span', h('span.hgvs', v), old ? h('span.small.muted', ` (${old} on the older transcript the paper used)`) : null), h('span.hgvs', ca)]), [false, false, false]));
 }
 
 function bs1Formula(article) {

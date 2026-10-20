@@ -17,7 +17,7 @@ export const CFG = Object.assign({
 const DEFAULTS = {
   name: '',                 // the name that goes on classifications and reports
   framework: null,          // null: the site's default; 'acgs2024', 'clingen' or 'acmg2015' (see acmg/frameworks.js)
-  vusBands: true,           // show the ACGS 2024 bands of a VUS (hot … ice-cold)
+  vusBands: true,           // show the bands of a VUS (hot … ice cold: GeNotes' six, by points; ACGS 2024 groups them in three)
   showDeprecated: false,    // offer PP5 and BP6, which ClinGen's SVI advises against
   suggestions: null,        // null: follow the site's setting
   predictor: 'REVEL',       // the missense predictor whose calibrated thresholds PP3/BP4 suggestions use
