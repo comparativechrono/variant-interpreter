@@ -21,11 +21,11 @@ export function waiting(ctx, src, text) {
     the function it returns once the new content is in (the text, the focus and the caret come back) */
 export function keepTyping(container) {
   const a = document.activeElement;
-  if (!a || !container.contains(a) || !/^(TEXTAREA|INPUT)$/.test(a.tagName)) return () => {};
+  if (!a || !container.contains(a) || !/^(TEXTAREA|INPUT)$/.test(a.tagName)) return null;
   let sel = null;
   if (a.matches('textarea.sec-notes')) sel = 'textarea.sec-notes';
   else if (a.closest('.crow-note') && a.closest('.crow')) sel = `.crow[data-code="${a.closest('.crow').dataset.code}"] .crow-note input`;
-  if (!sel) return () => {};
+  if (!sel) return null;
   const value = a.value;
   const start = a.selectionStart;
   const end = a.selectionEnd;
@@ -42,6 +42,35 @@ export function keepTyping(container) {
       /* not a text field */
     }
   };
+}
+
+/** draw one section of a variant's or a CNV's page ({ S: {draw}, body }). Each drawing gets a box of its own, so
+    that an older one still finishing (an asynchronous section drawn again when more data came) writes into a box
+    no longer shown rather than beside the new one; and a note being typed is carried over to the newest */
+export function drawSectionInto(s, ctx) {
+  const kept = keepTyping(s.body) || s.keep || null;
+  s.keep = kept;
+  const token = {};
+  s.token = token;
+  s.body.innerHTML = '';
+  const box = h('div.vsec-c');
+  s.body.appendChild(box);
+  const fail = (e) => {
+    console.error(e);
+    if (s.token === token) box.appendChild(note('bad', h('p', 'This section could not be drawn: ' + e.message)));
+  };
+  const done = () => {
+    if (s.token !== token) return;
+    s.keep = null;
+    if (kept) kept();
+  };
+  try {
+    const out = s.S.draw(ctx, box);
+    if (out && out.then) out.then(done, fail);
+    else done();
+  } catch (e) {
+    fail(e);
+  }
 }
 
 export function sectionNote(ctx, key) {

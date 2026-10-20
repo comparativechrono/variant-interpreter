@@ -16,7 +16,7 @@ import { suggest } from '../acmg/suggest.js';
 import { ZYGOSITY, INHERITANCE, inheritanceText, variantLong, patientFacts } from '../summary.js';
 import { readQuery, vcfKey } from '../parse.js';
 import { SECTIONS } from './variant-evidence.js';
-import { keepTyping } from './evidence-common.js';
+import { drawSectionInto } from './evidence-common.js';
 
 let current = null;
 
@@ -148,19 +148,9 @@ async function variantPage(root, { v, pt, section, q }) {
     });
     nav.appendChild(a);
   }
-  const drawSection = (key, why) => {
+  const drawSection = (key) => {
     const s = ctx.sections[key];
-    if (!s) return;
-    const restore = keepTyping(s.body); // a note being typed in the section survives its data arriving
-    try {
-      s.body.innerHTML = '';
-      const out = s.S.draw(ctx, s.body);
-      if (out && out.then) out.then(restore, (e) => s.body.appendChild(note('bad', h('p', 'This section could not be drawn: ' + e.message))));
-      else restore();
-    } catch (e) {
-      console.error(e);
-      s.body.appendChild(note('bad', h('p', 'This section could not be drawn: ' + e.message)));
-    }
+    if (s) drawSectionInto(s, ctx);
   };
   ctx.redraw = (keys) => (keys || Object.keys(ctx.sections)).forEach((k) => drawSection(k));
   const scrollTo = (key) => {
