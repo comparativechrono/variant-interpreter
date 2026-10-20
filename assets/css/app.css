@@ -359,6 +359,8 @@ table.kv td { padding: 4px 0; vertical-align: top; }
 .tag.loss { background: #fde8e6; color: #a11d1d; }
 .tag.gain { background: #e4edfb; color: #1d4b9a; }
 .hgvs { font-family: var(--mono); font-size: 0.92em; overflow-wrap: anywhere; }
+.hgvs.loc { overflow-wrap: normal; }
+.nw { white-space: nowrap; }
 .gene { font-style: italic; font-weight: 700; }
 .hpo-id { font-family: var(--mono); font-size: 0.82em; color: var(--muted); }
 

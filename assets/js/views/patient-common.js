@@ -64,7 +64,7 @@ export function classCell(s) {
 export function variantTable(pt, vs, opts = {}) {
   const rows = vs.map((v) => Object.assign({ v }, summariseVariant(v)));
   const cols = [
-    { key: 'loc', label: 'Location', fmt: (r) => h('div', h('span.hgvs.small', locationText(r.v)), h('div.small.faint', r.v.assembly || 'GRCh38')), sort: (r) => (r.v.chrom || '') + String(r.v.pos || r.v.start || 0).padStart(10, '0') },
+    { key: 'loc', label: 'Location', fmt: (r) => h('div', h('span.hgvs.small.loc', locationText(r.v).split(/(?<=[:\-–])/).map((part, i) => [i ? h('wbr') : null, h('span.nw', part)])), h('div.small.faint', r.v.assembly || 'GRCh38')), sort: (r) => (r.v.chrom || '') + String(r.v.pos || r.v.start || 0).padStart(10, '0') },
     { key: 'type', label: 'Type', fmt: (r) => typeText(r.v) },
     { key: 'gene', label: 'Genes', fmt: (r) => (r.v.kind === 'cnv' ? h('span.small', r.gene || '–') : r.gene ? h('span.gene-cell', { dataset: { gene: r.gene } }, h('a', { href: link('/gene/' + r.gene) }, h('i.gene', r.gene))) : '–') },
     { key: 'short', label: 'Variant', fmt: (r) => h('a.hgvs', { href: link(variantPath(pt, r.v)) }, r.short) },

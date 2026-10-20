@@ -349,6 +349,12 @@ export async function importData(doc, opts = {}) {
       p.id = null;
     }
     if (opts.caseId) p.caseId = opts.caseId;
+    // a case file's brief and tasks go with its patient, to be read on the patient's page
+    if (doc.case && (doc.case.brief || (doc.case.tasks || []).length)) {
+      const c = doc.case;
+      p.case = { id: c.id || opts.caseId || null, title: c.title || '', brief: c.brief || '', tasks: Array.isArray(c.tasks) ? c.tasks.map(String) : [], source: c.source || '' };
+      if (!p.caseId && c.id) p.caseId = c.id;
+    }
     logTo(p, `Imported from a file${doc.case && doc.case.title ? ` (${doc.case.title})` : ''}`);
     const saved = await savePatient(p);
     map[old] = saved.id;

@@ -3,7 +3,7 @@
    the clinical story, the phenotype, the family, what is left to do,
    and the overall assessment: does the genotype explain the phenotype?
    ===================================================================== */
-import { h, icon, toast, dateStr, nowISO } from '../core.js';
+import { h, icon, toast, dateStr, nowISO, safeHTML, fetchJSON } from '../core.js';
 import { go, link } from '../router.js';
 import * as db from '../db.js';
 import * as settings from '../settings.js';
@@ -22,6 +22,10 @@ export async function render(body, { patient: pt, variants: vs, refresh }) {
   const side = h('div.ov-side');
   grid.append(main, side);
   body.appendChild(grid);
+
+  /* ---------- the case, for a patient opened from a case file: its brief and what to do ---------- */
+  const theCase = await caseOf(pt);
+  if (theCase) main.appendChild(caseBox(theCase, vs));
 
   /* ---------- variants ---------- */
   const vbox = h('section.ov-sec', { 'aria-labelledby': 'ov-v' });
@@ -191,3 +195,31 @@ async function assessment(pt, vs, refresh) {
   return box;
 }
 export { go, note, variantLong };
+
+/* ---------------- the case ---------------- */
+/** a case's brief and tasks: kept with the patient when the case was opened, or read from the site's list of cases */
+async function caseOf(pt) {
+  if (pt.case && (pt.case.brief || (pt.case.tasks || []).length)) return pt.case;
+  if (!pt.caseId) return null;
+  try {
+    const idx = await fetchJSON('data/cases/index.json');
+    const entry = (idx.cases || []).find((c) => c.id === pt.caseId);
+    if (!entry) return null;
+    const doc = await fetchJSON(entry.file);
+    const c = doc.case || {};
+    return { id: pt.caseId, title: c.title || entry.title || '', brief: c.brief || '', tasks: c.tasks || [], source: c.source || '' };
+  } catch (e) {
+    return null;
+  }
+}
+function caseBox(c, vs) {
+  // open until the student has signed a classification
+  const open = !vs.some((v) => v.classification && v.classification.saved);
+  const box = h('details.ov-sec.ov-card.ov-case', { open: open || null },
+    h('summary', h('span.ic', { html: icon('book') }), h('span', 'The case'), c.title ? h('span.case-title', c.title) : null),
+    c.brief ? h('div.case-brief', safeHTML(c.brief)) : null,
+    (c.tasks || []).length ? [h('h3', 'What to do'), h('ol.case-tasks', c.tasks.map((t) => h('li', t)))] : null,
+    h('p.small.muted', 'Each variant’s page has the case’s answer under its Conclusion, once you have signed your classification.'),
+    c.source ? h('p.small.muted', c.source) : null);
+  return box;
+}

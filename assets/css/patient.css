@@ -10,6 +10,16 @@
 .ov-sec-h h2 { flex: 1 1 auto; font-size: 1.05rem; display: flex; align-items: center; gap: 8px; }
 .ov-sec-h h2 .ic { color: var(--accent); }
 .ov-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-l); padding: 12px 14px; }
+.ov-case > summary { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-weight: 700; font-size: 1.05rem; cursor: pointer; list-style: none; }
+.ov-case > summary::-webkit-details-marker { display: none; }
+.ov-case > summary .ic { color: var(--accent); align-self: center; display: inline-flex; }
+.ov-case > summary .case-title { font-weight: 400; color: var(--muted); font-size: 0.95rem; }
+.ov-case > summary::after { content: 'Hide'; margin-left: auto; font-weight: 600; font-size: 0.8rem; color: var(--accent); }
+.ov-case:not([open]) > summary::after { content: 'Show'; }
+.ov-case[open] > summary { margin-bottom: 8px; }
+.ov-case h3 { font-size: 0.95rem; margin: 12px 0 4px; }
+.ov-case .case-tasks { padding-left: 1.4em; margin: 0 0 8px; }
+.ov-case .case-tasks li { margin: 3px 0; }
 .ov-story { display: grid; grid-template-columns: 1fr; gap: 2px; margin: 0; }
 .ov-story dt { font-size: 0.78rem; color: var(--muted); font-weight: 600; margin-top: 6px; }
 .ov-story dd { margin: 0; white-space: pre-wrap; }

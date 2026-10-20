@@ -56,6 +56,35 @@ export function frag(html) {
   return t.content.childElementCount === 1 ? t.content.firstElementChild : t.content;
 }
 
+/** HTML from a file someone else wrote (a case's brief): only plain formatting is kept – paragraphs, emphasis,
+    lists, line breaks and web links – and anything else becomes its text, so a file cannot run code in the site */
+export function safeHTML(html) {
+  const t = document.createElement('template');
+  t.innerHTML = String(html || '');
+  const KEEP = new Set(['P', 'B', 'STRONG', 'I', 'EM', 'U', 'BR', 'UL', 'OL', 'LI', 'SUP', 'SUB', 'SPAN', 'A', 'H3', 'H4', 'TABLE', 'THEAD', 'TBODY', 'TR', 'TH', 'TD']);
+  const out = document.createDocumentFragment();
+  const copy = (node, into) => {
+    for (const n of Array.from(node.childNodes)) {
+      if (n.nodeType === 3) into.appendChild(document.createTextNode(n.textContent));
+      else if (n.nodeType === 1) {
+        if (!KEEP.has(n.tagName)) {
+          if (!/^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|TEMPLATE)$/.test(n.tagName)) copy(n, into);
+          continue;
+        }
+        const el = document.createElement(n.tagName.toLowerCase());
+        if (n.tagName === 'A') {
+          const href = n.getAttribute('href') || '';
+          if (/^https?:\/\//i.test(href)) Object.assign(el, { href, target: '_blank', rel: 'noopener' });
+        }
+        copy(n, el);
+        into.appendChild(el);
+      }
+    }
+  };
+  copy(t.content, out);
+  return out;
+}
+
 export const $ = (sel, root) => (root || document).querySelector(sel);
 export const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 

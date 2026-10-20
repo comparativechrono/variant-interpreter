@@ -1,5 +1,5 @@
 /* Cases and data: the example cases, files from a tutor, exporting and importing work, and clearing it */
-import { h, esc, fetchJSON, toast, downloadText, pickFiles, confirmBox, modal, dateStr, fmt, icon } from '../core.js';
+import { h, esc, fetchJSON, toast, downloadText, pickFiles, confirmBox, modal, dateStr, fmt, icon, safeHTML } from '../core.js';
 import { go } from '../router.js';
 import * as db from '../db.js';
 import { CFG } from '../settings.js';
@@ -128,7 +128,7 @@ export async function openCase(c) {
   const info = doc.case || {};
   const have = (await db.listPatients()).filter((x) => x.caseId === c.id);
   const body = h('div',
-    info.brief ? h('div.case-brief', { html: info.brief }) : h('p', c.teaser || ''),
+    info.brief ? h('div.case-brief', safeHTML(info.brief)) : h('p', c.teaser || ''),
     info.tasks && info.tasks.length ? h('div', h('h3', { style: { margin: '10px 0 4px' } }, 'What to do'), h('ol', info.tasks.map((t) => h('li', t)))) : null,
     info.source ? h('p.small.muted', info.source) : null,
     have.length ? note('warn', h('p', `You already have ${have.length === 1 ? 'a copy' : have.length + ' copies'} of this case (Patient ${have.map((x) => x.id).join(', ')}). Opening it again makes a fresh copy beside ${have.length === 1 ? 'it' : 'them'}.`)) : null);
