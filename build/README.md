@@ -87,3 +87,15 @@ python3 serve.py         # and look: a gene page, a CNV, a patient's phenotypes
 
 and commit `data/hpo/` and `data/genes/`. Variants already classified keep
 their annotations; the new data are used the next time a page needs them.
+
+## The logo: `make_logo.py`
+
+The home page's logo (`assets/img/logo.svg`) is the site's small mark
+(`assets/img/mark.svg`, also its favicon) drawn larger and in more detail: a
+double helix above the five classes of the ACMG/AMP scale, with the pointer
+on likely pathogenic. The script draws it, so the shapes and colours can be
+changed in one place:
+
+```bash
+python3 build/make_logo.py
+```

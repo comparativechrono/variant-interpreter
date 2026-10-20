@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Variant interpreter</title>
-  <meta name="description" content="Record patients, their phenotypes and families, annotate their variants and classify them with the ACMG/AMP criteria – for teaching, in your browser. Nothing is uploaded.">
+  <meta name="description" content="A teaching tool for clinical variant interpretation. Record patients and their families, look at the evidence for their variants and classify them with the ACMG/AMP criteria, all in your own browser.">
   <meta name="theme-color" content="#1a2332">
   <link rel="icon" href="assets/img/mark.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/atkinson-hyperlegible-next-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -16,7 +16,7 @@
   <script src="assets/js/config.js"></script>
 </head>
 <body>
-  <a class="skip" href="#main">Skip to the page</a>
+  <a class="skip" href="#main">Skip to the main content</a>
   <header class="topbar" id="topbar">
     <a class="brand" href="#/" aria-label="Variant interpreter: home">
       <img src="assets/img/mark.svg" width="30" height="30" alt="">
@@ -35,19 +35,20 @@
       <a href="#/data" data-nav="data" title="Cases, import and export"><svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="8" ry="2.5"/><path d="M4 5.5v13c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-13M4 12c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5"/></svg><span>Cases and data</span></a>
     </nav>
     <div class="bar-right">
-      <span class="savestate" id="savestate" title="Your patients are kept by this browser, on this computer"><span>Saved in this browser</span></span>
-      <a class="bar-btn" href="#/settings" id="who" title="Settings, and the name that goes on your classifications"><svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="7.5" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span id="who-name">Settings</span></a>
+      <span class="savestate" id="savestate" title="Your patients are saved in this browser, on this computer"><span>Saved in this browser</span></span>
+      <a class="bar-btn" href="#/settings" id="who" title="Settings, including the name that goes on your classifications"><svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="7.5" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span id="who-name">Settings</span></a>
     </div>
   </header>
   <main id="main" tabindex="-1"></main>
   <footer class="foot">
-    <span>Variant interpreter, for teaching. Not for clinical use: keep real patients' details out of it.</span>
+    <span class="foot-copy">© 2026 Chronomic Medicine Group</span>
+    <span>For teaching only. Please don’t enter real patients’ details.</span>
     <a href="#/about">About, sources and licences</a>
     <a href="#/about/privacy">Privacy</a>
     <a href="https://github.com/comparativechrono/variant-interpreter">Code on GitHub</a>
     <a href="https://www.genomics.tel/">genomics.tel</a>
   </footer>
-  <noscript><div class="page narrow"><div class="note bad"><p>The Variant interpreter is a program that runs in your browser, so it needs JavaScript. Turn JavaScript on for this site and reload the page.</p></div></div></noscript>
+  <noscript><div class="page narrow"><div class="note bad"><p>The Variant interpreter runs in your browser, so it needs JavaScript. Please turn JavaScript on for this site and reload the page.</p></div></div></noscript>
   <script type="module" src="assets/js/main.js"></script>
 </body>
 </html>
