@@ -1,0 +1,132 @@
+/* =====================================================================
+   A CNV's page and a region's page
+   Losses are red and gains blue throughout (as in the genome browser).
+   ===================================================================== */
+:root {
+  --loss: #a11d1d;
+  --loss-soft: #fde8e6;
+  --gain: #1d4b9a;
+  --gain-soft: #e4edfb;
+}
+
+/* the heading */
+.cnv-kw { font-weight: 800; }
+.cnv-kw.loss { color: var(--loss); }
+.cnv-kw.gain { color: var(--gain); }
+.cnv-copy { padding: 2px; }
+.cnvpage .vtitle .vp { font-size: 1.05rem; color: var(--muted); font-family: var(--font); }
+
+/* ---------------- the score bar ---------------- */
+.cnv-scale { position: relative; padding: 26px 0 4px; margin: 2px 0 4px; user-select: none; container-type: inline-size; }
+.cnv-scale-body { position: relative; height: 20px; }
+.cnv-track { position: absolute; inset: 0; border-radius: 6px; overflow: hidden; background: var(--sunk); }
+.cnv-band { position: absolute; top: 0; bottom: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; color: #fff; font-size: 0.68rem; font-weight: 700; white-space: nowrap; }
+.cnv-band + .cnv-band { box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.75); }
+.cb-b { background: var(--c-b); }
+.cb-lb { background: var(--c-lb); }
+.cb-vus { background: #b9a777; color: #3d300c; }
+.cb-lp { background: var(--c-lp); }
+.cb-p { background: var(--c-p); }
+.cb-short { display: none; }
+@container (max-width: 380px) { .cb-long { display: none; } .cb-short { display: inline; } }
+.cnv-scale-ticks { position: relative; height: 16px; font-size: 0.68rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.cnv-scale-ticks span { position: absolute; top: 2px; transform: translateX(-50%); white-space: nowrap; }
+.cnv-mark { position: absolute; top: -22px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; pointer-events: none; transition: left 0.35s cubic-bezier(0.3, 0.7, 0.3, 1); }
+.cnv-mark-val { font-size: 0.74rem; font-weight: 800; background: var(--ink); color: #fff; border-radius: 4px; padding: 0 6px; white-space: nowrap; font-variant-numeric: tabular-nums; line-height: 1.45; }
+.cnv-mark-pin { width: 4px; height: 30px; margin-top: 1px; border-radius: 2px; background: var(--ink); box-shadow: 0 0 0 2px #fff; }
+.cnv-mark.at-left .cnv-mark-val { transform: translateX(40%); }
+.cnv-mark.at-right .cnv-mark-val { transform: translateX(-40%); }
+
+/* ---------------- the panel ---------------- */
+.cnv-which { margin: 2px 0 0; }
+.cnv-sec > summary { gap: 8px; }
+.cnv-sec-n { flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
+.cnv-sec-t { flex: 1 1 auto; min-width: 0; font-size: 0.92rem; }
+.cnv-sub { font-variant-numeric: tabular-nums; font-size: 0.86rem; color: var(--ink-2); }
+.cnv-sec-note { margin: 0 0 4px; padding-left: 30px; }
+
+/* one item */
+.cnv-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 3px 8px; align-items: start; padding: 6px 4px; border-radius: var(--r); }
+.cnv-item + .cnv-item { border-top: 1px solid var(--line-2); }
+.cnv-item.on { background: #f7f8fa; }
+.cnv-item.on.pos { background: #fdf3f1; }
+.cnv-item.on.neg { background: #f0f5fb; }
+.cnv-code { display: inline-flex; align-items: center; gap: 6px; border-radius: var(--r-s); padding: 2px 7px 2px 4px; background: var(--sunk); font-family: var(--mono); font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer; color: var(--ink-2); }
+.cnv-code input { margin: 0; width: 15px; height: 15px; accent-color: var(--ink); cursor: pointer; }
+.cnv-item.on .cnv-code { background: var(--ink); color: #fff; }
+.cnv-item.on.pos .cnv-code { background: var(--e-ps); }
+.cnv-item.on.neg .cnv-code { background: var(--e-bs); }
+.cnv-item.on .cnv-code input { accent-color: #fff; }
+.cnv-body { min-width: 0; font-size: 0.86rem; color: var(--ink-2); line-height: 1.4; padding-top: 1px; }
+.cnv-textbtn { display: block; width: 100%; border: 0; background: none; padding: 0; margin: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; line-height: inherit; }
+.cnv-textbtn:hover .cnv-text { color: var(--ink); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+.cnv-text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cnv-text.full { display: block; }
+.cnv-pts { font-size: 0.82rem; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; padding-top: 2px; min-width: 3.4em; }
+.cnv-pts .faint { font-weight: 400; font-size: 0.76rem; }
+.cnv-item > .cnv-guide, .cnv-item > .cnv-excl, .cnv-item > .cnv-ctl, .cnv-item > .cnv-cases, .cnv-item > .crow-sug, .cnv-item > .cnv-note { grid-column: 2 / -1; }
+.cnv-guide { color: var(--muted); }
+.cnv-item.excluded .cnv-body, .cnv-item.excluded .cnv-pts { opacity: 0.6; }
+.cnv-ctl { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.cnv-opt { min-height: 30px !important; padding: 2px 6px !important; font-size: 0.84rem !important; width: auto !important; max-width: 100%; }
+.cnv-ptsin { display: inline-flex; align-items: center; gap: 6px; }
+.cnv-num { width: 5.4em !important; min-height: 28px !important; padding: 2px 6px !important; font-size: 0.85rem !important; font-variant-numeric: tabular-nums; }
+.cnv-cases { display: flex; flex-direction: column; gap: 5px; }
+.cnv-case { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 6px; align-items: center; }
+.cnv-case input[type='text'] { min-height: 28px !important; padding: 2px 7px !important; font-size: 0.84rem !important; }
+.cnv-case select { min-height: 28px !important; padding: 2px 6px !important; font-size: 0.82rem !important; width: auto !important; }
+.cnv-note input { min-height: 28px !important; padding: 2px 7px !important; font-size: 0.84rem !important; }
+@container (max-width: 420px) {
+  .cnv-item > .cnv-guide, .cnv-item > .cnv-excl, .cnv-item > .cnv-ctl, .cnv-item > .cnv-cases, .cnv-item > .crow-sug, .cnv-item > .cnv-note { grid-column: 1 / -1; }
+  .cnv-case { grid-template-columns: minmax(0, 1fr) auto auto; }
+  .cnv-case input[type='text'] { grid-column: 1 / -1; }
+}
+
+/* ---------------- the sections ---------------- */
+.cnv-sumlist { margin: 0 0 10px; padding-left: 18px; }
+.cnv-sumlist li { margin: 2px 0; }
+.cnv-filters { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; margin: 4px 0 8px; }
+.cnv-filters select { width: auto; min-height: 30px; padding: 2px 6px; font-size: 0.86rem; }
+.cnv-filter { font-size: 0.88rem; }
+.cnv-genes .table-wrap { max-height: 560px; overflow: auto; }
+.cnv-gene-table td { white-space: normal; }
+.cnv-ds { display: inline-flex; flex-direction: column; gap: 2px; font-size: 0.82rem; }
+.cnv-part { color: var(--warn); font-weight: 600; }
+.cnv-common { color: var(--warn); font-weight: 800; }
+
+/* ClinGen's dosage scores */
+.ds { display: inline-flex; align-items: center; font-size: 0.76rem; font-weight: 700; border-radius: var(--r-s); padding: 0 6px; white-space: nowrap; background: var(--sunk); color: var(--ink-2); }
+.ds-3 { background: #7d1a2c; color: #fff; }
+.ds-2 { background: #c4432f; color: #fff; }
+.ds-1 { background: #f3d2b9; color: #5b2a10; }
+.ds-0 { background: var(--sunk); color: var(--muted); }
+.ds-30 { background: #e7e1f2; color: #4a3577; }
+.ds-40 { background: #d7e5f4; color: #163f6e; }
+
+/* ClinVar's classifications */
+.cnv-cvcounts { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 6px; }
+.cnv-cv { display: inline-flex; align-items: center; font-size: 0.78rem; font-weight: 700; border-radius: 999px; padding: 1px 9px; white-space: nowrap; color: #fff; background: var(--faint); }
+.cnv-cv.cv-p { background: var(--c-p); }
+.cnv-cv.cv-lp { background: var(--c-lp); }
+.cnv-cv.cv-vus { background: var(--c-vus); }
+.cnv-cv.cv-conflict { background: #8c6a4f; }
+.cnv-cv.cv-lb { background: var(--c-lb); }
+.cnv-cv.cv-b { background: var(--c-b); }
+.cnv-cv.cv-other { background: var(--sunk); color: var(--ink-2); }
+
+/* ---------------- the region page ---------------- */
+.region-head .vtitle { font-size: 1.45rem; }
+.region-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.region-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.region-sec { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-l); padding: 12px 16px 14px; }
+.region-sec > h2 { font-size: 1.08rem; display: flex; align-items: center; gap: 8px; margin: 0 0 10px; }
+.region-sec > h2 .ic { color: var(--accent); }
+
+@media (max-width: 560px) {
+  .cnvpage .vtitle { font-size: 1.3rem; }
+  .cnv-case { grid-template-columns: minmax(0, 1fr) auto; }
+}
+@media print {
+  .cnv-filters, .cnv-copy { display: none !important; }
+  .cnv-band, .ds, .cnv-cv, .cnv-code { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

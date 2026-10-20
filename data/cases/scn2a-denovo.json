@@ -1,0 +1,335 @@
+{
+ "format": "variant-interpreter",
+ "version": 1,
+ "exported": "2026-10-20T09:00:00.000Z",
+ "app": "Variant interpreter",
+ "case": {
+  "id": "scn2a-denovo",
+  "title": "Epileptic spasms and developmental regression",
+  "brief": "<p><b>Referral from paediatric neurology.</b> A girl developed normally until 7 months, when epileptic spasms began with hypsarrhythmia on her EEG. She has lost skills and has axial hypotonia; her MRI is normal. Now 14 months, she still has spasms despite vigabatrin and prednisolone.</p><p>Trio exome sequencing, analysed with the epilepsy panel, found a heterozygous <i>SCN2A</i> variant, NM_001040142.2:c.2558G&gt;A p.(Arg853Gln), absent from both parents. The exome confirms both parents are her biological parents.</p>",
+  "tasks": [
+   "Score the de novo evidence with ClinGen’s points: this patient, and others you find in ClinVar and the literature. PS2 or PM6, and how strong?",
+   "Compare the missense predictors with their calibrated thresholds. What strength of PP3 do the ACGS and ClinGen allow?",
+   "Look at the protein: where is the variant, and are pathogenic missense variants clustered there?",
+   "Classify, sign and compare with the ClinGen Epilepsy Sodium Channel expert panel."
+  ],
+  "source": "Variant: NM_001040142.2(SCN2A):c.2558G>A, GRCh38 2-165342465-G-A, ClinGen allele CA210022 (absent from gnomAD v4.1). ClinVar VCV000194555; ClinGen Epilepsy Sodium Channel VCEP classification (Evidence Repository). Checked October 2026. The patient and family are fictional."
+ },
+ "patients": [
+  {
+   "id": "case-scn2a",
+   "ref": "Case 5: infant with epileptic spasms and developmental regression",
+   "created": "2026-10-20T09:00:00.000Z",
+   "updated": "2026-10-20T09:00:00.000Z",
+   "sex": "female",
+   "karyotype": "",
+   "age": {
+    "years": 1,
+    "months": 2
+   },
+   "prenatal": false,
+   "gestation": null,
+   "onset": "HP:0003593",
+   "onsetName": "Infantile onset",
+   "ancestryGroup": "nfe",
+   "ancestry": "White European",
+   "consanguinity": "no",
+   "referral": "Paediatric neurology: epileptic spasms from 7 months with hypsarrhythmia, and loss of skills.",
+   "summary": "Girl of 14 months. Normal development until 7 months, when epileptic spasms began; the EEG showed hypsarrhythmia. She has since lost her smile and her interest in toys, and has axial hypotonia. MRI brain normal. Spasms continue despite vigabatrin and prednisolone.",
+   "familyHistory": "Parents unrelated and well; older brother well. No family history of epilepsy.",
+   "test": {
+    "type": "Exome sequencing",
+    "panel": {
+     "id": 402,
+     "name": "Early onset or syndromic epilepsy",
+     "version": "9.89",
+     "source": "PanelApp"
+    },
+    "lab": "Regional genomic laboratory (fictional)",
+    "date": "2026-09-02"
+   },
+   "phenotypes": [
+    {
+     "id": "HP:0012469",
+     "name": "Infantile spasms",
+     "observed": true,
+     "onset": "",
+     "note": "From 7 months"
+    },
+    {
+     "id": "HP:0002521",
+     "name": "Hypsarrhythmia",
+     "observed": true,
+     "onset": "",
+     "note": ""
+    },
+    {
+     "id": "HP:0002376",
+     "name": "Developmental regression",
+     "observed": true,
+     "onset": "",
+     "note": ""
+    },
+    {
+     "id": "HP:0001263",
+     "name": "Global developmental delay",
+     "observed": true,
+     "onset": "",
+     "note": ""
+    },
+    {
+     "id": "HP:0001252",
+     "name": "Hypotonia",
+     "observed": true,
+     "onset": "",
+     "note": ""
+    },
+    {
+     "id": "HP:0012443",
+     "name": "Abnormal brain morphology",
+     "observed": false,
+     "onset": "",
+     "note": "MRI brain normal"
+    }
+   ],
+   "family": [
+    {
+     "id": "p-father",
+     "label": "I-1",
+     "relation": "father",
+     "sex": "male",
+     "affected": false,
+     "deceased": false,
+     "note": "Well at 37"
+    },
+    {
+     "id": "p-mother",
+     "label": "I-2",
+     "relation": "mother",
+     "sex": "female",
+     "affected": false,
+     "deceased": false,
+     "note": "Well at 35"
+    },
+    {
+     "id": "p-brother",
+     "label": "II-1",
+     "relation": "brother",
+     "sex": "male",
+     "affected": false,
+     "deceased": false,
+     "note": "Well at 5"
+    }
+   ],
+   "pedigree": {
+    "version": 5,
+    "personIdCounter": 0,
+    "labelIdCounter": 0,
+    "lineIdCounter": 3,
+    "persons": [
+     {
+      "id": "p-father",
+      "shape": "male",
+      "x": 260,
+      "y": 160,
+      "text": "Well at 37",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-mother",
+      "shape": "female",
+      "x": 400,
+      "y": 160,
+      "text": "Well at 35",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-brother",
+      "shape": "male",
+      "x": 270,
+      "y": 320,
+      "text": "Well at 5",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-proband",
+      "shape": "female",
+      "x": 390,
+      "y": 320,
+      "text": "Epileptic spasms\n14 months",
+      "deceased": false,
+      "proband": true,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "solid",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     }
+    ],
+    "labels": [],
+    "partnerships": [
+     {
+      "id": "pship-1",
+      "fromId": "p-father",
+      "toId": "p-mother",
+      "type": "normal"
+     }
+    ],
+    "childLinks": [
+     {
+      "id": "child-2",
+      "partnershipId": "pship-1",
+      "childId": "p-brother",
+      "branchYOffset": 0,
+      "dashed": false
+     },
+     {
+      "id": "child-3",
+      "partnershipId": "pship-1",
+      "childId": "p-proband",
+      "branchYOffset": 0,
+      "dashed": false
+     }
+    ],
+    "twinLinks": [],
+    "legendLabels": {
+     "#1a2332": "Developmental and epileptic encephalopathy"
+    },
+    "legendVisible": true,
+    "legendX": 570,
+    "legendY": 160,
+    "numberingMode": "numbers",
+    "partnerGapMultiplier": 2,
+    "childHeightMultiplier": 2.5,
+    "drawStrokes": []
+   },
+   "probandPerson": "p-proband",
+   "notes": "Fictional patient and family; the variant and the published evidence about it are real.",
+   "tags": [],
+   "caseId": null,
+   "log": []
+  }
+ ],
+ "variants": [
+  {
+   "patientId": "case-scn2a",
+   "kind": "sequence",
+   "assembly": "GRCh38",
+   "input": "NM_001040142.2:c.2558G>A",
+   "chrom": "2",
+   "pos": 165342465,
+   "ref": "G",
+   "alt": "A",
+   "transcript": "NM_001040142.2",
+   "gene": "SCN2A",
+   "hgvsc": "NM_001040142.2:c.2558G>A",
+   "hgvsp": "p.Arg853Gln",
+   "consequence": "missense_variant",
+   "zygosity": "heterozygous",
+   "inheritance": "denovo-confirmed",
+   "classification": {
+    "criteria": {}
+   },
+   "calc": {},
+   "familyGenotypes": {
+    "p-proband": "het",
+    "p-mother": "ref",
+    "p-father": "ref",
+    "p-brother": "untested"
+   },
+   "notes": "",
+   "expected": {
+    "cls": "p",
+    "criteria": [
+     "PS2",
+     "PS3",
+     "PM1",
+     "PM2_Supporting",
+     "PP3_Moderate"
+    ],
+    "source": "ClinGen Epilepsy Sodium Channel expert panel (VCEP), Evidence Repository, specifications v1.0.0; ClinVar VCV000194555 (Pathogenic, reviewed by expert panel, 2023-05-09).",
+    "notes": {
+     "PS2": "De novo with maternity and paternity confirmed in at least four published people with consistent phenotypes; this patient is another (the trio exome confirms parentage). Under the panel’s current specification (v2.0) each such person with a complex neurodevelopmental disorder scores 1 point: 2 points is strong, 4 very strong.",
+     "PS3": "Patch-clamp studies: peak sodium current 51% of normal.",
+     "PM1": "In a region of the channel enriched for pathogenic variants.",
+     "PM2": "Supporting: absent from gnomAD (v4.1, and v2.1.1 when the panel curated it).",
+     "PP3": "Moderate: REVEL 0.95, above the panel’s threshold of 0.773 (Pejaver et al. 2022). The ACGS 2024 guidelines would use PP3 at supporting strength only."
+    }
+   }
+  }
+ ]
+}

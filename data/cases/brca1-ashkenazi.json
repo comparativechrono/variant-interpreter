@@ -1,0 +1,431 @@
+{
+ "format": "variant-interpreter",
+ "version": 1,
+ "exported": "2026-10-20T09:00:00.000Z",
+ "app": "Variant interpreter",
+ "case": {
+  "id": "brca1-ashkenazi",
+  "title": "Triple-negative breast cancer in an Ashkenazi Jewish woman",
+  "brief": "<p><b>Referral from oncology.</b> A woman of 38, of Ashkenazi Jewish ancestry, has a grade 3 triple-negative breast cancer diagnosed at 37. Her mother had a high-grade serous ovarian cancer at 52 and died at 55; a maternal aunt had breast cancer at 45.</p><p>Panel testing found a heterozygous <i>BRCA1</i> variant, NM_007294.4:c.68_69del p.(Glu23ValfsTer17). Her aunt has since been tested and carries it.</p>",
+  "tasks": [
+   "Work through the PVS1 decision tree on the variant’s page. Where is the premature stop, and is nonsense-mediated decay expected?",
+   "Look at the frequency by ancestry group in gnomAD. Why is the grpmax filtering allele frequency so much lower than the Ashkenazi Jewish frequency? Does BS1 or BA1 apply?",
+   "Classify and sign; compare with the ENIGMA expert panel, and note where its gene-specific rules differ from the general guidance.",
+   "Who else in the family should be offered testing?"
+  ],
+  "source": "Variant: NM_007294.4(BRCA1):c.68_69del, GRCh38 17-43124027-ACT-A, ClinGen allele CA003783. ClinVar VCV000017662; ClinGen ENIGMA BRCA1/2 VCEP classification (Evidence Repository). Checked October 2026. The patient and family are fictional."
+ },
+ "patients": [
+  {
+   "id": "case-brca1",
+   "ref": "Case 2: woman with triple-negative breast cancer, of Ashkenazi Jewish ancestry",
+   "created": "2026-10-20T09:00:00.000Z",
+   "updated": "2026-10-20T09:00:00.000Z",
+   "sex": "female",
+   "karyotype": "",
+   "age": {
+    "years": 38,
+    "months": null
+   },
+   "prenatal": false,
+   "gestation": null,
+   "onset": "HP:0011462",
+   "onsetName": "Young adult onset",
+   "ancestryGroup": "asj",
+   "ancestry": "Ashkenazi Jewish (all four grandparents)",
+   "consanguinity": "no",
+   "referral": "Oncology: triple-negative breast cancer at 37; her mother had ovarian cancer.",
+   "summary": "Woman of 38 with grade 3 triple-negative breast cancer diagnosed at 37. Her mother had high-grade serous ovarian cancer at 52.",
+   "familyHistory": "Mother: ovarian cancer at 52, died at 55 (not tested). Maternal aunt: breast cancer at 45, now 61, carries the variant. Sister: well at 35, not tested. Father: well at 69.",
+   "test": {
+    "type": "Gene panel",
+    "panel": {
+     "id": 635,
+     "name": "Inherited breast cancer and ovarian cancer",
+     "version": "3.3",
+     "source": "PanelApp"
+    },
+    "lab": "Regional genomic laboratory (fictional)",
+    "date": "2026-07-02"
+   },
+   "phenotypes": [
+    {
+     "id": "HP:0003002",
+     "name": "Breast carcinoma",
+     "observed": true,
+     "onset": "",
+     "note": "Triple-negative (oestrogen, progesterone and HER2 receptors negative), diagnosed at 37"
+    }
+   ],
+   "family": [
+    {
+     "id": "p-mgf",
+     "label": "I-1",
+     "relation": "maternal grandfather",
+     "sex": "male",
+     "affected": false,
+     "deceased": true,
+     "note": "Died at 80"
+    },
+    {
+     "id": "p-mgm",
+     "label": "I-2",
+     "relation": "maternal grandmother",
+     "sex": "female",
+     "affected": false,
+     "deceased": true,
+     "note": "Died at 77"
+    },
+    {
+     "id": "p-father",
+     "label": "II-1",
+     "relation": "father",
+     "sex": "male",
+     "affected": false,
+     "deceased": false,
+     "note": "Well at 69"
+    },
+    {
+     "id": "p-mother",
+     "label": "II-2",
+     "relation": "mother",
+     "sex": "female",
+     "affected": true,
+     "deceased": true,
+     "note": "Ovarian cancer at 52"
+    },
+    {
+     "id": "p-aunt",
+     "label": "II-3",
+     "relation": "maternal aunt",
+     "sex": "female",
+     "affected": true,
+     "deceased": false,
+     "note": "Breast cancer at 45"
+    },
+    {
+     "id": "p-sister",
+     "label": "III-2",
+     "relation": "sister",
+     "sex": "female",
+     "affected": false,
+     "deceased": false,
+     "note": "Well at 35"
+    }
+   ],
+   "pedigree": {
+    "version": 5,
+    "personIdCounter": 0,
+    "labelIdCounter": 0,
+    "lineIdCounter": 6,
+    "persons": [
+     {
+      "id": "p-mgf",
+      "shape": "male",
+      "x": 420,
+      "y": 160,
+      "text": "Died at 80",
+      "deceased": true,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-mgm",
+      "shape": "female",
+      "x": 540,
+      "y": 160,
+      "text": "Died at 77",
+      "deceased": true,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-father",
+      "shape": "male",
+      "x": 200,
+      "y": 320,
+      "text": "Well at 69",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-mother",
+      "shape": "female",
+      "x": 320,
+      "y": 320,
+      "text": "Ovarian cancer at 52\nDied at 55",
+      "deceased": true,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "solid",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-aunt",
+      "shape": "female",
+      "x": 560,
+      "y": 320,
+      "text": "Breast cancer at 45\nNow 61",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "solid",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-proband",
+      "shape": "female",
+      "x": 200,
+      "y": 480,
+      "text": "Breast cancer at 37\nNow 38",
+      "deceased": false,
+      "proband": true,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "solid",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-sister",
+      "shape": "female",
+      "x": 320,
+      "y": 480,
+      "text": "Well at 35\nNot tested",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     }
+    ],
+    "labels": [],
+    "partnerships": [
+     {
+      "id": "pship-1",
+      "fromId": "p-mgf",
+      "toId": "p-mgm",
+      "type": "normal"
+     },
+     {
+      "id": "pship-4",
+      "fromId": "p-father",
+      "toId": "p-mother",
+      "type": "normal"
+     }
+    ],
+    "childLinks": [
+     {
+      "id": "child-2",
+      "partnershipId": "pship-1",
+      "childId": "p-mother",
+      "branchYOffset": 0,
+      "dashed": false
+     },
+     {
+      "id": "child-3",
+      "partnershipId": "pship-1",
+      "childId": "p-aunt",
+      "branchYOffset": 0,
+      "dashed": false
+     },
+     {
+      "id": "child-5",
+      "partnershipId": "pship-4",
+      "childId": "p-proband",
+      "branchYOffset": 0,
+      "dashed": false
+     },
+     {
+      "id": "child-6",
+      "partnershipId": "pship-4",
+      "childId": "p-sister",
+      "branchYOffset": 0,
+      "dashed": false
+     }
+    ],
+    "twinLinks": [],
+    "legendLabels": {
+     "#1a2332": "Breast or ovarian cancer"
+    },
+    "legendVisible": true,
+    "legendX": 730,
+    "legendY": 160,
+    "numberingMode": "numbers",
+    "partnerGapMultiplier": 2,
+    "childHeightMultiplier": 2.5,
+    "drawStrokes": []
+   },
+   "probandPerson": "p-proband",
+   "notes": "Fictional patient and family; the variant and the published evidence about it are real.",
+   "tags": [],
+   "caseId": null,
+   "log": []
+  }
+ ],
+ "variants": [
+  {
+   "patientId": "case-brca1",
+   "kind": "sequence",
+   "assembly": "GRCh38",
+   "input": "NM_007294.4:c.68_69del",
+   "chrom": "17",
+   "pos": 43124027,
+   "ref": "ACT",
+   "alt": "A",
+   "transcript": "NM_007294.4",
+   "gene": "BRCA1",
+   "hgvsc": "NM_007294.4:c.68_69del",
+   "hgvsp": "p.Glu23ValfsTer17",
+   "consequence": "frameshift_variant",
+   "zygosity": "heterozygous",
+   "inheritance": "unknown",
+   "classification": {
+    "criteria": {}
+   },
+   "calc": {},
+   "familyGenotypes": {
+    "p-proband": "het",
+    "p-aunt": "het",
+    "p-sister": "untested",
+    "p-mother": "untested",
+    "p-father": "untested"
+   },
+   "notes": "",
+   "expected": {
+    "cls": "p",
+    "criteria": [
+     "PVS1",
+     "PS3",
+     "PM5_Strong"
+    ],
+    "source": "ClinGen ENIGMA BRCA1 and BRCA2 expert panel (VCEP), Evidence Repository, specifications v1.0.0; ClinVar VCV000017662 (Pathogenic, reviewed by expert panel, 2024-06-11).",
+    "notes": {
+     "PVS1": "A frameshift that gives a premature stop early in the protein, in an exon the panel counts as biologically relevant; NMD is expected. (VEP’s NMD plugin calls it NMD-escaping, because the stop is so close to the start of the coding sequence: the panel decided otherwise from the evidence.)",
+     "PS3": "One calibrated functional study: the protein behaves like the pathogenic controls (PMID 32546644).",
+     "PM5": "Strong, by ENIGMA’s rule for premature stop codons: the frameshift begins in exon 2 but its new stop codon (codon 39) is in exon 3, where the panel’s clinical and functional data show premature stops are pathogenic. This is not PM5’s usual meaning (another missense change at the same residue).",
+     "PM2": "Not met: present in gnomAD, mostly in Ashkenazi Jewish people (about 4 in 1,000 of their alleles), a founder effect.",
+     "BS1": "Not met. ENIGMA’s thresholds use the filtering allele frequency in gnomAD’s non-cancer subsets (v2.1 exomes, v3.1), leaving out founder populations: above 0.002% is BS1_Supporting, above 0.01% BS1, above 0.1% BA1. The Ashkenazi Jewish frequency is a founder effect, so it is left out (as it is from gnomAD’s grpmax). gnomAD v4.1 has no non-cancer subset and includes people with cancer, so its filtering allele frequency (0.0025% in European alleles) is not the one the panel’s thresholds were set for.",
+     "BA1": "Not met: far below ENIGMA’s 0.1% outside the Ashkenazi Jewish group."
+    }
+   }
+  }
+ ]
+}

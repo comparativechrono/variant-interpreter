@@ -1,0 +1,286 @@
+{
+ "format": "variant-interpreter",
+ "version": 1,
+ "exported": "2026-10-20T09:00:00.000Z",
+ "app": "Variant interpreter",
+ "case": {
+  "id": "del22q11",
+  "title": "A baby with tetralogy of Fallot and low calcium",
+  "brief": "<p><b>Referral from paediatric cardiology.</b> A girl of 3 months has tetralogy of Fallot. She had a hypocalcaemic seizure on day 4 with a low parathyroid hormone; her thymus looked small on the echocardiogram and her T cells are low. Her palate is intact.</p><p>A SNP microarray found a loss of 2.3 Mb at 22q11.21: arr[GRCh38] 22q11.21(18853135_21160634)x1. Both parents’ arrays are normal, and parentage is consistent.</p>",
+  "tasks": [
+   "Open the CNV. Which ClinGen dosage-sensitive regions and genes does it contain, and does it contain the whole of an established haploinsufficient region?",
+   "Score it with the ACMG/ClinGen CNV points, section by section. How many protein-coding genes are in it?",
+   "Look at the population CNVs (DGV, gnomAD) and ClinVar’s CNVs in the region. Are deletions like this one seen in healthy people?",
+   "Sign the classification and write the report."
+  ],
+  "source": "ClinGen dosage sensitivity region ISCA-37446 (GRCh38 chr22:18,924,718-21,111,383; haploinsufficiency 3, triplosensitivity 3); genes from HGNC and MANE v1.5. Checked October 2026. The patient and family are fictional."
+ },
+ "patients": [
+  {
+   "id": "case-22q11",
+   "ref": "Case 4: baby with tetralogy of Fallot and low calcium",
+   "created": "2026-10-20T09:00:00.000Z",
+   "updated": "2026-10-20T09:00:00.000Z",
+   "sex": "female",
+   "karyotype": "",
+   "age": {
+    "years": 0,
+    "months": 3
+   },
+   "prenatal": false,
+   "gestation": null,
+   "onset": "HP:0003577",
+   "onsetName": "Congenital onset",
+   "ancestryGroup": "nfe",
+   "ancestry": "White British",
+   "consanguinity": "no",
+   "referral": "Paediatric cardiology: tetralogy of Fallot, and a hypocalcaemic seizure on day 4.",
+   "summary": "Girl of 3 months with tetralogy of Fallot (repair planned), a hypocalcaemic seizure on day 4 with a low parathyroid hormone, a small thymus on the echocardiogram and low T cells. Feeding difficulties. Palate intact.",
+   "familyHistory": "First child of unrelated, healthy parents. SNP arrays in both parents: no deletion, parentage consistent.",
+   "test": {
+    "type": "Chromosomal microarray",
+    "panel": null,
+    "lab": "Regional genomic laboratory (fictional)",
+    "date": "2026-09-30"
+   },
+   "phenotypes": [
+    {
+     "id": "HP:0001636",
+     "name": "Tetralogy of Fallot",
+     "observed": true,
+     "onset": "",
+     "note": ""
+    },
+    {
+     "id": "HP:0002199",
+     "name": "Hypocalcemic seizures",
+     "observed": true,
+     "onset": "",
+     "note": "Day 4"
+    },
+    {
+     "id": "HP:0031817",
+     "name": "Decreased circulating parathyroid hormone level",
+     "observed": true,
+     "onset": "",
+     "note": ""
+    },
+    {
+     "id": "HP:0000778",
+     "name": "Hypoplasia of the thymus",
+     "observed": true,
+     "onset": "",
+     "note": "Seen on the echocardiogram"
+    },
+    {
+     "id": "HP:0005403",
+     "name": "Decreased total T cell count",
+     "observed": true,
+     "onset": "",
+     "note": "CD3 count low for age"
+    },
+    {
+     "id": "HP:0008872",
+     "name": "Feeding difficulties in infancy",
+     "observed": true,
+     "onset": "",
+     "note": ""
+    },
+    {
+     "id": "HP:0000175",
+     "name": "Cleft palate",
+     "observed": false,
+     "onset": "",
+     "note": "Palate intact on examination"
+    }
+   ],
+   "family": [
+    {
+     "id": "p-father",
+     "label": "I-1",
+     "relation": "father",
+     "sex": "male",
+     "affected": false,
+     "deceased": false,
+     "note": "Well at 30"
+    },
+    {
+     "id": "p-mother",
+     "label": "I-2",
+     "relation": "mother",
+     "sex": "female",
+     "affected": false,
+     "deceased": false,
+     "note": "Well at 29"
+    }
+   ],
+   "pedigree": {
+    "version": 5,
+    "personIdCounter": 0,
+    "labelIdCounter": 0,
+    "lineIdCounter": 2,
+    "persons": [
+     {
+      "id": "p-father",
+      "shape": "male",
+      "x": 260,
+      "y": 160,
+      "text": "Well at 30\nNormal array",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-mother",
+      "shape": "female",
+      "x": 400,
+      "y": 160,
+      "text": "Well at 29\nNormal array",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-proband",
+      "shape": "female",
+      "x": 330,
+      "y": 320,
+      "text": "Tetralogy of Fallot\nHypocalcaemia",
+      "deceased": false,
+      "proband": true,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "solid",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     }
+    ],
+    "labels": [],
+    "partnerships": [
+     {
+      "id": "pship-1",
+      "fromId": "p-father",
+      "toId": "p-mother",
+      "type": "normal"
+     }
+    ],
+    "childLinks": [
+     {
+      "id": "child-2",
+      "partnershipId": "pship-1",
+      "childId": "p-proband",
+      "branchYOffset": 0,
+      "dashed": false
+     }
+    ],
+    "twinLinks": [],
+    "legendLabels": {
+     "#1a2332": "Congenital heart disease and hypocalcaemia"
+    },
+    "legendVisible": true,
+    "legendX": 570,
+    "legendY": 160,
+    "numberingMode": "numbers",
+    "partnerGapMultiplier": 2,
+    "childHeightMultiplier": 2.5,
+    "drawStrokes": []
+   },
+   "probandPerson": "p-proband",
+   "notes": "Fictional patient and family. The deletion’s coordinates are those of a typical A–D deletion on GRCh38; the ClinGen region and the genes in it are real.",
+   "tags": [],
+   "caseId": null,
+   "log": []
+  }
+ ],
+ "variants": [
+  {
+   "patientId": "case-22q11",
+   "kind": "cnv",
+   "assembly": "GRCh38",
+   "input": "chr22:18853135-21160634 del",
+   "chrom": "22",
+   "start": 18853135,
+   "end": 21160634,
+   "cnvType": "loss",
+   "copyNumber": 1,
+   "inheritance": "denovo-confirmed",
+   "cnv": {
+    "items": {}
+   },
+   "classification": {},
+   "calc": {},
+   "familyGenotypes": {
+    "p-proband": "het",
+    "p-mother": "ref",
+    "p-father": "ref"
+   },
+   "notes": "arr[GRCh38] 22q11.21(18853135_21160634)x1 dn",
+   "expected": {
+    "cls": "p",
+    "items": [
+     "1A",
+     "2A",
+     "3C",
+     "5A"
+    ],
+    "source": "ClinGen dosage sensitivity curation ISCA-37446, 22q11.2 recurrent (DGS) region (proximal, A-B, A-C or A-D): haploinsufficiency score 3 (2025-07-19); scored with the ACMG/ClinGen CNV standards (Riggs et al. 2020).",
+    "notes": {
+     "1A": "It contains protein-coding genes: 44 of them in the site’s gene table, including TBX1, CRKL and HIRA.",
+     "2A": "It contains the whole of an established haploinsufficient region: ClinGen’s 22q11.2 A–D region (GRCh38 chr22:18,924,718-21,111,383, score 3). That alone gives 1.00: pathogenic.",
+     "3C": "44 protein-coding genes: 35 or more is 0.90.",
+     "5A": "De novo (both parents’ arrays normal, parentage consistent) in a child whose features fit the region well."
+    }
+   }
+  }
+ ]
+}

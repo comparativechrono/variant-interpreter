@@ -1,0 +1,281 @@
+{
+ "format": "variant-interpreter",
+ "version": 1,
+ "exported": "2026-10-20T09:00:00.000Z",
+ "app": "Variant interpreter",
+ "case": {
+  "id": "pten-macrocephaly",
+  "title": "A boy with a large head and autism",
+  "brief": "<p><b>Referral from community paediatrics.</b> A boy of 4 has a head circumference of +4.1 SD, global developmental delay and autism. His height is average. He has pigmented macules on the glans penis. His parents are well and their head circumferences are normal.</p><p><i>PTEN</i> testing found a heterozygous variant, NM_000314.8:c.80-1G&gt;C, at an intron 1 splice acceptor. Neither parent carries it; parentage has not been tested.</p>",
+  "tasks": [
+   "Work through the PVS1 decision tree for a canonical splice site. What does SpliceAI predict, and does it matter here?",
+   "The variant is absent from both parents, but parentage is unconfirmed: PS2 or PM6? How many points, given his phenotype?",
+   "Classify, sign and compare with the ClinGen PTEN expert panel.",
+   "What surveillance does a diagnosis of PTEN hamartoma tumour syndrome bring, for him and later in life?"
+  ],
+  "source": "Variant: NM_000314.8(PTEN):c.80-1G>C, GRCh38 10-87894024-G-C, ClinGen allele CA000586 (absent from gnomAD v4.1). ClinVar VCV000189462; ClinGen PTEN VCEP classification (Evidence Repository). Checked October 2026. The patient and family are fictional."
+ },
+ "patients": [
+  {
+   "id": "case-pten",
+   "ref": "Case 8: boy with a large head, developmental delay and autism",
+   "created": "2026-10-20T09:00:00.000Z",
+   "updated": "2026-10-20T09:00:00.000Z",
+   "sex": "male",
+   "karyotype": "",
+   "age": {
+    "years": 4,
+    "months": null
+   },
+   "prenatal": false,
+   "gestation": null,
+   "onset": "HP:0003593",
+   "onsetName": "Infantile onset",
+   "ancestryGroup": "nfe",
+   "ancestry": "White British",
+   "consanguinity": "no",
+   "referral": "Community paediatrics: head circumference +4.1 SD, global developmental delay and a diagnosis of autism.",
+   "summary": "Boy of 4. Head circumference +4.1 SD (it crossed centiles upwards in the first year); height on the 50th centile. Global developmental delay (walked at 22 months, few words) and autism. Pigmented macules on the glans penis. No seizures.",
+   "familyHistory": "Parents unrelated, well, with normal head circumferences. Neither parent carries the variant; parentage has not been tested.",
+   "test": {
+    "type": "Single gene",
+    "panel": {
+     "id": 1382,
+     "name": "PTEN Hamartoma Tumor Syndrome",
+     "version": "1.8",
+     "source": "PanelApp"
+    },
+    "lab": "Regional genomic laboratory (fictional)",
+    "date": "2026-08-05"
+   },
+   "phenotypes": [
+    {
+     "id": "HP:0000256",
+     "name": "Macrocephaly",
+     "observed": true,
+     "onset": "",
+     "note": "+4.1 SD"
+    },
+    {
+     "id": "HP:0001263",
+     "name": "Global developmental delay",
+     "observed": true,
+     "onset": "",
+     "note": ""
+    },
+    {
+     "id": "HP:0000717",
+     "name": "Autism",
+     "observed": true,
+     "onset": "",
+     "note": ""
+    },
+    {
+     "id": "HP:0031447",
+     "name": "Penile freckling",
+     "observed": true,
+     "onset": "",
+     "note": ""
+    },
+    {
+     "id": "HP:0001250",
+     "name": "Seizure",
+     "observed": false,
+     "onset": "",
+     "note": ""
+    }
+   ],
+   "family": [
+    {
+     "id": "p-father",
+     "label": "I-1",
+     "relation": "father",
+     "sex": "male",
+     "affected": false,
+     "deceased": false,
+     "note": "Well at 38"
+    },
+    {
+     "id": "p-mother",
+     "label": "I-2",
+     "relation": "mother",
+     "sex": "female",
+     "affected": false,
+     "deceased": false,
+     "note": "Well at 36"
+    }
+   ],
+   "pedigree": {
+    "version": 5,
+    "personIdCounter": 0,
+    "labelIdCounter": 0,
+    "lineIdCounter": 2,
+    "persons": [
+     {
+      "id": "p-father",
+      "shape": "male",
+      "x": 260,
+      "y": 160,
+      "text": "Well at 38\nHead +1.0 SD",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-mother",
+      "shape": "female",
+      "x": 400,
+      "y": 160,
+      "text": "Well at 36\nHead +0.5 SD",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-proband",
+      "shape": "male",
+      "x": 330,
+      "y": 320,
+      "text": "Macrocephaly, autism\nNow 4",
+      "deceased": false,
+      "proband": true,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "solid",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     }
+    ],
+    "labels": [],
+    "partnerships": [
+     {
+      "id": "pship-1",
+      "fromId": "p-father",
+      "toId": "p-mother",
+      "type": "normal"
+     }
+    ],
+    "childLinks": [
+     {
+      "id": "child-2",
+      "partnershipId": "pship-1",
+      "childId": "p-proband",
+      "branchYOffset": 0,
+      "dashed": false
+     }
+    ],
+    "twinLinks": [],
+    "legendLabels": {
+     "#1a2332": "Macrocephaly with developmental delay"
+    },
+    "legendVisible": true,
+    "legendX": 570,
+    "legendY": 160,
+    "numberingMode": "numbers",
+    "partnerGapMultiplier": 2,
+    "childHeightMultiplier": 2.5,
+    "drawStrokes": []
+   },
+   "probandPerson": "p-proband",
+   "notes": "Fictional patient and family; the variant and the published evidence about it are real.",
+   "tags": [],
+   "caseId": null,
+   "log": []
+  }
+ ],
+ "variants": [
+  {
+   "patientId": "case-pten",
+   "kind": "sequence",
+   "assembly": "GRCh38",
+   "input": "NM_000314.8:c.80-1G>C",
+   "chrom": "10",
+   "pos": 87894024,
+   "ref": "G",
+   "alt": "C",
+   "transcript": "NM_000314.8",
+   "gene": "PTEN",
+   "hgvsc": "NM_000314.8:c.80-1G>C",
+   "hgvsp": "",
+   "consequence": "splice_acceptor_variant",
+   "zygosity": "heterozygous",
+   "inheritance": "denovo-assumed",
+   "classification": {
+    "criteria": {}
+   },
+   "calc": {},
+   "familyGenotypes": {
+    "p-proband": "het",
+    "p-mother": "ref",
+    "p-father": "ref"
+   },
+   "notes": "",
+   "expected": {
+    "cls": "p",
+    "criteria": [
+     "PVS1",
+     "PM2_Supporting",
+     "PM6_Strong"
+    ],
+    "source": "ClinGen PTEN expert panel (VCEP), Evidence Repository, specifications v3.1.0; ClinVar VCV000189462 (Pathogenic, reviewed by expert panel, 2025-12-05).",
+    "notes": {
+     "PVS1": "A canonical splice acceptor (−1) of PTEN, where loss of function causes disease: full strength by the decision tree.",
+     "PM6": "Strong, by the panel’s rule: one assumed de novo occurrence (parents tested, parentage not confirmed) counts as strong in a person with a highly specific phenotype, such as macrocephaly with developmental delay. This patient is such a case.",
+     "PM2": "Supporting: absent from gnomAD v4.1.",
+     "PP3": "Not met: SpliceAI gives only 0.33 for this change, and a canonical site variant is assessed under PVS1. A low SpliceAI score doesn’t undo PVS1 at a canonical site.",
+     "BP7": "Not met: it is at the −1 position of an intron, not a synonymous or deep intronic change."
+    }
+   }
+  }
+ ]
+}

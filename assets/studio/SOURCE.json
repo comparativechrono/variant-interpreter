@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/comparativechrono/pedigreestudio",
+  "copied_from": "https://github.com/comparativechrono/pedigree-workbench/tree/main/assets/studio (commit 2d76e97)",
+  "studio_commit": "81dbf796c56b8ae698f7facb6402bccfb916b145",
+  "sha256_of_pedigree_workbench_copy": "f78d0606f1e268cd9452ab2c080e3d5a6a77c84ee9eb75e24ad9997b1bfbaf16",
+  "copied": "2026-10-20",
+  "changes": [
+    "the browser-storage key 'pedwb:studio-session' (the Pedigree workbench's name for it) became 'varint:studio-session' (3 places), so that the Variant interpreter and the Pedigree workbench keep their drawings apart when they share an address",
+    "bridge.js is the Pedigree workbench's, unchanged"
+  ]
+}

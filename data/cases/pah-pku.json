@@ -1,0 +1,343 @@
+{
+ "format": "variant-interpreter",
+ "version": 1,
+ "exported": "2026-10-20T09:00:00.000Z",
+ "app": "Variant interpreter",
+ "case": {
+  "id": "pah-pku",
+  "title": "A raised phenylalanine on newborn screening",
+  "brief": "<p><b>Referral from the newborn screening laboratory.</b> A baby boy had a blood spot phenylalanine of 1,250 µmol/L on day 5. At 7 days his plasma phenylalanine was 1,480 µmol/L with a low tyrosine; blood spot pterins and DHPR activity were normal, so BH4 deficiency is excluded.</p><p><i>PAH</i> sequencing found two heterozygous variants: NM_000277.3:c.1222C&gt;T p.(Arg408Trp) and NM_000277.3:c.1066-11G&gt;A, which is in an intron. His mother carries the first; his father carries the second.</p>",
+  "tasks": [
+   "Are the two variants in trans? What do the parents’ results show, and what are PM3’s points for this patient?",
+   "c.1066-11G>A is not at a canonical splice site. What do SpliceAI and the literature say it does to splicing, and which criterion does that evidence go under?",
+   "Both variants are in gnomAD. Why does that not count against them (think of carriers of a recessive disorder)?",
+   "Classify both variants and sign; compare with the ClinGen PKU expert panel."
+  ],
+  "source": "Variants: NM_000277.3(PAH):c.1222C>T, GRCh38 12-102840493-G-A, CA251523, ClinVar VCV000000577; NM_000277.3(PAH):c.1066-11G>A, GRCh38 12-102843790-C-T, CA251538, ClinVar VCV000000607; ClinGen PKU VCEP classifications (Evidence Repository). Checked October 2026. The patient and family are fictional."
+ },
+ "patients": [
+  {
+   "id": "case-pah",
+   "ref": "Case 3: newborn with a raised phenylalanine on newborn screening",
+   "created": "2026-10-20T09:00:00.000Z",
+   "updated": "2026-10-20T09:00:00.000Z",
+   "sex": "male",
+   "karyotype": "",
+   "age": {
+    "years": 0,
+    "months": 1
+   },
+   "prenatal": false,
+   "gestation": null,
+   "onset": "HP:0003623",
+   "onsetName": "Neonatal onset",
+   "ancestryGroup": "nfe",
+   "ancestry": "Irish (mother) and southern Italian (father)",
+   "consanguinity": "no",
+   "referral": "Newborn blood spot screening: phenylalanine 1,250 µmol/L on day 5.",
+   "summary": "Boy referred at 7 days after newborn screening. Plasma phenylalanine 1,480 µmol/L, tyrosine low. Blood spot pterins and dihydropteridine reductase (DHPR) activity normal, so BH4 deficiency is excluded. Started on a phenylalanine-restricted diet.",
+   "familyHistory": "Parents unrelated, both well. Older sister well, with a normal newborn screen. Parental testing: the mother carries c.1222C>T, the father carries c.1066-11G>A.",
+   "test": {
+    "type": "Single gene",
+    "panel": {
+     "id": 1378,
+     "name": "Phenylketonuria",
+     "version": "1.5",
+     "source": "PanelApp"
+    },
+    "lab": "Regional genomic laboratory (fictional)",
+    "date": "2026-09-21"
+   },
+   "phenotypes": [
+    {
+     "id": "HP:0004923",
+     "name": "Hyperphenylalaninemia",
+     "observed": true,
+     "onset": "",
+     "note": "Blood spot 1,250 µmol/L on day 5; plasma 1,480 µmol/L. BH4 deficiency excluded (normal pterins and DHPR)."
+    }
+   ],
+   "family": [
+    {
+     "id": "p-father",
+     "label": "I-1",
+     "relation": "father",
+     "sex": "male",
+     "affected": false,
+     "deceased": false,
+     "note": "Well at 34"
+    },
+    {
+     "id": "p-mother",
+     "label": "I-2",
+     "relation": "mother",
+     "sex": "female",
+     "affected": false,
+     "deceased": false,
+     "note": "Well at 31"
+    },
+    {
+     "id": "p-sister",
+     "label": "II-1",
+     "relation": "sister",
+     "sex": "female",
+     "affected": false,
+     "deceased": false,
+     "note": "Well at 4"
+    }
+   ],
+   "pedigree": {
+    "version": 5,
+    "personIdCounter": 0,
+    "labelIdCounter": 0,
+    "lineIdCounter": 3,
+    "persons": [
+     {
+      "id": "p-father",
+      "shape": "male",
+      "x": 260,
+      "y": 160,
+      "text": "Well at 34\nCarries c.1066-11G>A",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-mother",
+      "shape": "female",
+      "x": 400,
+      "y": 160,
+      "text": "Well at 31\nCarries c.1222C>T",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-sister",
+      "shape": "female",
+      "x": 270,
+      "y": 320,
+      "text": "Well at 4\nNormal newborn screen",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-proband",
+      "shape": "male",
+      "x": 390,
+      "y": 320,
+      "text": "Phenylketonuria\n6 weeks",
+      "deceased": false,
+      "proband": true,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "solid",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     }
+    ],
+    "labels": [],
+    "partnerships": [
+     {
+      "id": "pship-1",
+      "fromId": "p-father",
+      "toId": "p-mother",
+      "type": "normal"
+     }
+    ],
+    "childLinks": [
+     {
+      "id": "child-2",
+      "partnershipId": "pship-1",
+      "childId": "p-sister",
+      "branchYOffset": 0,
+      "dashed": false
+     },
+     {
+      "id": "child-3",
+      "partnershipId": "pship-1",
+      "childId": "p-proband",
+      "branchYOffset": 0,
+      "dashed": false
+     }
+    ],
+    "twinLinks": [],
+    "legendLabels": {
+     "#1a2332": "Phenylketonuria"
+    },
+    "legendVisible": true,
+    "legendX": 570,
+    "legendY": 160,
+    "numberingMode": "numbers",
+    "partnerGapMultiplier": 2,
+    "childHeightMultiplier": 2.5,
+    "drawStrokes": []
+   },
+   "probandPerson": "p-proband",
+   "notes": "Fictional patient and family; the variants and the published evidence about them are real.",
+   "tags": [],
+   "caseId": null,
+   "log": []
+  }
+ ],
+ "variants": [
+  {
+   "patientId": "case-pah",
+   "kind": "sequence",
+   "assembly": "GRCh38",
+   "input": "NM_000277.3:c.1222C>T",
+   "chrom": "12",
+   "pos": 102840493,
+   "ref": "G",
+   "alt": "A",
+   "transcript": "NM_000277.3",
+   "gene": "PAH",
+   "hgvsc": "NM_000277.3:c.1222C>T",
+   "hgvsp": "p.Arg408Trp",
+   "consequence": "missense_variant",
+   "zygosity": "heterozygous",
+   "inheritance": "maternal",
+   "classification": {
+    "criteria": {}
+   },
+   "calc": {},
+   "familyGenotypes": {
+    "p-proband": "het",
+    "p-mother": "het",
+    "p-father": "ref",
+    "p-sister": "untested"
+   },
+   "notes": "",
+   "expected": {
+    "cls": "p",
+    "criteria": [
+     "PS3",
+     "PM3_Strong",
+     "PP3",
+     "PP4_Moderate"
+    ],
+    "source": "ClinGen Phenylketonuria expert panel (VCEP), Evidence Repository; ClinVar VCV000000577 (Pathogenic, reviewed by expert panel, 2018-08-06).",
+    "notes": {
+     "PS3": "Enzyme activity about 1 to 2% of normal in expression studies (PMIDs 25596310, 17935162).",
+     "PM3": "Strong: found in trans with other pathogenic PAH variants, and homozygous, in people with PKU (the panel’s points). This patient adds another observation in trans, confirmed by the parents’ results.",
+     "PP3": "The computational tools agree that it damages the protein.",
+     "PP4": "Moderate, by the panel’s rule: a phenylalanine level typical of PKU, with BH4 deficiency excluded.",
+     "PM2": "Not met: about 1 in 600 European alleles in gnomAD v4.1, above the panel’s PM2 threshold of 0.02%. Common for a pathogenic variant, as many recessive ones are, because carriers are well (the panel’s BS1 threshold is 0.2%)."
+    }
+   }
+  },
+  {
+   "patientId": "case-pah",
+   "kind": "sequence",
+   "assembly": "GRCh38",
+   "input": "NM_000277.3:c.1066-11G>A",
+   "chrom": "12",
+   "pos": 102843790,
+   "ref": "C",
+   "alt": "T",
+   "transcript": "NM_000277.3",
+   "gene": "PAH",
+   "hgvsc": "NM_000277.3:c.1066-11G>A",
+   "hgvsp": "",
+   "consequence": "splice_polypyrimidine_tract_variant",
+   "zygosity": "heterozygous",
+   "inheritance": "paternal",
+   "classification": {
+    "criteria": {}
+   },
+   "calc": {},
+   "familyGenotypes": {
+    "p-proband": "het",
+    "p-father": "het",
+    "p-mother": "ref",
+    "p-sister": "untested"
+   },
+   "notes": "",
+   "expected": {
+    "cls": "p",
+    "criteria": [
+     "PVS1_Strong",
+     "PM3_VeryStrong",
+     "PP4_Moderate"
+    ],
+    "source": "ClinGen Phenylketonuria expert panel (VCEP), Evidence Repository, specifications v2.0.0; ClinVar VCV000000607 (Pathogenic, reviewed by expert panel, 2024-12-30).",
+    "notes": {
+     "PVS1": "Strong, from RNA: the change makes a new splice acceptor, so the patient’s mRNA has 9 extra bases between exons 10 and 11 (an in-frame insertion of three amino acids), with only traces of the normal product; liver from a patient had no enzyme activity (PMID 1769645). The splicing is shown, not just predicted.",
+     "PM3": "Very strong: in trans with known pathogenic PAH variants in at least 15 people with PKU (5.5 points; PMIDs 23500595, 8990013).",
+     "PP4": "Moderate: phenylalanine levels typical of PKU, with BH4 deficiency excluded.",
+     "PP3": "Not met by the panel, although SpliceAI predicts an acceptor gain (0.98): the same splicing effect is already counted under PVS1, with RNA evidence, and ClinGen’s splicing guidance doesn’t count it twice.",
+     "PM2": "Not met: about 3 in 10,000 alleles in gnomAD, above the panel’s threshold of 0.0002."
+    }
+   }
+  }
+ ]
+}

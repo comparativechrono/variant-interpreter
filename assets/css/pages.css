@@ -1,0 +1,150 @@
+/* =====================================================================
+   The gene, phenotype and phenotype-match pages
+   ===================================================================== */
+
+/* a button that reads as a link (counts that filter a list, numbers that open a list) */
+.linkish { border: 0; background: none; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; cursor: pointer; }
+.linkish:hover { color: var(--ink); }
+
+/* ---------------- the gene page: heading ---------------- */
+.gene-sym { font-weight: 800; font-size: 1.9rem; letter-spacing: -0.01em; }
+.gene-name { font-weight: 400; color: var(--ink-2); font-size: 1.15rem; }
+.gene-also { margin: 6px 0 0; }
+.gene-tags { margin: 8px 0 0; gap: 6px; }
+.gene-summary { margin: 10px 0 0; color: var(--ink-2); max-width: 80ch; }
+.gene-summary:empty { display: none; }
+.gene-fn { margin-top: 6px; max-width: 80ch; }
+.gene-fn > summary { cursor: pointer; font-size: 0.88rem; color: var(--accent); }
+.gene-fn p { margin: 6px 0 0; }
+.gene-look { display: flex; flex-direction: column; gap: 4px; min-width: min(100%, 300px); }
+.gene-look label { font-size: 0.84rem; color: var(--muted); }
+.gene-look .row { flex-wrap: nowrap; gap: 6px; }
+.gene-look input { min-width: 0; }
+.gene-like { padding-left: 20px; }
+.gene-regions { margin: 0 0 6px; padding-left: 18px; }
+.gene-like li { margin: 3px 0; }
+
+/* ---------------- the gene page: tabs ---------------- */
+.gene-body { min-height: 260px; }
+.gene-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 22px 28px; align-items: start; }
+@media (max-width: 1000px) { .gene-grid { grid-template-columns: minmax(0, 1fr); } }
+.gene-h { font-size: 1.08rem; margin: 2px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.gene-col > .gene-h ~ .gene-h { margin-top: 22px; }
+.gene-col .vsub:first-of-type { margin-top: 4px; }
+.gene-col table.kv th { width: 34%; }
+
+/* scores as gauges: a line from low to high, the stretch past the threshold shaded, the gene a dot on it */
+.gauges { display: flex; flex-direction: column; gap: 14px; }
+.gauge-h { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.gauge-l { font-weight: 700; min-width: 86px; }
+.gauge-v { font-variant-numeric: tabular-nums; font-weight: 700; }
+.gauge-track { position: relative; height: 10px; border-radius: 5px; background: var(--sunk); margin: 6px 0 2px; }
+.gauge-zone { position: absolute; top: 0; bottom: 0; background: var(--accent-soft); border: 1px solid var(--accent-edge); border-radius: 5px; }
+.gauge-dot { position: absolute; top: 50%; width: 14px; height: 14px; margin-left: -7px; margin-top: -7px; border-radius: 50%; background: #fff; border: 3px solid var(--ink-2); }
+.gauge-dot.met { border-color: var(--accent); background: var(--accent); }
+.gauge-s { display: flex; justify-content: space-between; gap: 8px; font-size: 0.74rem; color: var(--faint); }
+.gauge-zt { color: var(--muted); text-align: center; }
+.gauge-help { margin-top: 4px; }
+.gauge-help > summary { cursor: pointer; font-size: 0.88rem; color: var(--accent); }
+.gauge-help dl { margin: 8px 0 4px; }
+.gauge-help dt { font-weight: 700; margin-top: 6px; }
+.gauge-help dd { margin: 0; color: var(--ink-2); }
+
+/* the features of the gene's diseases */
+.gene-ctx { max-width: 460px; margin: 4px 0 14px; }
+.gene-ctx select { width: 100%; }
+.feat-group { border-top: 1px solid var(--line-2); padding: 4px 0; }
+.feat-group > summary { cursor: pointer; font-weight: 700; padding: 6px 0; font-size: 0.93rem; }
+.feat-list { list-style: none; margin: 0 0 6px; padding: 0; }
+.feat-list li { display: grid; grid-template-columns: minmax(0, 1fr) 170px 130px; gap: 2px 12px; align-items: baseline; padding: 4px 6px; border-radius: var(--r-s); }
+.feat-list li:nth-child(even) { background: #fafbfc; }
+.feat-list li.shared { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.feat-who { grid-column: 1 / -1; color: var(--accent); }
+.feat-freq { color: var(--ink-2); }
+@media (max-width: 760px) { .feat-list li { grid-template-columns: minmax(0, 1fr); } }
+.gene-side .vsub:first-child { margin-top: 0; }
+.gene-person { padding: 8px 0; border-bottom: 1px solid var(--line-2); }
+.gene-person:last-of-type { border-bottom: 0; }
+.person-feats { margin: 4px 0 0; padding-left: 18px; }
+.person-feats li.shared { color: var(--ink); }
+.shared-list { padding-left: 18px; }
+
+/* ClinVar's variants in the gene */
+.cv-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.cv-head .gene-h { flex: 1 1 auto; border: 0; padding: 0; }
+.cv-summary { margin: 4px 0 14px; }
+.cv-bar { display: flex; height: 16px; border-radius: 8px; overflow: hidden; background: var(--sunk); }
+.cv-seg { min-width: 2px; }
+.cv-seg + .cv-seg { box-shadow: inset 2px 0 0 #fff; }
+.cv-seg.plp, .cv-dot.plp { background: var(--c-p); }
+.cv-seg.vus, .cv-dot.vus { background: var(--c-vus); }
+.cv-seg.conflict, .cv-dot.conflict { background: #6f5f8f; }
+.cv-seg.blb, .cv-dot.blb { background: var(--c-lb); }
+.cv-seg.other, .cv-dot.other { background: #b3bcc8; }
+.cv-key { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 2px 18px; }
+.cv-key li { display: inline-flex; align-items: center; gap: 6px; }
+.cv-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.cv-cls { display: inline-flex; align-items: center; gap: 6px; }
+.cv-filters { margin: 6px 0 4px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); }
+.gene-notes { margin: 0 0 8px; padding-left: 18px; }
+.gene-notes li { margin: 4px 0; }
+.gene-notes .crit-list { margin-right: 4px; }
+.pheno-cell b { color: var(--ink); }
+.gene-body table.data .hgvs { overflow-wrap: normal; }
+
+/* ---------------- an HPO term's page ---------------- */
+.pheno-defn { font-size: 1.02rem; max-width: 75ch; color: var(--ink-2); }
+.hpo-path { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: baseline; font-size: 0.88rem; margin: 0 0 12px; padding: 8px 10px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); }
+.hpo-path .sep { color: var(--faint); }
+.hpo-path [aria-current] { font-weight: 700; }
+.term-list { margin: 0; padding-left: 18px; }
+.term-list li { margin: 3px 0; }
+.pheno-counts p { margin-bottom: 0.5em; }
+.pt-list { list-style: none; margin: 0 0 10px; padding: 0; }
+.pt-list li { padding: 6px 0; border-bottom: 1px solid var(--line-2); }
+.pt-list li:last-child { border-bottom: 0; }
+
+/* ---------------- phenotype match ---------------- */
+.match-input { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-l); padding: 14px 16px 12px; }
+.match-input .section-h { border-bottom: 0; padding-bottom: 0; }
+.match-src { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+.match-pick { max-width: 460px; }
+.match-add { margin-bottom: 10px; }
+.match-add .hpo-hits { max-height: 300px; }
+.mchips { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 4px 20px; margin-bottom: 8px; }
+.mchips .vsub { margin-top: 4px; }
+.mchip-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.mchip { display: inline-flex; align-items: center; gap: 2px; border: 1.5px solid #8cc5a0; background: var(--ok-soft); border-radius: 999px; padding: 2px 4px 2px 10px; font-size: 0.88rem; }
+.mchip > a { color: var(--ink); text-decoration: none; }
+.mchip > a:hover { text-decoration: underline; }
+.mchip.exc { border-style: dashed; border-color: var(--faint); background: var(--panel); }
+.mchip.exc > a { text-decoration: line-through; text-decoration-color: var(--faint); color: var(--muted); }
+.mchip-b { border: 0; background: transparent; font: inherit; font-size: 0.74rem; color: var(--accent); cursor: pointer; padding: 2px 4px; border-radius: 999px; }
+.mchip-b:hover { background: var(--accent-soft); }
+.mchip-x { border: 0; background: transparent; cursor: pointer; color: var(--muted); display: inline-flex; padding: 2px; border-radius: 50%; }
+.mchip-x:hover { background: var(--sunk); color: var(--ink); }
+.mchip-x .ic { width: 14px; height: 14px; }
+.match-res { margin-top: 18px; }
+.match-how { margin: 0 0 18px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); padding: 0 12px; }
+.match-how > summary { cursor: pointer; font-weight: 700; padding: 8px 0; }
+.match-how > div { padding-bottom: 6px; max-width: 85ch; }
+.match-list { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.match-item { padding: 8px 10px; border-radius: var(--r); border: 1px solid var(--line-2); background: var(--panel); border-left: 3px solid var(--line); }
+.match-item.hasvar { border-left-color: var(--accent); }
+.match-h { display: flex; gap: 10px; align-items: baseline; }
+.match-rank { flex: none; min-width: 34px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--muted); }
+.match-name { flex: 1 1 auto; min-width: 0; font-weight: 600; }
+.match-score { flex: none; font-variant-numeric: tabular-nums; font-weight: 700; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.25; }
+.match-both { font-weight: 400; font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
+.match-meta { margin-top: 2px; }
+.match-item .fit-bar { margin: 4px 0 4px 44px; }
+.match-item > .small { margin-left: 44px; }
+.match-item { padding: 6px 10px; }
+.match-why { margin: 4px 0 0 44px; }
+.match-why > summary { cursor: pointer; font-size: 0.86rem; color: var(--accent); }
+.match-why[open] > summary { margin-bottom: 6px; }
+.match-why p { margin: 6px 0 0; }
+@media (max-width: 640px) { .match-item .fit-bar, .match-item > .small, .match-why { margin-left: 0; } }
+.ic-cell, .score-cell { display: inline-flex; align-items: center; gap: 6px; justify-content: flex-end; font-variant-numeric: tabular-nums; }
+.ic-bar { display: inline-block; height: 7px; border-radius: 2px; background: var(--accent-2); opacity: 0.75; }
+.fit-bar.inline { display: inline-block; width: 90px; margin: 0; vertical-align: middle; }

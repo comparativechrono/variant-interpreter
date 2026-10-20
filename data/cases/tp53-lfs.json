@@ -1,0 +1,538 @@
+{
+ "format": "variant-interpreter",
+ "version": 1,
+ "exported": "2026-10-20T09:00:00.000Z",
+ "app": "Variant interpreter",
+ "case": {
+  "id": "tp53-lfs",
+  "title": "A family with early cancers",
+  "brief": "<p><b>Referral from the breast clinic.</b> A woman of 33 had HER2-positive breast cancer at 29. Her brother had an osteosarcoma at 15. Her mother had breast cancer at 36 and died at 39; a maternal aunt had a leiomyosarcoma at 41; her maternal grandfather died of a glioblastoma at 46.</p><p>Testing for Li-Fraumeni syndrome (the <i>TP53</i> and <i>POT1</i> panel) found a heterozygous variant in <i>TP53</i>: NM_000546.6:c.818G&gt;A p.(Arg273His). Since then her brother and her maternal aunt have been tested and carry it; her maternal uncle, well at 55, does not. Her sister, well at 30, has not been tested.</p>",
+  "tasks": [
+   "Open the variant and go through its evidence: frequency, predictions, the protein (is codon 273 a hotspot?), ClinVar and the literature.",
+   "On the Family tab, check the relatives’ genotypes, then use the segregation calculator on the variant’s page: is PP1 met, and at what strength?",
+   "Classify the variant and sign it; then compare your criteria with the ClinGen TP53 expert panel’s.",
+   "Write the report. What would you offer her sister?"
+  ],
+  "source": "Variant: NM_000546.6(TP53):c.818G>A, GRCh38 17-7673802-C-T, ClinGen allele CA000434. ClinVar VCV000012366; ClinGen TP53 VCEP classification (Evidence Repository). Checked October 2026. The patient and family are fictional."
+ },
+ "patients": [
+  {
+   "id": "case-tp53",
+   "ref": "Case 1: woman with breast cancer at 29 and a family of early cancers",
+   "created": "2026-10-20T09:00:00.000Z",
+   "updated": "2026-10-20T09:00:00.000Z",
+   "sex": "female",
+   "karyotype": "",
+   "age": {
+    "years": 33,
+    "months": null
+   },
+   "prenatal": false,
+   "gestation": null,
+   "onset": "HP:0011462",
+   "onsetName": "Young adult onset",
+   "ancestryGroup": "nfe",
+   "ancestry": "White British",
+   "consanguinity": "no",
+   "referral": "Breast clinic: breast cancer at 29, and a strong family history of early cancers.",
+   "summary": "Woman of 33 with HER2-positive breast cancer diagnosed at 29, treated. Her brother had an osteosarcoma at 15. Meets the revised Chompret criteria for Li-Fraumeni syndrome (breast cancer before 31, and a first-degree relative with a sarcoma before 56).",
+   "familyHistory": "Mother: breast cancer at 36, died at 39 (not tested). Brother: osteosarcoma at 15, now 36, carries the variant. Sister: well at 30, not tested. Maternal aunt: leiomyosarcoma at 41, now 52, carries the variant. Maternal uncle: well at 55, does not carry it. Maternal grandfather: glioblastoma at 45, died at 46. Maternal grandmother: well at 82. Father: well at 64.",
+   "test": {
+    "type": "Gene panel",
+    "panel": {
+     "id": 1222,
+     "name": "Li Fraumeni Syndrome",
+     "version": "1.8",
+     "source": "PanelApp"
+    },
+    "lab": "Regional genomic laboratory (fictional)",
+    "date": "2026-08-14"
+   },
+   "phenotypes": [
+    {
+     "id": "HP:0003002",
+     "name": "Breast carcinoma",
+     "observed": true,
+     "onset": "",
+     "note": "Diagnosed at 29"
+    },
+    {
+     "id": "HP:0020324",
+     "name": "Increased breast-tissue HER2 expression",
+     "observed": true,
+     "onset": "",
+     "note": "HER2-positive tumour"
+    }
+   ],
+   "family": [
+    {
+     "id": "p-mgf",
+     "label": "I-1",
+     "relation": "maternal grandfather",
+     "sex": "male",
+     "affected": true,
+     "deceased": true,
+     "note": "Glioblastoma at 45"
+    },
+    {
+     "id": "p-mgm",
+     "label": "I-2",
+     "relation": "maternal grandmother",
+     "sex": "female",
+     "affected": false,
+     "deceased": false,
+     "note": "Well at 82"
+    },
+    {
+     "id": "p-father",
+     "label": "II-1",
+     "relation": "father",
+     "sex": "male",
+     "affected": false,
+     "deceased": false,
+     "note": "Well at 64"
+    },
+    {
+     "id": "p-mother",
+     "label": "II-2",
+     "relation": "mother",
+     "sex": "female",
+     "affected": true,
+     "deceased": true,
+     "note": "Breast cancer at 36"
+    },
+    {
+     "id": "p-aunt",
+     "label": "II-3",
+     "relation": "maternal aunt",
+     "sex": "female",
+     "affected": true,
+     "deceased": false,
+     "note": "Leiomyosarcoma at 41"
+    },
+    {
+     "id": "p-uncle",
+     "label": "II-4",
+     "relation": "maternal uncle",
+     "sex": "male",
+     "affected": false,
+     "deceased": false,
+     "note": "Well at 55"
+    },
+    {
+     "id": "p-brother",
+     "label": "III-1",
+     "relation": "brother",
+     "sex": "male",
+     "affected": true,
+     "deceased": false,
+     "note": "Osteosarcoma at 15"
+    },
+    {
+     "id": "p-sister",
+     "label": "III-3",
+     "relation": "sister",
+     "sex": "female",
+     "affected": false,
+     "deceased": false,
+     "note": "Well at 30"
+    }
+   ],
+   "pedigree": {
+    "version": 5,
+    "personIdCounter": 0,
+    "labelIdCounter": 0,
+    "lineIdCounter": 8,
+    "persons": [
+     {
+      "id": "p-mgf",
+      "shape": "male",
+      "x": 460,
+      "y": 160,
+      "text": "Glioblastoma at 45\nDied at 46",
+      "deceased": true,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "solid",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-mgm",
+      "shape": "female",
+      "x": 580,
+      "y": 160,
+      "text": "Well at 82",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-father",
+      "shape": "male",
+      "x": 200,
+      "y": 320,
+      "text": "Well at 64",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-mother",
+      "shape": "female",
+      "x": 320,
+      "y": 320,
+      "text": "Breast cancer at 36\nDied at 39",
+      "deceased": true,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "solid",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-aunt",
+      "shape": "female",
+      "x": 560,
+      "y": 320,
+      "text": "Leiomyosarcoma at 41\nNow 52",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "solid",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-uncle",
+      "shape": "male",
+      "x": 700,
+      "y": 320,
+      "text": "Well at 55",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-brother",
+      "shape": "male",
+      "x": 140,
+      "y": 480,
+      "text": "Osteosarcoma at 15\nNow 36",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "solid",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-proband",
+      "shape": "female",
+      "x": 260,
+      "y": 480,
+      "text": "Breast cancer at 29\nNow 33",
+      "deceased": false,
+      "proband": true,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "solid",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     },
+     {
+      "id": "p-sister",
+      "shape": "female",
+      "x": 380,
+      "y": 480,
+      "text": "Well at 30\nNot tested",
+      "deceased": false,
+      "proband": false,
+      "centerText": "",
+      "miscarriageSex": "unknown",
+      "noSnap": false,
+      "siblingFixed": false,
+      "customLabel": "Lbl",
+      "fillMode": "none",
+      "fillColor": "#1a2332",
+      "quarters": [
+       null,
+       null,
+       null,
+       null
+      ],
+      "halves": [
+       null,
+       null
+      ],
+      "shadingPattern": "stripes",
+      "shadingCoverage": "full"
+     }
+    ],
+    "labels": [],
+    "partnerships": [
+     {
+      "id": "pship-1",
+      "fromId": "p-mgf",
+      "toId": "p-mgm",
+      "type": "normal"
+     },
+     {
+      "id": "pship-5",
+      "fromId": "p-father",
+      "toId": "p-mother",
+      "type": "normal"
+     }
+    ],
+    "childLinks": [
+     {
+      "id": "child-2",
+      "partnershipId": "pship-1",
+      "childId": "p-mother",
+      "branchYOffset": 0,
+      "dashed": false
+     },
+     {
+      "id": "child-3",
+      "partnershipId": "pship-1",
+      "childId": "p-aunt",
+      "branchYOffset": 0,
+      "dashed": false
+     },
+     {
+      "id": "child-4",
+      "partnershipId": "pship-1",
+      "childId": "p-uncle",
+      "branchYOffset": 0,
+      "dashed": false
+     },
+     {
+      "id": "child-6",
+      "partnershipId": "pship-5",
+      "childId": "p-brother",
+      "branchYOffset": 0,
+      "dashed": false
+     },
+     {
+      "id": "child-7",
+      "partnershipId": "pship-5",
+      "childId": "p-proband",
+      "branchYOffset": 0,
+      "dashed": false
+     },
+     {
+      "id": "child-8",
+      "partnershipId": "pship-5",
+      "childId": "p-sister",
+      "branchYOffset": 0,
+      "dashed": false
+     }
+    ],
+    "twinLinks": [],
+    "legendLabels": {
+     "#1a2332": "Cancer of the Li-Fraumeni spectrum"
+    },
+    "legendVisible": true,
+    "legendX": 870,
+    "legendY": 160,
+    "numberingMode": "numbers",
+    "partnerGapMultiplier": 2,
+    "childHeightMultiplier": 2.5,
+    "drawStrokes": []
+   },
+   "probandPerson": "p-proband",
+   "notes": "Fictional patient and family; the variant and the published evidence about it are real.",
+   "tags": [],
+   "caseId": null,
+   "log": []
+  }
+ ],
+ "variants": [
+  {
+   "patientId": "case-tp53",
+   "kind": "sequence",
+   "assembly": "GRCh38",
+   "input": "NM_000546.6:c.818G>A",
+   "chrom": "17",
+   "pos": 7673802,
+   "ref": "C",
+   "alt": "T",
+   "transcript": "NM_000546.6",
+   "gene": "TP53",
+   "hgvsc": "NM_000546.6:c.818G>A",
+   "hgvsp": "p.Arg273His",
+   "consequence": "missense_variant",
+   "zygosity": "heterozygous",
+   "inheritance": "unknown",
+   "classification": {
+    "criteria": {}
+   },
+   "calc": {},
+   "familyGenotypes": {
+    "p-proband": "het",
+    "p-brother": "het",
+    "p-aunt": "het",
+    "p-uncle": "ref",
+    "p-sister": "untested",
+    "p-mother": "untested",
+    "p-father": "untested",
+    "p-mgf": "untested",
+    "p-mgm": "untested"
+   },
+   "notes": "",
+   "expected": {
+    "cls": "p",
+    "criteria": [
+     "PS4_VeryStrong",
+     "PS2",
+     "PS3",
+     "PM1",
+     "PM2_Supporting",
+     "PP3",
+     "PP4_Moderate",
+     "PP1"
+    ],
+    "source": "ClinGen TP53 expert panel (VCEP), Evidence Repository, specifications v2.0.0; ClinVar VCV000012366 (Pathogenic, reviewed by expert panel, 2024-08-05). PP1 is from this family.",
+    "notes": {
+     "PS4": "Very strong: reported in many unrelated people who meet the classic Li-Fraumeni or revised Chompret criteria, 8 phenotype points by the TP53 VCEP’s scoring.",
+     "PS2": "From the literature: a de novo occurrence with parentage confirmed, in a person with a Li-Fraumeni cancer (4 phenotype points). This patient’s variant is not de novo.",
+     "PS3": "Transactivation assays in yeast and human cells: the protein does not work, and does not suppress growth.",
+     "PM1": "Codon 273 is one of the mutational hotspots the TP53 VCEP lists.",
+     "PM2": "Supporting: below the VCEP’s thresholds (under 0.003% overall, and under 0.004% in any group with more than one allele, founder groups such as Ashkenazi Jewish ignored). In gnomAD v4.1 it is 1.1 in 100,000 alleles overall and 1.2 in 100,000 European alleles.",
+     "PP3": "BayesDel 0.52 and Align-GVGD class C25: above the VCEP’s thresholds.",
+     "PP4": "Moderate, by a TP53 VCEP rule: found at a variant allele fraction of 5 to 25% in at least two people.",
+     "PP1": "This family: both affected relatives tested carry it, and the unaffected uncle does not (likelihood ratio about 14: just under 4 meioses, so supporting by counting as the ACGS do; moderate by Tavtigian’s odds).",
+     "PM5": "Not met: five other missense changes at codon 273 are in ClinVar, but the VCEP had not curated them."
+    }
+   }
+  }
+ ]
+}
