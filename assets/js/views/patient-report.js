@@ -97,7 +97,7 @@ export async function render(body, { patient: pt, variants: vs }) {
       h('td', v.kind === 'cnv' ? [h('span.hgvs', iscn(v)), h('div.small.muted', variantLong(v))] : [h('span.hgvs', variantLong(v)), h('div.small.muted', genomicText(v))]),
       h('td', v.kind === 'cnv' ? (v.copyNumber != null ? `${v.copyNumber} ${v.copyNumber === 1 ? 'copy' : 'copies'}` : '–') : zygText(v.zygosity)),
       h('td', inhShort(v.inheritance)),
-      h('td', clsBadge(s.cls, { empty: 'Not classified' }), s.final ? null : h('div.small.muted', 'not signed'))));
+      h('td', !s.final && s.assessed === false ? h('span.muted', 'Not assessed yet') : [clsBadge(s.cls, { empty: 'Not classified' }), s.final ? null : h('div.small.muted', 'not signed')])));
   }
   if (!S.length) tb.appendChild(h('tr', h('td', { colspan: 5 }, 'No variants were recorded.')));
   resTable.appendChild(tb);
@@ -158,8 +158,10 @@ const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 
 /** a first draft of the result, from the variants and the assessment */
 function draftSummary(pt, S, B) {
-  const key = S.filter(({ s }) => s.cls === 'p' || s.cls === 'lp');
-  const vus = S.filter(({ s }) => s.cls === 'vus');
+  const looked = S.filter(({ s }) => s.final || s.assessed !== false);
+  const notYet = S.length - looked.length;
+  const key = looked.filter(({ s }) => s.cls === 'p' || s.cls === 'lp');
+  const vus = looked.filter(({ s }) => s.cls === 'vus');
   const parts = [];
   const inhWords = (v) => {
     const k = v.inheritance || 'unknown';
@@ -179,8 +181,9 @@ function draftSummary(pt, S, B) {
   if (key.length) {
     parts.push(key.map(one).join(' '));
     if (pt.assessment && pt.assessment.disease) parts.push(`${key.length === 1 ? 'This is' : 'These are'} consistent with a diagnosis of ${pt.assessment.disease}.`);
-  } else if (S.length) parts.push('No pathogenic or likely pathogenic variant was found to explain the patient’s features.');
+  } else if (looked.length) parts.push('No pathogenic or likely pathogenic variant was found to explain the patient’s features.');
   if (vus.length) parts.push(`${vus.length === 1 ? 'A variant' : vus.length + ' variants'} of uncertain significance ${vus.length === 1 ? 'was' : 'were'} also found (${vus.map(({ v }) => summariseVariant(v).short).join('; ')}); ${vus.length === 1 ? 'it' : 'they'} should not be used for clinical decisions.`);
+  if (notYet) parts.push(`${notYet === 1 ? 'One variant has' : notYet + ' variants have'} not been assessed yet.`);
   return parts.join(' ');
 }
 

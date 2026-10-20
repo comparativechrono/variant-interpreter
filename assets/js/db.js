@@ -211,7 +211,11 @@ export const getPatient = (id) => getOne('patients', String(id));
 export async function savePatient(p, what) {
   const isNew = !p.id;
   if (isNew) {
-    p.id = String(await nextNumber('patient', 1001));
+    // the next number not already used (patients imported from a file keep theirs, which the counter doesn't know)
+    let id;
+    do id = String(await nextNumber('patient', 1001));
+    while (await getPatient(id));
+    p.id = id;
     p.created = nowISO();
   }
   p.updated = nowISO();

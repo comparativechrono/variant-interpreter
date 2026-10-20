@@ -131,6 +131,10 @@ export function summariseVariant(v) {
     criteria: now.signed ? now.signed.criteria : now.criteria,
     final: !!now.signed,
     signed: now.signed,
+    // anything looked at yet: a criterion marked met or not met, a CNV item used, or a signature
+    assessed: !!now.signed || (v.kind === 'cnv'
+      ? Object.values((v.cnv && v.cnv.items) || {}).some((x) => x && x.on)
+      : Object.values((v.classification && v.classification.criteria) || {}).some((x) => x && (x.met || x.evaluated))),
     contribution: v.contribution || ''
   };
 }

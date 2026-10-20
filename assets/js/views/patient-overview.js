@@ -42,7 +42,7 @@ export async function render(body, { patient: pt, variants: vs, refresh }) {
   kbox.appendChild(h('div.ov-sec-h', h('h2', { id: 'ov-k', html: icon('chromosome') + '<span>The genome at a glance</span>' }), linkBtn('Genome browser', `/patient/${pt.id}/browser`, { cls: 'small', icon: 'genome' })));
   const marks = vs.filter((v) => (v.assembly || 'GRCh38') === asm && v.chrom).map((v) => {
     const s = summariseVariant(v);
-    return { chrom: v.chrom, start: v.kind === 'cnv' ? v.start : v.pos, end: v.kind === 'cnv' ? v.end : v.pos, cnv: v.kind === 'cnv', cls: s.cls, label: `${s.gene ? s.gene + ' ' : ''}${s.short}`, clsText: s.cls ? CLS_WORD[s.cls] + (s.final ? '' : ' (so far)') : 'not classified', href: link(variantPath(pt, v)) };
+    return { chrom: v.chrom, start: v.kind === 'cnv' ? v.start : v.pos, end: v.kind === 'cnv' ? v.end : v.pos, cnv: v.kind === 'cnv', cls: s.assessed === false ? null : s.cls, label: `${s.gene ? s.gene + ' ' : ''}${s.short}`, clsText: s.assessed === false ? 'not assessed yet' : s.cls ? CLS_WORD[s.cls] + (s.final ? '' : ' (so far)') : 'not classified', href: link(variantPath(pt, v)) };
   });
   karyogram(kbox, { assembly: asm, marks });
   if (Object.keys(builds).length > 1) kbox.appendChild(h('p.small.muted', `Some variants are on another build (${Object.keys(builds).filter((b) => b !== asm).join(', ')}) and are not drawn here.`));

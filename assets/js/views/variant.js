@@ -21,7 +21,11 @@ import { drawSectionInto } from './evidence-common.js';
 let current = null;
 
 export function sameAs(p) {
-  return current && p.params && ((p.params.vid && p.params.vid === current.vid) || (p.params.q && p.params.q === current.q));
+  if (!current || !p.params) return false;
+  if (p.params.vid) return p.params.vid === current.vid;
+  // a looked-up variant is the same page only on the same genome build
+  const asm = (p.query && p.query.assembly) || settings.get('assembly');
+  return !!p.params.q && p.params.q === current.q && asm === current.asm;
 }
 export function update(params) {
   if (current && params.section) current.scrollTo(params.section);
@@ -309,7 +313,7 @@ async function variantPage(root, { v, pt, section, q }) {
     if (section) setTimeout(() => scrollTo(section), 200);
   };
   ctx.scrollTo = scrollTo;
-  current = { vid: v.id, q, scrollTo };
+  current = { vid: v.id, q, asm, scrollTo };
   drawHead();
   ctx.redraw();
   start(false);

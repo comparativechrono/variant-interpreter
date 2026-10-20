@@ -52,6 +52,7 @@ const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 /** the class cell: the signed class, or the class so far (marked as such), with its points */
 export function classCell(s) {
   if (!s.cls) return h('span.muted.small', 'Not classified');
+  if (!s.final && s.assessed === false) return h('span.muted.small', 'Not assessed yet');
   return h('div.cls-cell',
     h('span.row', { style: { gap: '4px', display: 'inline-flex', flexWrap: 'wrap' } }, clsBadge(s.cls, { short: false, band: s.final ? (s.signed && s.signed.band) : s.band })),
     h('span.small' + (s.final ? '' : '.muted'), s.final ? `Signed${s.signed && s.signed.by ? ' by ' + s.signed.by : ''}` : `So far: ${s.pointsText} ${s.kind !== 'cnv' && Math.abs(s.points) === 1 ? 'point' : 'points'}`));
