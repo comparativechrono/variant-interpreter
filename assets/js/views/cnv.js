@@ -163,12 +163,12 @@ async function cnvPage(root, { v, pt, section }) {
     const r = sc.result();
     const s = v.classification.saved;
     if (!v.patientId) {
-      saveBox.append(h('p.small.muted', 'This CNV was looked up and isn’t a patient’s yet.'), btn('Add to a patient…', () => addToPatient(ctx), { cls: 'primary', icon: 'plus' }));
+      saveBox.append(h('p.small.muted', 'You’ve looked this CNV up, but it isn’t saved to a patient yet.'), btn('Add to a patient…', () => addToPatient(ctx), { cls: 'primary', icon: 'plus' }));
       return;
     }
-    if (s) saveBox.appendChild(h('p.small', 'Last signed: ', clsBadge(s.cls, { short: true }), ` by ${s.by || 'you'}, ${dateStr(s.at, true)}`, s.cls !== r.cls ? h('span.res-differ', ' (the class has changed since)') : null));
-    saveBox.appendChild(btn(s ? 'Sign the classification again' : 'Sign the classification', () => signOff(ctx), { cls: 'primary', icon: 'badgeCheck', title: 'Record this classification, with your name, the date and the points, in the CNV’s history' }));
-    saveBox.appendChild(h('p.small.muted', { style: { marginTop: '6px' } }, 'Your work is saved as you go. Signing records the classification in the CNV’s history and on the report.'));
+    if (s) saveBox.appendChild(h('p.small', 'Last signed as ', clsBadge(s.cls, { short: true }), ` by ${s.by || 'you'} on ${dateStr(s.at, true)}`, s.cls !== r.cls ? h('span.res-differ', ' (the calculated class has changed since)') : null));
+    saveBox.appendChild(btn(s ? 'Sign the classification again' : 'Sign the classification', () => signOff(ctx), { cls: 'primary', icon: 'badgeCheck', title: 'Record this classification in the CNV’s history, with your name, the date and the points' }));
+    saveBox.appendChild(h('p.small.muted', { style: { marginTop: '6px' } }, 'Your work is saved as you go. Signing adds the classification to the CNV’s history and to the report.'));
   };
   drawSaveBox();
   ctx.drawSaveBox = drawSaveBox;
@@ -352,7 +352,7 @@ function drawSummary(ctx, body) {
     const n = geneCount(pc);
     const whole = pc.filter((g) => g.whole).length;
     // section 3 counts a family of genes (olfactory receptors, say) once; the whole/part split is of every gene
-    rows.push(['Genes', `${n.counted} protein-coding ${n.counted === 1 ? 'gene' : 'genes'}${n.all !== n.counted ? ` as section 3 counts them (${n.all} before each family of genes is counted once)` : ''}${pc.length ? `, and ${whole === pc.length ? (pc.length === 1 ? 'it lies' : 'all of them lie') : `${whole} of the ${pc.length} lie`} wholly inside it` : ''}`, 'genes']);
+    rows.push(['Genes', `${n.counted} protein-coding ${n.counted === 1 ? 'gene' : 'genes'}${n.all !== n.counted ? ` as section 3 counts them (${n.all} before each family of genes is counted once)` : ''}${pc.length ? `, and ${whole === pc.length ? (pc.length === 1 ? 'it lies' : 'all of them lie') : `${whole} of the ${pc.length} lie`} wholly inside the CNV` : ''}`, 'genes']);
     const key = type === 'loss' ? 'hi' : 'ts';
     const est = pc.filter((g) => g[key] === 3);
     const reg = (d.regions || []).filter((r) => r[key] === 3);
@@ -400,7 +400,7 @@ function drawGenes(ctx, body) {
   const tbl = genesTable(genes, { caption: 'Genes in the CNV' });
   body.appendChild(tbl);
   const n = geneCount(pc);
-  body.appendChild(h('p.small.muted', `Section 3 counts the protein-coding genes that lie wholly or partly in the CNV, which comes to ${n.counted} here${n.families.length ? `, counting ${n.families.map((f) => `${f.n} ${f.name}`).join(' and ')} as one gene per family, since these families have no known clinical relevance` : ''}. ${ctx.asm === 'GRCh37' ? 'The genes are Ensembl’s on GRCh37, with what is known of each from the site’s gene table.' : 'The genes are those in HGNC that have a MANE transcript, on GRCh38.'} pHaplo and pTriplo are Collins et al.’s (2022) predictions, and LOEUF and pLI are gnomAD v4.1’s constraint scores.`));
+  body.appendChild(h('p.small.muted', `Section 3 counts the protein-coding genes that lie wholly or partly in the CNV, which comes to ${n.counted} here${n.families.length ? `, counting ${n.families.map((f) => `${f.n} ${f.name}`).join(', ').replace(/, ([^,]*)$/, ' and $1')} as one gene per family, since these families have no known clinical relevance` : ''}. ${ctx.asm === 'GRCh37' ? 'The genes are Ensembl’s on GRCh37, with what is known of each from the site’s gene table.' : 'The genes are those in HGNC that have a MANE transcript, on GRCh38.'} pHaplo and pTriplo are Collins et al.’s (2022) predictions, and LOEUF and pLI are gnomAD v4.1’s constraint scores.`));
   body.appendChild(itemsBox(ctx.sc, ['1A', '1B', '3A', '3B', '3C']));
   body.appendChild(sectionNote(ctx, 'genes'));
   // HPO's diseases, for the filters (a larger file: loaded once it is needed)
@@ -449,7 +449,7 @@ function drawDosage(ctx, body) {
   body.appendChild(h('h3.vsub', 'Predicted dosage sensitivity'));
   body.appendChild(h('p', predHi.length ? [`${predHi.length} ${predHi.length === 1 ? 'gene meets' : 'genes meet'} two or more predictors of haploinsufficiency: `, h('span', predHi.slice(0, 12).map((g, i) => [i ? ', ' : '', h('i.gene', g.symbol), h('span.small.muted', ` (${g.hiWhy.join('; ')})`)])), predHi.length > 12 ? '…' : '', '.'] : 'No gene in the CNV meets two or more predictors of haploinsufficiency.'));
   if (type === 'gain') body.appendChild(h('p', predTs.length ? `${predTs.length} predicted triplosensitive (pTriplo ≥ ${THRESH.pTriplo}): ${predTs.slice(0, 12).map((g) => g.symbol).join(', ')}${predTs.length > 12 ? '…' : ''}. Predictions aren’t part of the scoring for a gain, but they point to genes worth reading about.` : `No gene in the CNV has pTriplo ≥ ${THRESH.pTriplo}.`));
-  body.appendChild(h('p.small.muted', `The predictors are pHaplo ≥ ${THRESH.pHaplo} and pTriplo ≥ ${THRESH.pTriplo} (Collins et al. 2022), and LOEUF < ${THRESH.loeuf} and pLI ≥ ${THRESH.pLI} (gnomAD v4.1). 2H needs two of them for at least one gene, and it doesn’t apply when the CNV holds an established haploinsufficient gene or region.`));
+  body.appendChild(h('p.small.muted', `The predictors are pHaplo ≥ ${THRESH.pHaplo} and pTriplo ≥ ${THRESH.pTriplo} (Collins et al. 2022), and LOEUF < ${THRESH.loeuf} and pLI ≥ ${THRESH.pLI} (gnomAD v4.1). 2H needs two of them for at least one gene, but pLI and LOEUF come from the same gnomAD data, so they count as one. It doesn’t apply when the CNV holds an established haploinsufficient gene or region.`));
   body.appendChild(itemsBox(ctx.sc, codes));
   body.appendChild(sectionNote(ctx, 'dosage'));
 }
@@ -473,7 +473,7 @@ function drawPopulation(ctx, body) {
   const w2 = waitingFor(ctx, 'dgv', 'the Database of Genomic Variants');
   if (w2) body.appendChild(w2);
   else body.appendChild(popBlock(ctx, ctx.data.dgv, 'DGV', 'dgv'));
-  body.appendChild(h('p.small.muted', `4O applies when ${kindWord} like this one are common in the population. That means ones covering it reach at least 1% in a large study such as gnomAD, or in the DGV gold standard set, and below 1% they get less weight. The gold standard merges the CNVs of healthy people across studies, and “Covers this CNV” uses its inner boundaries, where the CNVs were seen in all the studies. 4O doesn’t apply when the region holds a well-known recessive gene whose loss causes disease.`));
+  body.appendChild(h('p.small.muted', `4O applies when ${kindWord} like this one are common in the population. That means those covering it reach at least 1% in a large study such as gnomAD, or in the DGV gold standard set. Below 1%, 4O gets less weight. The gold standard merges the CNVs of healthy people across studies, and “Covers this CNV” uses its inner boundaries, where the CNVs were seen in all the studies. 4O doesn’t apply when the region holds a well-known recessive gene whose loss causes disease.`));
   body.appendChild(itemsBox(ctx.sc, ['4O']));
   body.appendChild(sectionNote(ctx, 'population'));
 }
@@ -700,7 +700,7 @@ function drawConclusion(ctx, body) {
       { key: 'criteria', label: 'Items', fmt: (x) => h('span.hgvs.small', x.criteria || '–') },
       { key: 'reason', label: 'Reason for a change', fmt: (x) => x.reason || '' }
     ], hist, { compact: true }));
-  } else if (v.patientId) body.appendChild(h('p.small.muted', 'This hasn’t been signed yet. Use “Sign the classification” beside the points to record it with your name and the date.'));
+  } else if (v.patientId) body.appendChild(h('p.small.muted', 'You haven’t signed a classification yet. The “Sign the classification” button beside the points records it with your name and the date.'));
   // ClinGen's own curation of the same region
   const reg = (ctx.data.regions || []).filter((r) => (ctx.type === 'loss' ? r.hi === 3 || r.hi === 40 : r.ts === 3 || r.ts === 40) && Math.min(r.coverOfRegion, r.coverOfCnv) >= 0.8);
   if (reg.length) {
@@ -778,24 +778,24 @@ function signOff(ctx) {
   const r = sc.result();
   const name = settings.get('name');
   const nameIn = h('input', { type: 'text', value: name || '', placeholder: 'Your name' });
-  const finalSel = select([['', `As calculated: ${CLS_WORD[r.cls]}`], ['p', 'Pathogenic'], ['lp', 'Likely pathogenic'], ['vus', 'Uncertain significance'], ['lb', 'Likely benign'], ['b', 'Benign']], '');
-  const reason = h('textarea', { rows: 2, placeholder: 'Why the classification differs from the calculated one (required if it does)' });
-  const summary = h('textarea', { rows: 4, placeholder: 'A summary of the evidence, as it would go on a report' });
+  const finalSel = select([['', `${CLS_WORD[r.cls]} (as calculated)`], ['p', 'Pathogenic'], ['lp', 'Likely pathogenic'], ['vus', 'Uncertain significance'], ['lb', 'Likely benign'], ['b', 'Benign']], '');
+  const reason = h('textarea', { rows: 2, placeholder: 'Required if you choose a different class from the calculated one' });
+  const summary = h('textarea', { rows: 4, placeholder: 'Summarise the evidence as you would on a report' });
   summary.value = (v.classification.saved && v.classification.saved.summary) || autoSummary(ctx, r);
-  const contrib = select(CONTRIBUTION, v.contribution || '');
+  const contrib = select([['', 'Not decided']].concat(CONTRIBUTION.filter(([k]) => k)), v.contribution || ''); // as on the variant page
   const body = h('div.stack',
-    h('p', 'Calculated: ', clsBadge(r.cls), ` ${signed(r.total)} points, `, h('span.hgvs', sc.summary(r) || 'nothing scored')),
+    h('p', 'The calculated class is ', clsBadge(r.cls), ` (${signed(r.total)} points), with `, h('span.hgvs', sc.summary(r) || 'nothing scored')),
     field('Classifier', nameIn),
-    field('Classification', finalSel, 'You can override the calculated class if you give a reason'),
+    field('Classification', finalSel, 'You can choose a different class from the calculated one if you give a reason'),
     field('Reason for the change', reason),
-    field('Evidence summary', summary, 'Write it as you would for a report, giving the key evidence in a few sentences'),
+    field('Evidence summary', summary, 'The key evidence in a few sentences, written as you would for a report'),
     v.patientId ? field('Contribution to the patient’s phenotype', contrib) : null);
   modal('Sign the classification', body, {
     wide: true,
     actions: [['Cancel', null, 'ghost'], ['Sign', async () => {
       const chosen = finalSel.value || r.cls;
       if (chosen !== r.cls && !reason.value.trim()) {
-        toast('Give the reason for changing the calculated classification.', 'error');
+        toast('You need to give a reason for changing the calculated classification.', 'error');
         reason.focus();
         return true;
       }
@@ -810,7 +810,7 @@ function signOff(ctx) {
       v.classification.history = [rec].concat(v.classification.history || []).slice(0, 50);
       v.contribution = contrib.value;
       await ctx.save(`Classification signed: ${chosen.toUpperCase()} (${signed(r.total)} points) by ${rec.by}`);
-      toast('Signed and saved to the CNV’s history.', 'ok');
+      toast('Signed. The classification is now in the CNV’s history.', 'ok');
       // the same page: draw again what the signature changes (the panel's footer and the conclusion)
       if (ctx.drawSaveBox) ctx.drawSaveBox();
       if (ctx.redraw) ctx.redraw(['conclusion']);
@@ -823,7 +823,8 @@ function autoSummary(ctx, r) {
   const { v, sc, data } = ctx;
   const gs = (data.genes || []).filter((g) => g.pc);
   const n = geneCount(gs);
-  const parts = [`This is a ${fmtSize(v.end - v.start + 1)} ${v.cnvType} of ${data.bands ? data.bands.text : 'chromosome ' + v.chrom} (${fmtRegion(v.chrom, v.start, v.end)}, ${v.assembly || 'GRCh38'})${data.genes ? ` that contains ${n.counted} protein-coding ${n.counted === 1 ? 'gene' : 'genes'}` : ''}.`];
+  const size = fmtSize(v.end - v.start + 1);
+  const parts = [`This is ${/^(8|1[18](?!\d))/.test(size) ? 'an' : 'a'} ${size} ${v.cnvType} of ${data.bands ? data.bands.text : 'chromosome ' + v.chrom} (${fmtRegion(v.chrom, v.start, v.end)}, ${v.assembly || 'GRCh38'})${data.genes ? ` that contains ${n.counted} protein-coding ${n.counted === 1 ? 'gene' : 'genes'}` : ''}.`];
   for (const x of r.rows) {
     const t = v.cnv.notes[x.code];
     if (t) parts.push(t.replace(/\.?$/, '.'));

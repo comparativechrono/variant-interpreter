@@ -18,10 +18,7 @@ export function render(body, { patient: pt, variants: vs, refresh }, query = {})
     return;
   }
   const S = vs.map(summariseVariant);
-  const signed = S.filter((s) => s.final).length;
-  const counts = ['p', 'lp', 'vus', 'lb', 'b'].map((k) => [k, S.filter((s) => s.cls === k).length]).filter(([, n]) => n);
-  body.appendChild(h('p.small.muted.var-sum', `${vs.length} ${vs.length === 1 ? 'variant' : 'variants'}, ${signed} signed. `,
-    counts.length ? counts.map(([k, n], i) => `${i ? ', ' : ''}${n} ${{ p: 'pathogenic', lp: 'likely pathogenic', vus: 'uncertain', lb: 'likely benign', b: 'benign' }[k]}`).join('') + ' (each counted by its signed class, or its class so far).' : ''));
+  body.appendChild(h('p.small.muted.var-sum', countText(S)));
   body.appendChild(variantTable(pt, vs, { onChanged: refresh }));
   const cnvs = vs.filter((v) => v.kind === 'cnv').length;
   body.appendChild(h('p.small.muted', 'Click a variant to open its evidence and classify it. ',
@@ -32,5 +29,26 @@ export function render(body, { patient: pt, variants: vs, refresh }, query = {})
   for (const v of vs) if (v.gene && v.kind !== 'cnv') (byGene[v.gene] = byGene[v.gene] || []).push(v);
   const pairs = Object.entries(byGene).filter(([, l]) => l.length > 1);
   if (pairs.length) body.appendChild(note('', h('p', `This patient has two or more variants in ${pairs.map(([g]) => g).join(', ')}. If the disorder is recessive, it matters whether they’re in trans (on different copies of the gene). The parents’ results on the Family tab show this, and the in-trans calculator (PM3) on the variant pages uses it.`)));
+}
+/** how many variants there are, how many are signed, and their classes so far (signed, or as calculated) */
+function countText(S) {
+  const WORD = { p: 'pathogenic', lp: 'likely pathogenic', vus: 'of uncertain significance', lb: 'likely benign', b: 'benign' };
+  const and = (xs) => (xs.length < 2 ? xs.join('') : xs.slice(0, -1).join(', ') + ' and ' + xs[xs.length - 1]);
+  const n = S.length;
+  const signed = S.filter((s) => s.final).length;
+  const looked = S.filter((s) => s.assessed);
+  if (n === 1) {
+    const s = S[0];
+    if (s.final) return `The patient’s variant has been signed as ${WORD[s.cls]}.`;
+    return s.assessed ? `The patient’s variant is ${WORD[s.cls]} so far, and it hasn’t been signed yet.` : 'The patient’s variant hasn’t been assessed yet.';
+  }
+  if (!looked.length) return n === 2 ? 'Neither of the patient’s variants has been assessed yet.' : `None of the patient’s ${n} variants has been assessed yet.`;
+  const first = !signed ? (n === 2 ? 'Neither of the patient’s variants has been signed yet.' : `None of the patient’s ${n} variants has been signed yet.`)
+    : signed === n ? (n === 2 ? 'Both of the patient’s variants have been signed.' : `All ${n} of the patient’s variants have been signed.`)
+    : `${signed} of the patient’s ${n} variants ${signed === 1 ? 'has' : 'have'} been signed.`;
+  const items = ['p', 'lp', 'vus', 'lb', 'b'].map((k) => [k, looked.filter((s) => s.cls === k).length]).filter(([, c]) => c).map(([k, c]) => `${c} ${c === 1 ? 'is' : 'are'} ${WORD[k]}`);
+  const not = n - looked.length;
+  if (not) items.push(`${not} ${not === 1 ? 'hasn’t' : 'haven’t'} been assessed`);
+  return items.length ? `${first} ${signed === n ? 'Of these' : 'So far'}, ${and(items)}.` : first;
 }
 export { icon, go };

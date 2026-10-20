@@ -20,7 +20,7 @@ import { clsBadge, strengthKind } from '../ui.js';
 import * as settings from '../settings.js';
 
 const SW = { VS: 'Very strong', S: 'Strong', M: 'Moderate', P: 'Supporting', SA: 'Stand-alone' };
-const CLS_WORD = { p: 'Pathogenic', lp: 'Likely pathogenic', vus: 'Uncertain significance', lb: 'Likely benign', b: 'Benign' };
+const IS_WORD = { p: 'pathogenic', lp: 'likely pathogenic', vus: 'of uncertain significance', lb: 'likely benign', b: 'benign' }; // "it is …"
 export const framework = () => settings.get('framework') || 'acgs2024';
 
 /**
@@ -216,11 +216,15 @@ export function acmgPanel(cls, opts = {}) {
     result.appendChild(h('div.res-crit', r.met.length ? h('span.hgvs', criteriaString(r.met, framework())) : h('span.muted', 'No criteria are met yet. Mark each one as met or not met, either here or beside its evidence.')));
     const lines = [];
     if (r.method === 'points') {
-      lines.push(h('div.small', `Probability of pathogenicity (Tavtigian et al. 2018): ${r.posterior >= 0.999 ? 'above 0.999' : r.posterior <= 0.001 ? 'below 0.001' : r.posterior.toFixed(3)}`));
-      lines.push(h('div.small' + (r.byRules.cls === r.cls ? '.muted' : '.res-differ'), `The 2015 combining rules: ${CLS_WORD[r.byRules.cls]}${r.byRules.rule ? ' (' + r.byRules.rule.text + ')' : ''}.${r.byRules.cls === r.cls ? '' : ' The two methods give different classes here, and the guide explains why.'}`));
+      lines.push(h('div.small', `The probability that it’s pathogenic is ${r.posterior >= 0.999 ? 'above 0.999' : r.posterior <= 0.001 ? 'below 0.001' : r.posterior.toFixed(3)} (Tavtigian et al. 2018).`));
+      const br = r.byRules, same = br.cls === r.cls;
+      const why = !br.rule ? '' : br.cls === 'vus' ? `, because ${br.rule.text}` : `, with ${br.rule.text}`;
+      lines.push(h('div.small' + (same ? '.muted' : '.res-differ'), `Under the 2015 combining rules it ${same ? 'is also' : 'would be'} ${IS_WORD[br.cls]}${why}.${same ? '' : ' The two methods give different classes here, and the guide explains why.'}`));
     } else {
-      lines.push(h('div.small.muted', `By the rule: ${r.byRules.rule ? r.byRules.rule.name + ', ' + r.byRules.rule.text : ''}.`));
-      lines.push(h('div.small' + (r.byPoints.cls === r.cls ? '.muted' : '.res-differ'), `Points: ${CLS_WORD[r.byPoints.cls]}.${r.byPoints.cls === r.cls ? '' : ' The two methods give different classes here, and the guide explains why.'}`));
+      const rule = r.byRules.rule;
+      if (rule) lines.push(h('div.small.muted', r.byRules.cls === 'vus' ? `It’s of uncertain significance because ${rule.text}.` : `This meets ${rule.name} in Table 5 of Richards et al. (2015), which asks for ${rule.text}.`));
+      const same = r.byPoints.cls === r.cls;
+      lines.push(h('div.small' + (same ? '.muted' : '.res-differ'), `Counted as points (Tavtigian et al. 2020), it ${same ? 'is also' : 'would be'} ${IS_WORD[r.byPoints.cls]}.${same ? '' : ' The two methods give different classes here, and the guide explains why.'}`));
     }
     for (const nt of r.notes || []) lines.push(h('div.small.res-note', nt));
     for (const w of warnings(cls)) lines.push(h('div.small.res-warn', { html: icon('warning') + '<span>' + esc(w) + '</span>' }));

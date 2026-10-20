@@ -106,7 +106,7 @@ export async function render(root, params) {
   countBox.innerHTML = '';
   countBox.append(
     h('p', h('b', fmt(rows.length)), ` of the ${fmt(D.length)} diseases have it${nDesc ? ' or a more specific form of it' : ''} (${rows.length ? Math.max(0.1, (100 * rows.length) / D.length).toFixed(1) : 0}%), linked to `, h('b', fmt(genes.length)), ` ${genes.length === 1 ? 'gene' : 'genes'}.`),
-    h('p.small.muted', `The information content, ${fmt(H.ic(t.n), 2)}, says how much the feature narrows the diagnosis. The rarer the feature is among diseases, the higher it is, and matching gives rare features more weight than common ones.`),
+    h('p.small.muted', `The information content, ${fmt(H.ic(t.n), 2)}, says how much the feature narrows the diagnosis. The rarer the feature is among diseases, the higher the value, and matching gives rare features more weight than common ones.`),
     h('p.small.muted', `HPO version ${H.diseaseVersion() || H.hpoVersion()}.`));
   drawDiseases(dzBox, rows, t);
   drawGenes(geneBox, genes, rows.length);

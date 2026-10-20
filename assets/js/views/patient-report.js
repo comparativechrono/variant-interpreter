@@ -14,7 +14,7 @@ import { link } from '../router.js';
 import * as db from '../db.js';
 import * as settings from '../settings.js';
 import { btn, note, clsBadge, field } from '../ui.js';
-import { summariseVariant, variantLong, genomicText, patientFacts, contributionText, inheritanceText } from '../summary.js';
+import { summariseVariant, variantLong, genomicText, patientFacts, inheritanceText } from '../summary.js';
 import { CRITERIA, BY_CODE } from '../acmg/criteria.js';
 import { classify, criteriaString, POINTS } from '../acmg/engine.js';
 import { fw, labelFor } from '../acmg/frameworks.js';
@@ -57,7 +57,7 @@ export async function render(body, { patient: pt, variants: vs }) {
         await copyText(paper.innerText);
         toast('The report’s text has been copied.', 'ok');
       }, { icon: 'copy' })),
-    unsigned.length ? note('warn', h('p', `${unsigned.length} of ${S.length} ${S.length === 1 ? 'variant is' : 'variants are'} not signed yet, so ${unsigned.length === 1 ? 'its class is' : 'their classes are'} reported as calculated so far and marked “not signed”. You can sign each classification on the variant’s page.`)) : null,
+    unsigned.length ? note('warn', h('p', `${S.length === 1 ? 'The variant isn’t' : unsigned.length === S.length ? (S.length === 2 ? 'Neither variant is' : `None of the ${S.length} variants is`) : `${unsigned.length} of the ${S.length} variants ${unsigned.length === 1 ? 'isn’t' : 'aren’t'}`} signed yet, so the report gives ${unsigned.length === 1 ? 'its class' : 'their classes'} as calculated so far and marks ${unsigned.length === 1 ? 'it' : 'them'} “not signed yet”. You can sign each classification on the variant’s page.`)) : null,
     h('details.report-edit', { open: !pt.report.summary || null },
       h('summary', 'Your summary and recommendations'),
       field('Result summary', summaryIn, 'A draft is written for you from the variants and the assessment. Edit it to make it your own.'),
@@ -70,7 +70,7 @@ export async function render(body, { patient: pt, variants: vs }) {
   const facts = patientFacts(pt);
   const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   paper.appendChild(h('header.rp-head',
-    h('div', h('p.rp-kicker', 'Genomic test report'), h('h1.rp-title', `Patient ${pt.id}${pt.ref ? ': ' + pt.ref : ''}`)),
+    h('div', h('p.rp-kicker', 'Genomic test report'), h('h1.rp-title', `Patient ${pt.id}${pt.ref ? ' – ' + pt.ref : ''}`)),
     h('p.rp-teaching', 'For teaching only. This is not a clinical report, and the patient is fictional or anonymised.')));
   paper.appendChild(h('dl.rp-facts',
     pair('Sex', facts.pairs[0][1]), pair(facts.pairs[1][0], facts.pairs[1][1]),
@@ -96,7 +96,7 @@ export async function render(body, { patient: pt, variants: vs }) {
       h('td', v.kind === 'cnv' ? [h('span.hgvs', iscn(v)), h('div.small.muted', variantLong(v))] : [h('span.hgvs', variantLong(v)), h('div.small.muted', genomicText(v))]),
       h('td', v.kind === 'cnv' ? (v.copyNumber != null ? `${v.copyNumber} ${v.copyNumber === 1 ? 'copy' : 'copies'}` : '–') : zygText(v.zygosity)),
       h('td', inhShort(v.inheritance)),
-      h('td', !s.final && s.assessed === false ? h('span.muted', 'Not assessed yet') : [clsBadge(s.cls, { empty: 'Not classified' }), s.final ? null : h('div.small.muted', 'not signed')])));
+      h('td', !s.final && s.assessed === false ? h('span.muted', 'Not assessed yet') : [clsBadge(s.cls, { empty: 'Not classified' }), s.final ? null : h('div.small.muted', 'not signed yet')])));
   }
   if (!S.length) tb.appendChild(h('tr', h('td', { colspan: 5 }, 'No variants were recorded.')));
   resTable.appendChild(tb);
@@ -215,9 +215,9 @@ function seqBlock(pt, v, s, F) {
   const notWeighed = CRITERIA.filter((x) => !weighed.has(x.code) && !(x.deprecated && fw(fk).retired.includes(x.code))).map((x) => x.code);
   return h('section.rp-sec.rp-var',
     h('h3', s.gene ? h('i', s.gene + ' ') : '', h('span.hgvs', variantLong(v))),
-    h('p.rp-var-cls', clsBadge(s.cls, { band: signed ? signed.band : r.band }), h('span', `${r.points > 0 ? '+' : ''}${r.points} points (${fw(fk).label})`, signed ? h('span.small.muted', `; signed by ${signed.by || 'not named'}, ${dateStr(signed.at)}`) : h('span.small.muted', '; not signed')),
-      signed && signed.calculated && signed.calculated !== signed.cls ? h('span.small', ` Changed from the calculated class of ${CLS_WORD[signed.calculated].toLowerCase()}: ${signed.reason}`) : null),
-    h('p.small.muted', `${genomicText(v)}; ${zygText(v.zygosity).toLowerCase()}; ${inheritanceText(v.inheritance).toLowerCase()}${v.contribution ? '; contribution to the phenotype: ' + contributionText(v.contribution).toLowerCase() : ''}.`),
+    h('p.rp-var-cls', clsBadge(s.cls, { band: signed ? signed.band : r.band }), h('span', `${r.points > 0 ? '+' : ''}${r.points} points under ${fw(fk).label}`), signed ? h('span.small.muted', `, signed by ${signed.by || 'someone not named'} on ${dateStr(signed.at)}`) : h('span.small.muted', ', not signed yet'),
+      signed && signed.calculated && signed.calculated !== signed.cls ? h('span.small', `. The calculated class was ${CLS_WORD[signed.calculated].toLowerCase()}, and it was changed for this reason: ${String(signed.reason || '').replace(/\.?$/, '.')}`) : null),
+    h('p.small.muted', `${genomicText(v)}, ${zygText(v.zygosity).toLowerCase()}, ${!v.inheritance || v.inheritance === 'unknown' ? 'inheritance ' : ''}${inheritanceText(v.inheritance).toLowerCase()}.${v.contribution && CONTRIB_SAYS[v.contribution] ? ' ' + CONTRIB_SAYS[v.contribution] : ''}`),
     signed && signed.summary ? h('p', signed.summary) : null,
     met.length ? h('table.rp-table.rp-small', h('thead', h('tr', h('th', { scope: 'col' }, 'Criterion met'), h('th', { scope: 'col' }, 'Strength'), h('th', { scope: 'col' }, 'Evidence'))),
       h('tbody', met.map((m) => h('tr', h('td', h('b', labelFor(m.code, m.strength, fk)), h('div.small.muted', (BY_CODE[m.code] || {}).name || '')), h('td', `${SW[m.strength] || m.strength}${m.strength === 'SA' ? '' : ` (${m.dir === 'B' ? '−' : '+'}${POINTS[m.strength]})`}`), h('td', (crit[m.code] || {}).note || h('span.muted', 'No note')))))) : h('p', 'No criteria were met.'),
@@ -225,6 +225,13 @@ function seqBlock(pt, v, s, F) {
     h('p.small.muted', `Not weighed: ${notWeighed.length ? notWeighed.join(', ') : 'none'}.`));
 }
 const ORDER_CODES = CRITERIA.map((c) => c.code);
+/* what the classifier decided the variant contributes to the phenotype, as a sentence */
+const CONTRIB_SAYS = {
+  full: 'It explains the patient’s phenotype.',
+  partial: 'It explains some of the patient’s phenotype.',
+  uncertain: 'Whether it explains the patient’s phenotype is uncertain.',
+  none: 'It doesn’t explain the patient’s phenotype.'
+};
 
 /** a CNV's interpretation: its class and the scored items */
 function cnvBlock(pt, v, s, iscnText) {
@@ -235,7 +242,7 @@ function cnvBlock(pt, v, s, iscnText) {
   return h('section.rp-sec.rp-var',
     h('h3', h('span.hgvs', iscnText)),
     h('p.small.muted', variantLong(v)),
-    h('p.rp-var-cls', clsBadge(s.cls), h('span', `${fmtPts(sc.total)} points (ACMG/ClinGen CNV, 2020)`, signed ? h('span.small.muted', `; signed by ${signed.by || 'not named'}, ${dateStr(signed.at)}`) : h('span.small.muted', '; not signed'))),
+    h('p.rp-var-cls', clsBadge(s.cls), h('span', `${fmtPts(sc.total)} points under the ACMG/ClinGen CNV standards (Riggs et al. 2020)`), signed ? h('span.small.muted', `, signed by ${signed.by || 'someone not named'} on ${dateStr(signed.at)}`) : h('span.small.muted', ', not signed yet')),
     v.genesSummary ? h('p.small.muted', `Genes: ${v.genesSummary}.`) : null,
     signed && signed.summary ? h('p', signed.summary) : null,
     sc.rows.length ? h('table.rp-table.rp-small', h('thead', h('tr', h('th', { scope: 'col' }, 'Item'), h('th', { scope: 'col' }, 'Points'), h('th', { scope: 'col' }, 'Evidence'))),

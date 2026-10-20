@@ -9,7 +9,7 @@
    the features matched which of the disease's, through which shared
    term, and how much each counted.
    ===================================================================== */
-import { h, fmt, debounce, icon, nowISO, toast, modal } from '../core.js';
+import { h, fmt, debounce, icon, nowISO, toast, modal, ordinal } from '../core.js';
 import { link } from '../router.js';
 import * as db from '../db.js';
 import * as H from '../hpo.js';
@@ -355,7 +355,7 @@ function diseaseItem(r, rk, bw, obs, exc, myGenes) {
     h('div.small.muted.match-meta',
       d.inh.length ? inhWords(d.inh, H) + '. ' : '',
       d.genes.length ? [d.genes.length === 1 ? 'Gene ' : 'Genes ', d.genes.slice(0, 6).map((g, i) => [i ? ', ' : '', h('a', { href: link('/gene/' + g) }, h('i', g)), myGenes.has(g) ? h('b.fit-flag', ' (a variant in this patient)') : null]), d.genes.length > 6 ? ` and ${d.genes.length - 6} more` : '', '.'] : 'No gene known.'),
-    h('div.small.match-meta', `It explains ${cov.explained} of the ${cov.total} features${cov.related ? ` (${cov.related} more loosely)` : ''}, and ${dcov.seen} of its own ${dcov.total} features are matched.`),
+    h('div.small.match-meta', `It explains ${cov.explained} of the ${cov.total} ${cov.total === 1 ? 'feature' : 'features'}${cov.related ? ` (${cov.related} more loosely)` : ''}, and ${dcov.total === 1 ? (dcov.seen ? 'its only feature is matched' : 'its only feature isn’t matched') : dcov.seen === dcov.total ? `all ${dcov.total} of its own features are matched` : `${dcov.seen} of its own ${dcov.total} features ${dcov.seen === 1 ? 'is' : 'are'} matched`}.`),
     why);
 }
 function freqOf(d, n) {
@@ -381,14 +381,14 @@ function drawGenes(sec, genes, obs, myGenes, pt) {
     const b = both(r.disease);
     const better = list.filter((x) => x.score > r.score + EPS || (Math.abs(x.score - r.score) <= EPS && both(x.disease) > b + EPS)).length;
     const level = list.filter((x) => Math.abs(x.score - r.score) <= EPS && Math.abs(both(x.disease) - b) <= EPS).length;
-    return (level > 1 ? '=' : '') + fmt(better + 1);
+    return (level > 1 ? 'joint ' : '') + ordinal(better + 1);
   };
   if (pt && myGenes.size) {
     const items = Array.from(myGenes).map(([g, vs]) => {
       const r = list.find((x) => x.gene === g);
       const v = vs.map((x, i) => [i ? ', ' : '', clsBadge(x.s.cls, { short: true, empty: 'not classified' }), ' ', h('span.hgvs', x.s.short)]);
       if (!r) return h('li', h('a', { href: link('/gene/' + g) }, h('i', g)), ': ', v, h('span.muted', '. No disease of this gene in the HPO’s annotations shares a feature with these, so it can’t be placed.'));
-      return h('li', h('a', { href: link('/gene/' + g) }, h('i', g)), ': ', v, `. It’s number ${placeOf(r)} of ${fmt(list.length)}, with a fit of ${fmt(r.score, 2)} through ${r.disease.name}.`);
+      return h('li', h('a', { href: link('/gene/' + g) }, h('i', g)), ': ', v, `. It ranks ${placeOf(r)} of ${fmt(list.length)} genes, fitting best through ${r.disease.name} with a score of ${fmt(r.score, 2)}.`);
     });
     sec.appendChild(h('div.note', h('p', h('b', `Patient ${pt.id}’s variant genes`)), h('ul.small', items),
       h('p.small.muted', 'A gene near the top fits the phenotype. One far down may still be the cause, because the annotations are incomplete, or it may not explain the phenotype at all. This is the sort of evidence PP4 weighs when the phenotype is specific.')));

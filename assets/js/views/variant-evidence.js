@@ -107,7 +107,7 @@ function drawPopulation(ctx, body) {
       { key: 'ac', label: 'Alleles', num: true, fmt: (r) => `${fmt(r.ac)} / ${fmt(r.an)}` },
       { key: 'hom', label: 'Hom.', num: true, fmt: (r) => fmt(r.hom) }
     ], groups, { compact: true, caption: 'Frequency by group' }));
-    body.appendChild(h('p.small.muted', `${g.dataset}. The grpmax filtering allele frequency (FAF) is the highest frequency that the counts are consistent with, at 95% confidence, in any of the large continental groups. It’s the figure ClinGen and the ACGS compare with BA1 and BS1. `, ext(gnLink, 'Open in gnomAD'), '.'));
+    body.appendChild(h('p.small.muted', `These figures are from ${g.dataset}. The grpmax filtering allele frequency (FAF) is the highest frequency that the counts are consistent with, at 95% confidence, in any of the large continental groups. It’s the figure ClinGen and the ACGS compare with BA1 and BS1. `, ext(gnLink, 'Open in gnomAD'), '.'));
     if (g.flags && g.flags.length) body.appendChild(note('warn', h('p', 'gnomAD flags this variant (' + g.flags.join(', ') + '), so its frequency may be unreliable.')));
   }
   body.appendChild(afCalculator(ctx));
@@ -360,7 +360,10 @@ function drawSplicing(ctx, body) {
     body.appendChild(grid);
     const F = framework();
     const sf = fw(F).splice;
-    body.appendChild(h('p', 'The highest score is ', h('b', s.max.toFixed(2)), '. ', s.max >= 0.5 ? 'That’s a strong prediction of an effect on splicing.' : s.max >= sf.pp3 ? `That’s at or above ${sf.pp3}, so SpliceAI predicts an effect (PP3 for splicing, at supporting strength).` : s.max <= sf.bp4 ? `That’s at or below ${sf.bp4}, so no effect is predicted (BP4, and BP7 for a synonymous or deep intronic variant).` : 'Scores between 0.1 and 0.2 are uninformative (Walker et al. 2023).'));
+    // the same cut-offs as the suggestions: the ACGS 2024 guidelines want above 0.2 and below 0.1
+    const high = sf.pp3Strict ? s.max > sf.pp3 : s.max >= sf.pp3;
+    const low = sf.bp4Strict ? s.max < sf.bp4 : s.max <= sf.bp4;
+    body.appendChild(h('p', 'The highest score is ', h('b', s.max.toFixed(2)), '. ', s.max >= 0.5 ? 'That’s a strong prediction of an effect on splicing.' : high ? `That’s ${sf.pp3Strict ? 'above' : 'at or above'} ${sf.pp3}, so SpliceAI predicts an effect (PP3 for splicing, at supporting strength).` : low ? `That’s ${sf.bp4Strict ? 'below' : 'at or below'} ${sf.bp4}, so no effect is predicted (BP4, and BP7 for a synonymous or deep intronic variant).` : `Scores between ${sf.bp4} and ${sf.pp3} are uninformative (Walker et al. 2023).`));
     body.appendChild(h('p.small.muted', 'Each score, from 0 to 1, is the change in the probability that a base within 500 bases of the variant is used as an acceptor or donor. Positions are relative to the variant. These are masked scores, so gains of sites that are already used and losses of sites that aren’t used are left out. ', ext(lookup, 'Open in SpliceAI-lookup'), ' to see the transcripts, the raw scores and Pangolin’s scores.'));
   }
   const dist = /c\.[*-]?\d+([+-])(\d+)/.exec(d.hgvsc || '');

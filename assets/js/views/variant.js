@@ -192,7 +192,7 @@ async function variantPage(root, { v, pt, section, q }) {
       saveBox.appendChild(btn('Add to a patient…', () => addToPatient(v, cls), { cls: 'primary', icon: 'plus' }));
       return;
     }
-    if (s) saveBox.appendChild(h('p.small', 'Last signed as ', clsBadge(s.cls, { short: true }), ` by ${s.by || 'you'} on ${dateStr(s.at, true)}`, s.cls !== r.cls ? h('span.res-differ', ' (it has changed since)') : null));
+    if (s) saveBox.appendChild(h('p.small', 'Last signed as ', clsBadge(s.cls, { short: true }), ` by ${s.by || 'you'} on ${dateStr(s.at, true)}`, s.cls !== r.cls ? h('span.res-differ', ' (the calculated class has changed since)') : null));
     saveBox.appendChild(btn(s ? 'Sign the classification again' : 'Sign the classification', () => signOff(ctx, r), { cls: 'primary', icon: 'badgeCheck', title: 'Record this classification in the variant’s history, with your name, the date and the criteria' }));
     saveBox.appendChild(h('p.small.muted', { style: { marginTop: '6px' } }, 'Your work is saved as you go. Signing adds the classification to the variant’s history and to the report.'));
   };

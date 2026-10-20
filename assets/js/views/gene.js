@@ -177,7 +177,7 @@ async function fillSummary(st) {
     const bits = [];
     if (parts.pts) {
       const n = parts.pts.patients;
-      bits.push(n ? `${n} ${n === 1 ? 'patient' : 'patients'} in this browser ${n === 1 ? 'has' : 'have'} a variant in ${st.symbol} (${parts.pts.variants} ${parts.pts.variants === 1 ? 'variant' : 'variants'}).` : `No patient in this browser has a variant in ${st.symbol} yet.`);
+      bits.push(n ? `${n} ${n === 1 ? 'patient' : 'patients'} in this browser ${n === 1 ? 'has' : 'have'} ${parts.pts.variants > n ? `${parts.pts.variants} variants` : n === 1 ? 'a variant' : 'variants'} in ${st.symbol}.` : `No patient in this browser has a variant in ${st.symbol} yet.`);
     }
     if (parts.cv) bits.push(`ClinVar lists ${fmt(parts.cv.total)} variants in the gene, ${fmt(parts.cv.plp)} of them pathogenic or likely pathogenic.`);
     else if (parts.cv === false) bits.push('ClinVar’s variants in the gene could not be fetched just now.');
@@ -303,7 +303,7 @@ async function drawOverview(st, box) {
   // the expert panel's rules for the gene, if ClinGen has any
   import('../api/cspec.js').then((cs) => cs.forGene(g.symbol)).then((sets) => {
     if (!sets.length || !vcep.isConnected) return;
-    vcep.appendChild(note('ok', h('p', h('b', `ClinGen has expert-panel rules for classifying ${g.symbol}’s variants: `), sets.map((s, i) => [i ? '; ' : '', ext(s.url, `${s.panel}, version ${s.version}`)]), '. They change how some criteria apply to this gene, such as their thresholds and strengths, and the variant pages show them beside each criterion.')));
+    vcep.appendChild(note('ok', h('p', h('b', `${sets.length === 1 ? 'A ClinGen expert panel has' : 'ClinGen expert panels have'} rules for classifying ${g.symbol}’s variants. `), 'They are ', sets.map((s, i) => [i ? (i === sets.length - 1 ? ' and ' : ', ') : '', 'the ', ext(s.url, `${s.panel}’s specifications (version ${s.version})`)]), '. They change how some criteria apply to this gene, such as their thresholds and strengths, and the variant pages show them beside each criterion.')));
   }).catch(() => null);
 
   // diseases

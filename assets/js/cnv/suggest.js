@@ -25,15 +25,15 @@
 
 /* families of genes of no known clinical relevance count as one gene each (the rubric's note to section 3) */
 export const GENE_FAMILIES = [
-  [/^OR\d+[A-Z]+\d+[A-Z]?\d*(P)?$/, 'olfactory receptors (OR)'],
-  [/^KRTAP\d/, 'keratin-associated proteins (KRTAP)'],
-  [/^LCE\d/, 'late cornified envelope (LCE)'],
-  [/^DEFB\d/, 'β-defensins (DEFB)'],
-  [/^TAS2R\d/, 'bitter taste receptors (TAS2R)'],
-  [/^PRAMEF\d/, 'PRAME family (PRAMEF)'],
-  [/^USP17L\d/, 'USP17L'],
-  [/^NBPF\d/, 'NBPF'],
-  [/^GAGE\d/, 'GAGE']
+  [/^OR\d+[A-Z]+\d+[A-Z]?\d*(P)?$/, 'olfactory receptor genes (OR)'],
+  [/^KRTAP\d/, 'keratin-associated protein genes (KRTAP)'],
+  [/^LCE\d/, 'late cornified envelope genes (LCE)'],
+  [/^DEFB\d/, 'β-defensin genes (DEFB)'],
+  [/^TAS2R\d/, 'bitter taste receptor genes (TAS2R)'],
+  [/^PRAMEF\d/, 'PRAME family genes (PRAMEF)'],
+  [/^USP17L\d/, 'USP17L genes'],
+  [/^NBPF\d/, 'NBPF genes'],
+  [/^GAGE\d/, 'GAGE genes']
 ];
 
 /** the number of protein-coding genes as section 3 counts them: families of no known relevance as one each */
@@ -158,7 +158,9 @@ export function suggestCNV(input) {
   const n = geneCount(pc);
   const band = SECTION3[type].find(([lo, hi]) => n.counted >= lo && n.counted <= hi);
   if (band) {
-    const fam = n.families.length ? `. There are ${n.all} in all, but the family of ${n.families.map((f) => `${f.n} ${f.name}`).join(', ')} count${n.families.length === 1 ? 's' : ''} as one` : '';
+    const fs = n.families.map((f) => `the ${f.n} ${f.name}`);
+    const fam = !fs.length ? '' : fs.length === 1 ? `. There are ${n.all} in all, but ${fs[0]} count as one, as a family of genes of no known clinical relevance`
+      : `. There are ${n.all} in all, but ${fs.slice(0, -1).join(', ')} and ${fs[fs.length - 1]} each count as one, as families of genes of no known clinical relevance`;
     add(band[2], { pts: band[3], why: `Section 3 counts ${n.counted} protein-coding ${n.counted === 1 ? 'gene' : 'genes'}${fam}.` });
   }
 

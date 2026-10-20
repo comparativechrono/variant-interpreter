@@ -83,7 +83,8 @@ export async function render(body, { patient: pt, variants: vs, refresh, query =
   if (pt.consanguinity === 'yes') fam.appendChild(h('p', h('span.tag.warn', 'Parents related')));
   if (rel.length) {
     const aff = rel.filter((r) => r.affected === 'affected');
-    fam.appendChild(h('p', `The pedigree has ${rel.length} ${rel.length === 1 ? 'relative' : 'relatives'}${aff.length ? ` (affected: ${aff.map((r) => r.relation).join(', ')})` : ', none affected'}.`));
+    const and = (xs) => (xs.length < 2 ? xs.join('') : xs.slice(0, -1).join(', ') + ' and ' + xs[xs.length - 1]);
+    fam.appendChild(h('p', `The pedigree has ${rel.length} ${rel.length === 1 ? 'relative' : 'relatives'}${aff.length ? `. The affected ${aff.length === 1 ? 'one is the' : 'ones are the'} ${and(aff.map((r) => r.relation))}` : ', none of them affected'}.`));
   } else fam.appendChild(h('p.muted', pt.familyHistory ? 'You haven’t drawn the pedigree yet.' : 'You haven’t recorded the family yet.'));
   side.appendChild(fam);
 

@@ -4,7 +4,7 @@
    conclusion (signed classifications, and comparing them with the
    case's answer and ClinGen's expert panels).
    ===================================================================== */
-import { h, esc, icon, fmt, fmtAF, dateStr, toast } from '../core.js';
+import { h, esc, icon, fmt, fmtAF, dateStr, toast, ordinal } from '../core.js';
 import { link, go } from '../router.js';
 import * as settings from '../settings.js';
 import * as db from '../db.js';
@@ -80,7 +80,7 @@ async function drawGene(ctx, body) {
   cspec.forGene(g.symbol).then((sets) => {
     ctx.vcep = sets;
     if (!sets.length) return;
-    const box = h('div.note.ok', h('p', h('b', `ClinGen expert panel rules apply to ${g.symbol}: `), sets.map((s, i) => [i ? '; ' : '', ext(s.url, `${s.panel}, version ${s.version}`)]), '. They change some criteria for this gene, such as thresholds and strengths, and each criterion’s guide shows the changes.'));
+    const box = h('div.note.ok', h('p', h('b', `${sets.length === 1 ? 'A ClinGen expert panel has' : 'ClinGen expert panels have'} rules for ${g.symbol}. `), 'They are ', sets.map((s, i) => [i ? (i === sets.length - 1 ? ' and ' : ', ') : '', 'the ', ext(s.url, `${s.panel}’s specifications (version ${s.version})`)]), '. They change some criteria for this gene, such as thresholds and strengths, and each criterion’s guide shows the changes.'));
     live.prepend(box);
     cspec.ruleSet(sets[0].id).then((rs) => {
       ctx.vcepRules = rs;
@@ -134,7 +134,7 @@ async function drawGene(ctx, body) {
       ctx.calc.pheno = { disease: best.dz.name, rank: rank >= 0 ? rank + 1 : null, score: best.sim.score, specific: false };
       const m = best.sim.matches.slice().sort((a, b) => b.ic - a.ic);
       phenoBox.appendChild(h('div.pheno-fit',
-        h('p', `The patient’s ${obs.length} observed features fit `, h('b', best.dz.name), ` best, with a score of ${best.sim.score.toFixed(1)}${rank >= 0 ? `. It’s number ${rank + 1} of all ${fmt((await hpo.loadDiseases()).length)} diseases ranked for this phenotype` : ''}.`),
+        h('p', `Of this gene’s diseases, the patient’s ${obs.length} observed ${obs.length === 1 ? 'feature fits' : 'features fit'} `, h('b', best.dz.name), ` best, with a score of ${best.sim.score.toFixed(1)}${rank >= 0 ? `. Ranked against all ${fmt((await hpo.loadDiseases()).length)} diseases for this phenotype, it comes ${ordinal(rank + 1)}` : ''}.`),
         h('ul.small', m.map((x) => h('li', h('b', hpo.name(x.patient)), x.exact ? ' – in the disease' : x.via && x.via !== 118 ? ` – shares “${hpo.name(x.via)}” with the disease` : ' – not in the disease')))));
       phenoBox.appendChild(h('p.small.muted', 'PP4 is for a phenotype that’s highly specific for the gene, meaning a close fit to a recognisable disease after other causes have been looked for. A non-specific phenotype, such as developmental delay alone, fits many genes and isn’t evidence.'));
       ctx.refreshSuggestions();
@@ -353,10 +353,13 @@ async function drawFamily(ctx, body) {
         }
         const st = r.strength || {};
         res.append(
-          h('p.calc-result', `Likelihood ratio ${r.lr >= 1000 ? fmt(r.lr, 0) : r.lr >= 1 ? r.lr.toFixed(2) : r.lr.toExponential(1)}`, isFinite(r.lod) ? `, LOD ${r.lod.toFixed(2)}` : '', isFinite(r.meioses) && r.lr >= 1 ? ` (as many as ${r.meioses.toFixed(1)} informative meioses)` : ''),
+          h('p.calc-result', `Likelihood ratio ${r.lr >= 1000 ? fmt(r.lr, 0) : r.lr >= 1 ? r.lr.toFixed(2) : r.lr.toExponential(1)}`, isFinite(r.lod) ? `, LOD ${r.lod.toFixed(2)}` : '', isFinite(r.meioses) && r.lr >= 1 ? ` (equivalent to ${r.meioses.toFixed(1)} informative meioses)` : ''),
           r.direction === 'for'
-            ? h('p', st.jarvik || st.bayes ? ['The family supports co-segregation: ', st.jarvik ? [critChip('PP1', st.jarvik), ' by meiosis counting (Jarvik and Browning)'] : 'too few meioses for PP1 by counting', st.bayes ? [', and ', critChip('PP1', st.bayes === 'VS' ? 'S' : st.bayes), ' by Tavtigian’s odds'] : ''] : 'The family fits co-segregation, but too weakly to support PP1.')
-            : h('p', 'The family argues against the variant causing the disease: ', st.bayes ? critChip('BS4', st.bayes === 'M' ? 'P' : st.bayes) : 'too weakly for BS4', '.'),
+            ? h('p', st.jarvik && st.bayes ? ['The family supports co-segregation. It reaches ', critChip('PP1', st.jarvik), ' by counting meioses (Jarvik and Browning) and ', critChip('PP1', st.bayes === 'VS' ? 'S' : st.bayes), ' by Tavtigian’s odds.']
+              : st.jarvik ? ['The family supports co-segregation. It reaches ', critChip('PP1', st.jarvik), ' by counting meioses (Jarvik and Browning), but not by Tavtigian’s odds.']
+              : st.bayes ? ['The family supports co-segregation. It reaches ', critChip('PP1', st.bayes === 'VS' ? 'S' : st.bayes), ' by Tavtigian’s odds, but there are too few meioses for PP1 by counting.']
+              : 'The family fits co-segregation, but too weakly to support PP1.')
+            : h('p', st.bayes ? ['The family argues against the variant causing the disease, strongly enough for ', critChip('BS4', st.bayes === 'M' ? 'P' : st.bayes), '.'] : 'The family argues against the variant causing the disease, but too weakly for BS4.'),
           h('p.small.muted', segCounts(r.counts), `${r.counts.untestedAffected ? ` ${r.counts.untestedAffected} affected ${r.counts.untestedAffected === 1 ? 'relative wasn’t' : 'relatives weren’t'} tested.` : ''} The ratio compares the chance of seeing the relatives’ genotypes, given everyone’s phenotypes, if the variant causes the disease with the penetrance and phenocopy rate above, against the chance if it doesn’t. Both start from the proband having the variant. ${qText}`));
         ctx.save();
         ctx.refreshSuggestions();
@@ -385,12 +388,26 @@ export function startMode(ctx, others = []) {
 /** who in the family fits and who doesn't, in words that suit the model */
 function segCounts(c) {
   const n = (k) => c[k] || 0;
-  const who = (k, adj, one, many) => `${n(k)} ${adj} ${n(k) === 1 ? 'relative' : 'relatives'} ${n(k) === 1 ? one : many}`;
-  if (c.mode === 'AR' || c.mode === 'XLR') {
-    const two = c.mode === 'AR' ? ['has both copies affected', 'have both copies affected'] : ['has the disease genotype (a man with it, or a woman with two copies)', 'have the disease genotype (a man with it, or a woman with two copies)'];
-    return `${who('affectedCarriers', 'affected', two[0], two[1])}, and ${who('unaffectedNonCarriers', 'unaffected', 'doesn’t', 'don’t')} (they have one copy or none, and carriers are expected to be well). ${who('affectedNonCarriers', 'affected', 'lacks it', 'lack it')} and ${who('unaffectedCarriers', 'unaffected', 'has it', 'have it')}.`;
-  }
-  return `${who('affectedCarriers', 'affected', 'carries it', 'carry it')} and ${who('unaffectedNonCarriers', 'unaffected', 'doesn’t', 'don’t')}. ${who('affectedNonCarriers', 'affected', 'doesn’t carry it', 'don’t carry it')} and ${who('unaffectedCarriers', 'unaffected', 'does', 'do')}.`;
+  const many = (k) => n(k) !== 1;
+  const who = (k, adj) => `${n(k)} ${adj} ${many(k) ? 'relatives' : 'relative'}`;
+  // "carriers" have the genotype that causes the disease under the model: for a recessive disorder, two copies
+  const rec = c.mode === 'AR' || c.mode === 'XLR';
+  const G = c.mode === 'AR' ? 'two copies' : 'the disease genotype';
+  const has = (k) => (rec ? `${many(k) ? 'have' : 'has'} ${G}` : many(k) ? 'carry it' : 'carries it');
+  const hasNot = (k) => (rec ? `${many(k) ? 'don’t' : 'doesn’t'} have ${G}` : many(k) ? 'don’t carry it' : 'doesn’t carry it');
+  const s = [];
+  // the results that fit co-segregation, then those against it
+  const [aC, uN, aN, uC] = ['affectedCarriers', 'unaffectedNonCarriers', 'affectedNonCarriers', 'unaffectedCarriers'];
+  if (n(aC) && n(uN)) s.push(`${who(aC, 'affected')} ${has(aC)} and ${who(uN, 'unaffected')} ${many(uN) ? 'don’t' : 'doesn’t'}.`);
+  else if (n(aC)) s.push(`${who(aC, 'affected')} ${has(aC)}.`);
+  else if (n(uN)) s.push(`${who(uN, 'unaffected')} ${hasNot(uN)}.`);
+  if (n(aN) && n(uC)) s.push(`${who(aN, 'affected')} ${hasNot(aN)} and ${who(uC, 'unaffected')} ${many(uC) ? 'do' : 'does'}.`);
+  else if (n(aN)) s.push(`${who(aN, 'affected')} ${hasNot(aN)}.`);
+  else if (n(uC)) s.push(`${who(uC, 'unaffected')} ${has(uC)}.`);
+  else if (n(aC) || n(uN)) s.push('None of the results goes against co-segregation.');
+  if (c.mode === 'XLR') s.push('The disease genotype is the variant in a man, or two copies in a woman.');
+  if (rec && n(uN)) s.push(`Unaffected ${c.mode === 'XLR' ? 'women' : 'relatives'} with one copy count as fitting, because carriers are expected to be well.`);
+  return s.join(' ');
 }
 
 /* ================================================================
@@ -505,7 +522,8 @@ async function drawConclusion(ctx, body) {
       for (const x of list) {
         const panelBox = h('div.compare');
         const metCodes = x.codes.filter((c) => c.status === 'Met').map((c) => c.label);
-        panelBox.appendChild(h('p', h('b', x.panel), ` classified it as ${x.outcome} for ${x.condition}. `, h('span.small.muted', x.guideline)));
+        const said = /uncertain/i.test(x.outcome || '') ? 'of uncertain significance' : String(x.outcome || '').toLowerCase();
+        panelBox.appendChild(h('p', h('b', x.panel), ` classified it as ${said} for ${x.condition}.`, x.guideline ? h('span.small.muted', ` It used the ${x.guideline}.`) : null));
         const reveal = btn(hist.length ? 'Compare with the expert panel' : 'Show the expert panel’s criteria', async () => {
           reveal.remove();
           const why = await er.reasons(x.uuid).catch(() => ({}));

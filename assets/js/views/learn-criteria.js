@@ -296,7 +296,13 @@ function pm2Notes(article) {
   // PVS1 with PM2 at each framework's own default strength, classified by the site's engine
   const res = (k) => classify({ criteria: { PVS1: { met: true, strength: 'VS' }, PM2: { met: true, strength: defaultFor('PM2', k) } } }, { framework: k });
   const a = res('acgs2024'), c = res('clingen');
-  article.appendChild(h('p', FRAMEWORK_LIST.map((k) => `With ${fw(k).label}, it starts at ${SW[defaultFor('PM2', k)].toLowerCase()}.`).join(' ') + ` This one difference can decide the class. PVS1 with PM2 gives ${a.points} points with the ACGS (${CLS[a.cls].toLowerCase()}) but ${c.points} with ClinGen (${CLS[c.cls].toLowerCase()}). `, h('a', { href: link('/learn/combining') }, 'Combining the evidence'), ' works through more examples.'));
+  // grouped by strength, so it reads "at moderate with A and B, but at supporting with C"
+  const NAME = { acgs2024: 'the ACGS 2024 guidelines', clingen: 'ClinGen’s recommendations', acmg2015: 'the original 2015 rules' };
+  const byS = {};
+  for (const k of FRAMEWORK_LIST) (byS[defaultFor('PM2', k)] = byS[defaultFor('PM2', k)] || []).push(NAME[k] || fw(k).label);
+  const and = (xs) => (xs.length < 2 ? xs.join('') : xs.slice(0, -1).join(', ') + ' and ' + xs[xs.length - 1]);
+  const starts = 'PM2 starts ' + Object.entries(byS).map(([s, ks]) => `at ${SW[s].toLowerCase()} with ${and(ks)}`).join(', but ') + '.';
+  article.appendChild(h('p', starts + ` This one difference can decide the class. PVS1 with PM2 gives ${a.points} points with the ACGS (${CLS[a.cls].toLowerCase()}) but ${c.points} with ClinGen (${CLS[c.cls].toLowerCase()}). `, h('a', { href: link('/learn/combining') }, 'Combining the evidence'), ' works through more examples.'));
 }
 const CLS = { p: 'Pathogenic', lp: 'Likely pathogenic', vus: 'Uncertain significance', lb: 'Likely benign', b: 'Benign' };
 

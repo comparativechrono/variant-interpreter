@@ -113,7 +113,7 @@ export function karyogram(holder, opts) {
       });
     });
     fig.appendChild(root);
-    cap.textContent = `${asm}. ${marks.length ? 'Triangles mark sequence variants and bars mark copy-number variants. Red is pathogenic, blue is benign and brown is uncertain. Point at a variant to see its name, or click it to open it.' : 'The patient’s variants will appear here.'}${B ? '' : ' The chromosomes’ bands couldn’t be loaded, so they’re drawn plain.'}`;
+    cap.textContent = `${marks.length ? `This shows the patient’s variants on ${asm}. Triangles mark sequence variants and bars mark copy-number variants. Red is pathogenic, blue is benign and brown is uncertain. Point at a variant to see its name, or click it to open it.` : `The patient’s variants will appear here, on ${asm}.`}${B ? '' : ' The chromosomes’ bands couldn’t be loaded, so they’re drawn plain.'}`;
   };
   draw(null);
   bands(asm).then((B) => B && fig.isConnected !== false && draw(B));

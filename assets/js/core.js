@@ -490,6 +490,13 @@ export function oneIn(x) {
 }
 export const pct = (x, d = 1) => (x == null || isNaN(x) ? '–' : fmt(x * 100, d) + '%');
 export const plural = (n, one, many) => `${fmt(n)} ${n === 1 ? one : many || one + 's'}`;
+/** first, second … tenth, then 11th, 22nd, 1,003rd */
+export function ordinal(n) {
+  const W = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
+  if (Number.isInteger(n) && n >= 1 && n <= 10) return W[n - 1];
+  const v = n % 100;
+  return fmt(n) + (v >= 11 && v <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
+}
 export function dateStr(iso, withTime) {
   if (!iso) return '';
   const d = new Date(iso);
