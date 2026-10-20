@@ -10,7 +10,7 @@
   "tasks": [
    "Work through the PVS1 decision tree on the variant’s page. Where is the premature stop, and is nonsense-mediated decay expected?",
    "Look at the frequency by ancestry group in gnomAD. Why is the grpmax filtering allele frequency so much lower than the Ashkenazi Jewish frequency? Does BS1 or BA1 apply?",
-   "Classify the variant and sign it, then compare it with the ENIGMA expert panel’s classification. Note where the panel’s gene-specific rules differ from the general guidance.",
+   "Classify the variant and sign it, then compare your answer with the ENIGMA expert panel’s. Note where the panel’s gene-specific rules differ from the general guidance.",
    "Who else in the family should be offered testing?"
   ],
   "source": "The variant is NM_007294.4(BRCA1):c.68_69del (GRCh38 17-43124027-ACT-A, ClinGen allele CA003783). The sources are ClinVar VCV000017662 and the ClinGen ENIGMA BRCA1/2 VCEP’s classification in the Evidence Repository, checked in October 2026. The patient and family are fictional."

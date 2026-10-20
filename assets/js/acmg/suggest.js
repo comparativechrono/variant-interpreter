@@ -106,14 +106,14 @@ export function suggest({ ev, gene, clinvarGene, variant, calc = {}, settings = 
       const nmd = nmdPrediction(d);
       if (is(['stop_gained', 'frameshift_variant'])) {
         if (nmd.escapes) add('PVS1', nmd.removedPct != null && nmd.removedPct > 10 ? 'S' : 'M', `This premature stop is expected to escape nonsense-mediated decay, because ${nmd.why}. It removes about ${nmd.removedPct != null ? nmd.removedPct.toFixed(0) + '%' : 'an unknown share'} of the protein. Loss of function causes disease in this gene: ${lof.why.join('; ')}. Work through the PVS1 tree to be sure.`);
-        else add('PVS1', 'VS', `This premature stop is expected to trigger nonsense-mediated decay (${nmd.why}), and loss of function causes disease in this gene: ${lof.why.join('; ')}. Use the PVS1 tree to check that the transcript is the one expressed in the relevant tissue.`);
+        else add('PVS1', 'VS', `This premature stop is expected to trigger nonsense-mediated decay (${nmd.why}). Loss of function causes disease in this gene: ${lof.why.join('; ')}. Use the PVS1 tree to check that the transcript is the one expressed in the relevant tissue.`);
       } else if (is(SPLICE_CANON)) {
         const plus2TC = /c\.[*-]?\d+\+2T>C$/.test(d.hgvsc || '');
         const plus2CT = /c\.[*-]?\d+\+2C>T$/.test(d.hgvsc || '');
         const spl = ev.d && ev.d.spliceai && ev.d.spliceai.max;
         if (plus2CT) out._pvs1Note = `A +2C>T change turns a GC donor (about 1.5% of splice sites) into the usual GT, which is likely to make the site stronger rather than weaker. PVS1 therefore doesn’t apply (ACGS 2024). Check that SpliceAI agrees (here it is ${spl != null ? spl.toFixed(2) : 'not known'}).`;
         else if (F === 'acgs2024' && plus2TC && !(spl >= 0.8)) out._pvs1Note = `A +2T>C change turns the donor into GC, which some introns still splice from. The ACGS 2024 guidelines therefore hold back PVS1 unless SpliceAI is 0.8 or more (here it is ${spl != null ? spl.toFixed(2) : 'not known'}) or an RNA study shows the effect.`;
-        else add('PVS1', 'VS', `This change is at a canonical ±1 or 2 splice site, and loss of function causes disease in this gene: ${lof.why.join('; ')}. The strength depends on whether the exon skipping or intron retention it causes is in frame and triggers NMD, so work it through the PVS1 tree.`);
+        else add('PVS1', 'VS', `This change is at a canonical ±1 or 2 splice site. Loss of function causes disease in this gene: ${lof.why.join('; ')}. The strength depends on whether the exon skipping or intron retention it causes is in frame and triggers NMD, so work it through the PVS1 tree.`);
       }
       else if (is(['start_lost'])) add('PVS1', 'P', `The start codon is lost. In the PVS1 tree, PVS1 doesn’t apply if another functional transcript starts elsewhere. It is moderate if at least one pathogenic variant is known upstream of the closest in-frame start codon, and supporting if none is. Supporting is suggested until you have checked in the Variant type and PVS1 section. Loss of function causes disease in this gene: ${lof.why.join('; ')}.`);
     } else if (gene) {
@@ -210,7 +210,7 @@ export function suggest({ ev, gene, clinvarGene, variant, calc = {}, settings = 
     if (calc.seg.direction === 'against' && calc.seg.strength && calc.seg.strength.bayes) add('BS4', calc.seg.strength.bayes === 'M' ? 'P' : calc.seg.strength.bayes === 'P' ? 'P' : 'S', `The family’s genotypes fit the variant not causing the disease (likelihood ratio ${calc.seg.lr < 0.001 ? 'below 0.001' : calc.seg.lr.toFixed(3)}).`);
   }
   if (calc.func && calc.func.result) add(calc.func.result.code, calc.func.result.strength, `The functional assay’s controls give an OddsPath of ${calc.func.result.odds.toFixed(2)} (Brnich et al. 2019).`);
-  if (calc.pheno && calc.pheno.specific && calc.pheno.rank != null && calc.pheno.rank <= 3) add('PP4', 'P', `The patient’s phenotype closely matches ${calc.pheno.disease} (the HPO comparison ranks it ${calc.pheno.rank} of all diseases). Use PP4 only if the phenotype is highly specific for this gene.`);
+  if (calc.pheno && calc.pheno.specific && calc.pheno.rank != null && calc.pheno.rank <= 3) add('PP4', 'P', `The patient’s phenotype closely matches ${calc.pheno.disease} (ranked number ${calc.pheno.rank} of all diseases by the HPO comparison). Use PP4 only if the phenotype is highly specific for this gene.`);
   return out;
 }
 

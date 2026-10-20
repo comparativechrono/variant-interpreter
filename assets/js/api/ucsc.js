@@ -63,7 +63,7 @@ function open(url) {
     let le = true;
     if (dv.getUint32(0, true) !== BIGBED_MAGIC) {
       if (dv.getUint32(0, false) === BIGBED_MAGIC) le = false;
-      else throw new Error('this is not a bigBed file');
+      else throw new Error('this isn’t a bigBed file');
     }
     const H = {
       version: dv.getUint16(4, le),
@@ -81,7 +81,7 @@ function open(url) {
     const ctLen = Math.max(32, Math.min(H.fullDataOffset - H.chromTreeOffset, 4 << 20));
     const ct = await range(url, H.chromTreeOffset, ctLen);
     const cdv = view(ct);
-    if (cdv.getUint32(0, le) !== CHROM_TREE_MAGIC) throw new Error('the list of chromosomes could not be read');
+    if (cdv.getUint32(0, le) !== CHROM_TREE_MAGIC) throw new Error('the list of chromosomes couldn’t be read');
     const keySize = cdv.getUint32(8, le);
     const chroms = new Map();
     const readNode = (off) => {
@@ -117,7 +117,7 @@ function open(url) {
     // the index: its header (48 bytes); the root node follows it
     const ih = await range(url, H.fullIndexOffset, 48);
     const idv = view(ih);
-    if (idv.getUint32(0, le) !== RTREE_MAGIC) throw new Error('the index of the file could not be read');
+    if (idv.getUint32(0, le) !== RTREE_MAGIC) throw new Error('the file’s index couldn’t be read');
     return { url, le, H, chroms, fields, blockSize: idv.getUint32(4, le), root: H.fullIndexOffset + 48 };
   })();
   p.catch(() => files.delete(url));

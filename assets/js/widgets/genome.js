@@ -24,10 +24,10 @@ export function loadIgv() {
     loading = new Promise((resolve, reject) => {
       const s = document.createElement('script');
       s.src = 'assets/vendor/igv/igv.min.js';
-      s.onload = () => (window.igv ? resolve(window.igv) : reject(new Error('igv.js loaded but did not start')));
+      s.onload = () => (window.igv ? resolve(window.igv) : reject(new Error('igv.js loaded but didn’t start')));
       s.onerror = () => {
         loading = null;
-        reject(new Error('the genome browser (igv.js) could not be loaded'));
+        reject(new Error('its program (igv.js) couldn’t be loaded'));
       };
       document.head.appendChild(s);
     });
@@ -62,37 +62,37 @@ export function reference(assembly) {
 export const TRACKS = {
   genes: {
     name: 'Genes (RefSeq Select)',
-    about: 'One transcript per protein-coding gene: NCBI’s RefSeq Select, which is the MANE Select transcript where there is one.',
+    about: 'One transcript for each protein-coding gene, from NCBI’s RefSeq Select. Where a gene has a MANE Select transcript, that’s the one shown.',
     cfg: (db, B) => ({ format: 'refgene', url: `${B}/goldenPath/${db}/database/ncbiRefSeqSelect.txt.gz`, displayMode: 'EXPANDED', height: 100, visibilityWindow: -1, searchable: true })
   },
   clinvar: {
     name: 'ClinVar: short variants',
-    about: 'ClinVar’s classifications of short variants, coloured by class (red pathogenic, blue benign, grey uncertain). Shown when you are zoomed in to 600 kb or less.',
+    about: 'ClinVar’s classifications of short variants, coloured by class: red for pathogenic, blue for benign and grey for uncertain. They appear when you zoom in to 600 kb or less.',
     cfg: (db, B) => ({ format: 'bigbed', url: `${B}/gbdb/${db}/bbi/clinvar/clinvarMain.bb`, displayMode: 'SQUISHED', visibilityWindow: 600000, height: 80 })
   },
   clinvarCnv: {
     name: 'ClinVar: copy-number variants',
-    about: 'Gains and losses in ClinVar, with their classifications. Shown when you are zoomed in to 30 Mb or less.',
+    about: 'Gains and losses in ClinVar, with their classifications. They appear when you zoom in to 30 Mb or less.',
     cfg: (db, B) => ({ format: 'bigbed', url: `${B}/gbdb/${db}/bbi/clinvar/clinvarCnv.bb`, displayMode: 'SQUISHED', visibilityWindow: 30000000, height: 90 })
   },
   haplo: {
     name: 'ClinGen: haploinsufficiency',
-    about: 'ClinGen’s curations of genes and regions: score 3 (sufficient evidence) is an established haploinsufficient gene or region; 40, dosage sensitivity unlikely.',
+    about: 'ClinGen’s haploinsufficiency curations of genes and regions. A score of 3 (sufficient evidence) means an established haploinsufficient gene or region, and a score of 40 means dosage sensitivity is unlikely.',
     cfg: (db, B) => ({ format: 'bigbed', url: `${B}/gbdb/${db}/bbi/clinGen/clinGenHaplo.bb`, displayMode: 'EXPANDED', height: 60 })
   },
   triplo: {
     name: 'ClinGen: triplosensitivity',
-    about: 'ClinGen’s curations of triplosensitivity (a gain of the gene or region): score 3 is an established triplosensitive one.',
+    about: 'ClinGen’s curations of triplosensitivity, which is sensitivity to a gain of the gene or region. A score of 3 means an established triplosensitive gene or region.',
     cfg: (db, B) => ({ format: 'bigbed', url: `${B}/gbdb/${db}/bbi/clinGen/clinGenTriplo.bb`, displayMode: 'EXPANDED', height: 50 })
   },
   validity: {
     name: 'ClinGen: gene–disease validity',
-    about: 'How strong the evidence is that each gene causes a disease (Definitive, Strong, Moderate, Limited…).',
+    about: 'How strong the evidence is that each gene causes a disease, with ratings such as Definitive, Strong, Moderate and Limited.',
     cfg: (db, B) => ({ format: 'bigbed', url: `${B}/gbdb/${db}/bbi/clinGen/clinGenGeneDisease.bb`, displayMode: 'EXPANDED', height: 50 })
   },
   dgvGold: {
     name: 'DGV gold standard CNVs',
-    about: 'Copy-number variants seen in people without a known disorder, merged across studies by the Database of Genomic Variants (its gold standard set): losses red, gains blue.',
+    about: 'Copy-number variants seen in people without a known disorder, merged across studies by the Database of Genomic Variants into its gold standard set. Losses are red and gains are blue.',
     cfg: (db, B) => ({ format: 'bigbed', url: `${B}/gbdb/${db}/dgv/dgvGold.bb`, displayMode: 'SQUISHED', visibilityWindow: 30000000, height: 70 })
   }
 };
@@ -179,12 +179,12 @@ export function genomeBrowser(holder, opts = {}) {
         failed.push(t.name);
       }
     }
-    if (failed.length) status.textContent = `These tracks could not be read: ${failed.join(', ')}.`;
+    if (failed.length) status.textContent = `These tracks couldn’t be read: ${failed.join(', ')}.`;
     return browser;
   })().catch((e) => {
     status.innerHTML = '';
     status.className = 'note warn';
-    status.append(h('p', `The genome browser could not open: ${e.message || e}. It reads its files from UCSC’s copy on Amazon, so it needs the internet.`));
+    status.append(h('p', `The genome browser couldn’t open: ${e.message || e}. It reads its files from UCSC’s copy on Amazon, so it needs an internet connection.`));
     throw e;
   });
   handle.goTo = async (locus) => {

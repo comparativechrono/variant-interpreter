@@ -84,7 +84,7 @@ export async function resolveInput(text, asm) {
     // would otherwise be annotated as the change the genome's own base gives
     const c = res.candidates[0];
     const has = await genomeBase(c, asm);
-    if (has) return { ok: false, refMismatch: true, message: `On ${asm}, the genome has ${has} at ${c.chrom}:${c.pos}${c.ref.length > 1 ? `-${c.pos + c.ref.length - 1}` : ''}, not ${c.ref.toUpperCase()}. Check the position and the alleles, and the genome build: positions on GRCh37 and GRCh38 differ.` };
+    if (has) return { ok: false, refMismatch: true, message: `On ${asm}, the genome has ${has} at ${c.chrom}:${c.pos}${c.ref.length > 1 ? `-${c.pos + c.ref.length - 1}` : ''}, not ${c.ref.toUpperCase()}. Check the position, the alleles and the genome build, because positions on GRCh37 and GRCh38 differ.` };
   }
   if (res.ok) res.candidates = await Promise.all(res.candidates.map((c) => leftAlign(c, asm)));
   return res;
@@ -107,7 +107,7 @@ async function resolveRaw(text, asm) {
     if (r.kind === 'vcf') return { ok: true, kind: 'vcf', candidates: [{ chrom: r.chrom, pos: r.pos, ref: r.ref, alt: r.alt, vcf: `${r.chrom}-${r.pos}-${r.ref}-${r.alt}`, input: text }] };
     if (r.kind === 'rsid') {
       const c = await ens.resolveId(r.id, asm);
-      return c.length ? { ok: true, kind: 'rsid', candidates: c } : { ok: false, message: `Ensembl does not know ${r.id} on ${asm}.` };
+      return c.length ? { ok: true, kind: 'rsid', candidates: c } : { ok: false, message: `Ensembl has no record of ${r.id} on ${asm}. Check that the rsID is right.` };
     }
     if (r.kind === 'hgvs') {
       let hgvs = r.hgvs;
@@ -115,7 +115,7 @@ async function resolveRaw(text, asm) {
         // a gene's symbol: use its MANE Select transcript (VEP is slow with symbols, and the transcript should be named)
         await loadGenes().catch(() => null);
         const g = geneInfo(r.gene);
-        if (!g || !g.mane) return { ok: false, message: `Give the transcript as well as the gene, e.g. NM_000546.6:c.818G>A. ${g ? '' : `(${r.gene} is not a gene symbol the site knows.)`}` };
+        if (!g || !g.mane) return { ok: false, message: `Give the transcript as well as the gene, for example NM_000546.6:c.818G>A. ${g ? '' : `${r.gene} isn’t a gene symbol the site knows.`}` };
         hgvs = `${g.mane}:${r.type}.${hgvs.split(/:[cgnmrp]\./)[1]}`;
       }
       if (r.ref === 'protein') {
@@ -130,22 +130,22 @@ async function resolveRaw(text, asm) {
           c = await ens.recode(ph, asm);
         } catch (e) {
           if (/HTTP 400/.test(String(e.message))) throw e;
-          return { ok: false, message: `Ensembl’s look-up of protein changes did not answer in time (it is slow, and sometimes busy). Give the DNA change on a transcript instead, e.g. NM_000546.6:c.818G>A, or try again in a few minutes.` };
+          return { ok: false, message: `Ensembl’s look-up of protein changes didn’t answer in time. It’s slow and sometimes busy, so give the DNA change on a transcript instead (for example NM_000546.6:c.818G>A), or try again in a few minutes.` };
         }
-        return c.length ? { ok: true, kind: 'protein', candidates: c, note: 'A protein change can be made by more than one DNA change: choose the one the test found.' }
-          : { ok: false, message: 'Ensembl could not find the DNA changes that make this protein change. Give the change on a transcript (c.) instead.' };
+        return c.length ? { ok: true, kind: 'protein', candidates: c, note: 'More than one DNA change can make this protein change, so choose the one the test found.' }
+          : { ok: false, message: 'Ensembl couldn’t find the DNA changes that make this protein change. Give the change on a transcript (c.) instead.' };
       }
       const c = await ens.resolveHGVS(hgvs, asm);
-      return c.length ? { ok: true, kind: 'hgvs', candidates: c.map((x) => Object.assign(x, { input: hgvs })) } : { ok: false, message: `VEP could not place ${hgvs} on ${asm}.` };
+      return c.length ? { ok: true, kind: 'hgvs', candidates: c.map((x) => Object.assign(x, { input: hgvs })) } : { ok: false, message: `VEP couldn’t place ${hgvs} on ${asm}. Check the transcript version and the change.` };
     }
     return { ok: false, message: 'That doesn’t look like a variant. Try a transcript change (NM_000546.6:c.818G>A), a chromosome position (17-7673802-C-T) or an rsID (rs28934576).' };
   } catch (e) {
     const m = String(e.message || e);
     if (/HTTP 400/.test(m)) {
       const detail = /"error"\s*:\s*"([^"]+)"/.exec(m);
-      return { ok: false, message: 'Ensembl could not read that variant' + (detail ? ': ' + detail[1].replace(/\\n/g, ' ').slice(0, 220) : '.') + ' Check the transcript version and the reference base.' };
+      return { ok: false, message: 'Ensembl couldn’t read that variant' + (detail ? ': ' + detail[1].replace(/\\n/g, ' ').slice(0, 220) : '.') + ' Check the transcript version and the reference base.' };
     }
-    return { ok: false, message: 'Ensembl did not answer (' + m + '). Try again in a minute; or give the variant as chromosome-position-reference-alternative.' };
+    return { ok: false, message: 'Ensembl didn’t answer (' + m + '). Try again in a minute, or give the variant as chromosome-position-reference-alternative, for example 17-7673802-C-T.' };
   }
 }
 

@@ -61,9 +61,9 @@ export function genesTable(genes, opts = {}) {
     return h('label.check.cnv-filter', { title }, b, h('span', label));
   };
   bar.append(h('span.small.muted', 'Show only:'),
-    chk('disease', 'Disease-associated', 'Genes with a disease: ClinGen gene–disease validity (moderate or stronger), Gene2Phenotype, ClinGen’s dosage curation or HPO’s disease annotations'),
-    chk('mono', 'Monoallelic disease', 'Genes whose disease needs one changed copy (dominant or X-linked), in ClinGen’s or Gene2Phenotype’s curations or HPO’s annotations'),
-    chk('dosage', 'Dosage-sensitive', `ClinGen’s haploinsufficiency or triplosensitivity 1 to 3, or pHaplo ≥ ${THRESH.pHaplo} or pTriplo ≥ ${THRESH.pTriplo}`),
+    chk('disease', 'Disease-associated', 'Genes linked to a disease by ClinGen’s gene–disease validity (moderate or stronger), Gene2Phenotype, ClinGen’s dosage curation or HPO’s disease annotations'),
+    chk('mono', 'Monoallelic disease', 'Genes whose disease needs only one changed copy (dominant or X-linked), according to ClinGen’s or Gene2Phenotype’s curations or HPO’s annotations'),
+    chk('dosage', 'Dosage-sensitive', `Genes with a ClinGen haploinsufficiency or triplosensitivity score of 1 to 3, or with pHaplo ≥ ${THRESH.pHaplo} or pTriplo ≥ ${THRESH.pTriplo}`),
     chk('whole', 'Whole genes', 'Genes that lie wholly within the region'),
     count);
   let rows = genes.slice();
@@ -76,13 +76,13 @@ export function genesTable(genes, opts = {}) {
   const cols = [
     { key: 'symbol', label: 'Gene', fmt: (g) => h('span', h('a.gene', { href: link('/gene/' + encodeURIComponent(g.symbol)), title: g.name }, g.symbol), g.pc ? null : h('span.tag', { style: { marginLeft: '6px' } }, 'non-coding')), sort: (g) => g.start },
     { key: 'place', label: 'In the region', fmt: (g) => h('span' + (g.whole ? '' : '.cnv-part'), placeText(g)), sort: (g) => (g.whole ? 0 : 1) },
-    { key: 'hi', label: 'Haplo­insufficiency', fmt: (g) => h('span.cnv-ds', dsBadge(g.hi, 'hi'), g.pHaplo != null ? strong(g.pHaplo >= THRESH.pHaplo, `pHaplo ${n2(g.pHaplo)}`, 'Collins et al. (2022): the chance that the gene is haploinsufficient') : null), sort: (g) => (g.hi === 3 ? 10 : g.hi === 2 ? 9 : g.hi === 1 ? 8 : 0) + (g.pHaplo || 0) },
-    { key: 'ts', label: 'Triplo­sensitivity', fmt: (g) => h('span.cnv-ds', dsBadge(g.ts, 'ts'), g.pTriplo != null ? strong(g.pTriplo >= THRESH.pTriplo, `pTriplo ${n2(g.pTriplo)}`, 'Collins et al. (2022): the chance that the gene is triplosensitive') : null), sort: (g) => (g.ts === 3 ? 10 : g.ts === 2 ? 9 : g.ts === 1 ? 8 : 0) + (g.pTriplo || 0) },
-    { key: 'loeuf', label: 'LOEUF', num: true, fmt: (g) => (g.loeuf == null ? h('span.faint', '–') : strong(g.loeuf < THRESH.loeuf, n2(g.loeuf), 'gnomAD v4.1: the upper bound of observed/expected loss-of-function variants (low: intolerant)')), sort: (g) => (g.loeuf == null ? 9 : g.loeuf) },
-    { key: 'pLI', label: 'pLI', num: true, fmt: (g) => (g.pLI == null ? h('span.faint', '–') : strong(g.pLI >= THRESH.pLI, n2(g.pLI), 'gnomAD v4.1: the chance of being intolerant of loss of function')), sort: (g) => -(g.pLI || 0) },
+    { key: 'hi', label: 'Haplo­insufficiency', fmt: (g) => h('span.cnv-ds', dsBadge(g.hi, 'hi'), g.pHaplo != null ? strong(g.pHaplo >= THRESH.pHaplo, `pHaplo ${n2(g.pHaplo)}`, 'The chance that the gene is haploinsufficient (Collins et al. 2022)') : null), sort: (g) => (g.hi === 3 ? 10 : g.hi === 2 ? 9 : g.hi === 1 ? 8 : 0) + (g.pHaplo || 0) },
+    { key: 'ts', label: 'Triplo­sensitivity', fmt: (g) => h('span.cnv-ds', dsBadge(g.ts, 'ts'), g.pTriplo != null ? strong(g.pTriplo >= THRESH.pTriplo, `pTriplo ${n2(g.pTriplo)}`, 'The chance that the gene is triplosensitive (Collins et al. 2022)') : null), sort: (g) => (g.ts === 3 ? 10 : g.ts === 2 ? 9 : g.ts === 1 ? 8 : 0) + (g.pTriplo || 0) },
+    { key: 'loeuf', label: 'LOEUF', num: true, fmt: (g) => (g.loeuf == null ? h('span.faint', '–') : strong(g.loeuf < THRESH.loeuf, n2(g.loeuf), 'The upper bound of observed/expected loss-of-function variants in gnomAD v4.1. A low value means the gene is intolerant.')), sort: (g) => (g.loeuf == null ? 9 : g.loeuf) },
+    { key: 'pLI', label: 'pLI', num: true, fmt: (g) => (g.pLI == null ? h('span.faint', '–') : strong(g.pLI >= THRESH.pLI, n2(g.pLI), 'The chance that the gene is intolerant of loss of function (gnomAD v4.1)')), sort: (g) => -(g.pLI || 0) },
     { key: 'disease', label: 'Disease', fmt: (g) => diseaseCell(g), sort: (g) => (g.validity ? ['Definitive', 'Strong', 'Moderate', 'Limited'].indexOf(g.validity.classification) + 1 || 9 : g.g2p.length ? 5 : 9) }
   ];
-  const t = table(cols, view(), { sortable: true, compact: true, caption: opts.caption || 'Genes in the region', empty: 'No genes match.' });
+  const t = table(cols, view(), { sortable: true, compact: true, caption: opts.caption || 'Genes in the region', empty: 'No genes match these filters.' });
   t.classList.add('cnv-gene-table');
   const redraw = () => {
     const v = view();
@@ -117,7 +117,7 @@ export function regionsTable(regions, opts = {}) {
     { key: 'over', label: opts.of || 'Overlap', fmt: (r) => (r.whole && r.inside ? 'The same stretch' : r.whole ? 'All of the region' : r.inside ? 'Lies within it' : `${pct(r.coverOfRegion)} of the region`) },
     { key: 'where', label: 'Where', fmt: (r) => h('span.small', fmtRegion(r.chrom || opts.chrom, r.start, r.end), h('span.muted', ` (${fmtSize(r.end - r.start + 1)})`)) },
     { key: 'date', label: 'Curated', fmt: (r) => h('span.small', r.date || '–') }
-  ], regions, { compact: true, caption: 'ClinGen’s curated regions', empty: 'ClinGen has curated no region here.' });
+  ], regions, { compact: true, caption: 'ClinGen’s curated regions', empty: 'ClinGen hasn’t curated any region here.' });
 }
 
 /** population CNVs (gnomAD or DGV) */

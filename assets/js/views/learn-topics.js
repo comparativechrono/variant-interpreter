@@ -360,7 +360,7 @@ function usingSite(a) {
     h('p.learn-lede', 'Everything you enter stays in this browser, on this computer. The site asks public databases about variants and genes, but never sends them anything about the patient.'));
   const S = [
     ['patient', 'Patients', [
-      ['Make a patient with ', go('/patient/new', 'New patient'), '. You give them a reference of your own (not a real name), their sex and age, the stage of life when the condition began, and their ancestry, so that frequencies can be compared with the patient’s gnomAD group. You also record whether the parents are related, the reason for testing and the test done, with its gene panel from Genomics England PanelApp if it had one.'],
+      ['Make a patient with ', go('/patient/new', 'New patient'), '. Give them a reference of your own (not a real name), and record their sex, age, the stage of life when the condition began, and their ancestry, so that frequencies can be compared with their gnomAD group. Also record whether the parents are related, the reason for testing and the test done, with its gene panel from Genomics England PanelApp if it had one.'],
       ['Or open a case from ', go('/data', 'Cases and data'), '. Each case is a fictional patient with their phenotype, family and variants, ready for you to interpret.']]],
     ['phenotype', 'Phenotypes', [
       ['Search the Human Phenotype Ontology by name, synonym or ID, or paste a clinical note and pick the terms the site finds in it. Mark each term as observed or excluded. The diseases that best fit the patient’s terms are listed beside them, with their genes. Each variant’s Gene and disease section also compares the patient with the gene’s diseases, to help you judge PP4.'],
@@ -374,7 +374,7 @@ function usingSite(a) {
       ['The evidence runs down the middle of the page, section by section. The classification panel is on the right, or above on a narrow screen, and holds the evidence scale, the class so far and every criterion. The same criteria also appear beside their evidence in each section, and marking one in either place marks it in both. Your work is saved as you go.'],
       ['To use another transcript, choose Transcript at the top. You can open the variant in the genome browser from the menu beside it.']]],
     ['badgeCheck', 'Signing', [
-      ['Choosing Sign the classification records it with your name, the date, the criteria and a summary of the evidence. The class is calculated for you, but you may choose another if you give a reason, as ClinGen’s curation interface allows. Each signing is kept in the variant’s history, and the latest one goes on the report.']]],
+      ['When you choose Sign the classification, the site records it with your name, the date, the criteria and a summary of the evidence. The class is calculated for you, but you may choose another if you give a reason, as ClinGen’s curation interface allows. Each signing is kept in the variant’s history, and the latest one goes on the report.']]],
     ['chromosome', 'Copy-number variants', [
       ['A CNV’s page lists the genes and ClinGen dosage-sensitive regions it overlaps, CNVs in ClinVar and in the population that overlap it, and the points of Riggs et al. (2020), item by item.']]],
     ['genome', 'The genome browser', [
@@ -436,7 +436,7 @@ const GLOSSARY = [
   ['SpliceAI', 'A deep-learning tool (Jaganathan et al. 2019) that predicts how a variant changes the chance that nearby bases are used as splice acceptors or donors, as four scores from 0 to 1.'],
   ['Splice site, canonical', 'The two bases at each end of an intron (GT at the 5′ end, AG at the 3′ end). These are the ±1 and ±2 positions, which PVS1 covers.'],
   ['VUS', 'A variant of uncertain significance, meaning there isn’t enough evidence to call it pathogenic or benign. It shouldn’t be used to make clinical decisions.'],
-  ['VUS bands', 'A grading of a VUS by its points, from ice cold (0) to hot (5), using the names NHS England’s GeNotes gives the bands. It shows how near the variant is to likely pathogenic. The ACGS divides the same points into three groups.'],
+  ['VUS bands', 'A grading of a VUS by its points, from ice cold (0) to hot (5), as NHS England’s GeNotes names them. It shows how near the variant is to likely pathogenic. The ACGS divides the same points into three groups.'],
   ['Zygosity', 'How many copies of the variant a person has: heterozygous, homozygous or hemizygous (or mosaic).']
 ];
 function glossary(a) {

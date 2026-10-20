@@ -107,7 +107,7 @@ export function criterionRow(cls, code, opts = {}) {
     const info = h('button.crow-title', { type: 'button', title: `What ${code} means, and how to use it` }, chip, name);
     info.addEventListener('click', () => criterionGuide(code));
     const metB = h('button.crow-btn.yes', { type: 'button', 'aria-pressed': st.met ? 'true' : 'false', disabled: cls.readOnly || null, title: `${code} is met` }, 'Met');
-    const notB = h('button.crow-btn.no', { type: 'button', 'aria-pressed': !st.met && st.evaluated ? 'true' : 'false', disabled: cls.readOnly || null, title: `Looked at: ${code} is not met` }, 'Not met');
+    const notB = h('button.crow-btn.no', { type: 'button', 'aria-pressed': !st.met && st.evaluated ? 'true' : 'false', disabled: cls.readOnly || null, title: `${code} was looked at and is not met` }, 'Not met');
     metB.addEventListener('click', () => {
       if (st.met) cls.set(code, { met: false, evaluated: false });
       else cls.set(code, { met: true, evaluated: true, strength: showSug ? fitStrength(c, sug.strength) : strength });
@@ -147,7 +147,7 @@ export function criterionRow(cls, code, opts = {}) {
         }
       }
     }
-    if (c.deprecated && fw(F).retired.includes(code)) row.appendChild(h('div.crow-dep.small', 'Retired by ClinGen (2018) and not in the ACGS 2024 guidelines: weigh the evidence behind other classifications instead.'));
+    if (c.deprecated && fw(F).retired.includes(code)) row.appendChild(h('div.crow-dep.small', 'ClinGen retired this criterion in 2018 and the ACGS 2024 guidelines leave it out, so weigh the evidence behind other classifications instead.'));
   };
   draw();
   const off = cls.on((changed) => {
@@ -208,14 +208,14 @@ export function acmgPanel(cls, opts = {}) {
     sc.set(r);
     result.innerHTML = '';
     result.appendChild(h('div.res-line', clsBadge(r.cls, { big: true, band: r.band }), h('span.res-pts', `${r.points > 0 ? '+' : ''}${r.points} ${Math.abs(r.points) === 1 ? 'point' : 'points'}`)));
-    result.appendChild(h('div.res-crit', r.met.length ? h('span.hgvs', criteriaString(r.met, framework())) : h('span.muted', 'No criteria met yet. Mark each as met or not met, here or beside its evidence.')));
+    result.appendChild(h('div.res-crit', r.met.length ? h('span.hgvs', criteriaString(r.met, framework())) : h('span.muted', 'No criteria are met yet. Mark each one as met or not met, either here or beside its evidence.')));
     const lines = [];
     if (r.method === 'points') {
       lines.push(h('div.small', `Probability of pathogenicity (Tavtigian et al. 2018): ${r.posterior >= 0.999 ? 'above 0.999' : r.posterior <= 0.001 ? 'below 0.001' : r.posterior.toFixed(3)}`));
-      lines.push(h('div.small' + (r.byRules.cls === r.cls ? '.muted' : '.res-differ'), `The 2015 combining rules: ${CLS_WORD[r.byRules.cls]}${r.byRules.rule ? ' (' + r.byRules.rule.text + ')' : ''}.${r.byRules.cls === r.cls ? '' : ' The two ways differ here: the guide explains why.'}`));
+      lines.push(h('div.small' + (r.byRules.cls === r.cls ? '.muted' : '.res-differ'), `The 2015 combining rules: ${CLS_WORD[r.byRules.cls]}${r.byRules.rule ? ' (' + r.byRules.rule.text + ')' : ''}.${r.byRules.cls === r.cls ? '' : ' The two methods give different classes here, and the guide explains why.'}`));
     } else {
       lines.push(h('div.small.muted', `By the rule: ${r.byRules.rule ? r.byRules.rule.name + ', ' + r.byRules.rule.text : ''}.`));
-      lines.push(h('div.small' + (r.byPoints.cls === r.cls ? '.muted' : '.res-differ'), `Points: ${CLS_WORD[r.byPoints.cls]}.${r.byPoints.cls === r.cls ? '' : ' The two ways differ here: the guide explains why.'}`));
+      lines.push(h('div.small' + (r.byPoints.cls === r.cls ? '.muted' : '.res-differ'), `Points: ${CLS_WORD[r.byPoints.cls]}.${r.byPoints.cls === r.cls ? '' : ' The two methods give different classes here, and the guide explains why.'}`));
     }
     for (const nt of r.notes || []) lines.push(h('div.small.res-note', nt));
     for (const w of warnings(cls)) lines.push(h('div.small.res-warn', { html: icon('warning') + '<span>' + esc(w) + '</span>' }));
@@ -239,22 +239,22 @@ export function warnings(cls) {
   const s = (c) => cls.get(c).strength;
   const F = framework();
   const out = [];
-  if (m('PVS1') && m('PM4')) out.push('PVS1 and PM4 count the same effect on the protein: use one.');
-  if (m('PVS1') && m('PP3')) out.push(F === 'acgs2024' ? 'The ACGS 2024 guidelines don’t use PP3 with PVS1.' : 'PP3 with PVS1 counts the same predicted effect twice, unless PP3 is for a different effect.');
+  if (m('PVS1') && m('PM4')) out.push('PVS1 and PM4 count the same effect on the protein, so use only one of them.');
+  if (m('PVS1') && m('PP3')) out.push(F === 'acgs2024' ? 'The ACGS 2024 guidelines don’t use PP3 with PVS1.' : 'Using PP3 with PVS1 counts the same predicted effect twice, unless PP3 is for a different effect.');
   if (F === 'acgs2024' && m('PVS1') && (m('PM1') || m('PP2'))) out.push('The ACGS 2024 guidelines don’t use PM1 or PP2 with PVS1.');
   if (F === 'acgs2024' && m('PVS1') && s('PVS1') === 'VS' && m('PS3')) out.push('The ACGS 2024 guidelines don’t use PS3 alongside full-strength PVS1.');
   if (m('PM2') && (m('BS1') || m('BA1'))) out.push('PM2 (absent or very rare) and BS1 or BA1 (too common) contradict each other.');
   if (m('PS1') && m('PM5')) out.push('PS1 (the same amino acid change) and PM5 (a different one at the residue) are not usually both used for one variant.');
-  if (m('PM1') && m('PP3') && F === 'clingen' && POINTS[s('PM1')] + POINTS[s('PP3')] > 4) out.push('ClinGen counts PM1 and PP3 together as at most 4 points (Pejaver et al. 2022): the points here are capped, so part of PM1 does not count.');
-  else if (m('PM1') && m('PP3') && F === 'acgs2024' && POINTS[s('PM1')] + POINTS[s('PP3')] > 4) out.push('The ACGS 2024 guidelines set no cap on PM1 with PP3 (ClinGen’s is 4 points together), but make sure the two rest on different evidence.');
-  if (m('PS2') && m('PM6')) out.push('PS2 and PM6 are one tally of de novo occurrences: use one code, at the strength the points reach.');
-  if (m('PP1') && m('BS4')) out.push('PP1 and BS4 both describe the segregation in the family: they should not both be met.');
+  if (m('PM1') && m('PP3') && F === 'clingen' && POINTS[s('PM1')] + POINTS[s('PP3')] > 4) out.push('ClinGen counts PM1 and PP3 together as at most 4 points (Pejaver et al. 2022), so the points here are capped and part of PM1 doesn’t count.');
+  else if (m('PM1') && m('PP3') && F === 'acgs2024' && POINTS[s('PM1')] + POINTS[s('PP3')] > 4) out.push('The ACGS 2024 guidelines set no cap on PM1 with PP3 (ClinGen caps the two at 4 points together). Still, make sure they rest on different evidence.');
+  if (m('PS2') && m('PM6')) out.push('PS2 and PM6 are a single tally of de novo occurrences, so use one code at the strength the points reach.');
+  if (m('PP1') && m('BS4')) out.push('PP1 and BS4 both describe the segregation in the family, so they shouldn’t both be met.');
   if (m('BP7') && !m('BP4') && F !== 'acmg2015') out.push('ClinGen (Walker et al. 2023) uses BP7 only when BP4 is met for the splicing prediction.');
-  if (F === 'clingen' && m('PM2') && s('PM2') === 'M') out.push('ClinGen applies PM2 at supporting strength (2020); the ACGS 2024 guidelines keep it moderate.');
+  if (F === 'clingen' && m('PM2') && s('PM2') === 'M') out.push('ClinGen applies PM2 at supporting strength (2020), but the ACGS 2024 guidelines keep it at moderate.');
   if (F === 'acgs2024' && m('PP3') && s('PP3') !== 'P') out.push('The ACGS 2024 guidelines use PP3 at supporting strength only.');
-  if ((m('PP5') || m('BP6')) && F !== 'acmg2015') out.push('PP5 and BP6 are retired: weigh the evidence behind other classifications under the criteria it supports.');
-  if (m('BA1') && Object.keys(cls.state.criteria).some((k) => k[0] === 'P' && cls.get(k).met)) out.push('BA1 is met: the variant is benign on frequency alone, unless it is one of ClinGen’s exceptions.');
-  if (m('PP4') && (m('PS2') || m('PM6')) && F === 'acgs2024') out.push('The ACGS 2024 guidelines count the phenotype’s specificity in the de novo points: not also as PP4 for the same patient.');
+  if ((m('PP5') || m('BP6')) && F !== 'acmg2015') out.push('PP5 and BP6 are retired. Instead, weigh the evidence behind other classifications under the criteria it supports.');
+  if (m('BA1') && Object.keys(cls.state.criteria).some((k) => k[0] === 'P' && cls.get(k).met)) out.push('BA1 is met, so the variant is benign on frequency alone unless it is one of ClinGen’s exceptions.');
+  if (m('PP4') && (m('PS2') || m('PM6')) && F === 'acgs2024') out.push('The ACGS 2024 guidelines count the phenotype’s specificity in the de novo points, so don’t count it again as PP4 for the same patient.');
   return out;
 }
 
@@ -265,7 +265,7 @@ export function criterionGuide(code) {
   const st = strengthsFor(c, F);
   const body = h('div.crit-guide',
     h('p', c.short),
-    h('p.small.muted', `Default strength${F === 'acgs2024' && code === 'PM2' ? ' (ACGS 2024)' : ''}: ${SW[defaultFor(code, F)]}. ${st.length > 1 ? 'With ' + fw(F).label + ' it may be used at: ' + st.map((s) => SW[s].toLowerCase()).join(', ') + '.' : 'Its strength is fixed.'}`),
+    h('p.small.muted', `Default strength${F === 'acgs2024' && code === 'PM2' ? ' (ACGS 2024)' : ''}: ${SW[defaultFor(code, F)]}. ${st.length > 1 ? 'With ' + fw(F).label + ', you can use it at these strengths: ' + st.map((s) => SW[s].toLowerCase()).join(', ') + '.' : 'Its strength is fixed.'}`),
     h('ul', c.guide.map((g) => h('li', g))),
     h('h3', 'Sources'),
     h('ul.small', (c.refs || []).map((r) => (REFS[r] ? h('li', h('a', { href: REFS[r].url, target: '_blank', rel: 'noopener' }, REFS[r].text)) : null))),

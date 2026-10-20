@@ -158,7 +158,7 @@ export function suggestCNV(input) {
   const n = geneCount(pc);
   const band = SECTION3[type].find(([lo, hi]) => n.counted >= lo && n.counted <= hi);
   if (band) {
-    const fam = n.families.length ? `. There are ${n.all} in all, but ${n.families.map((f) => `${f.n} ${f.name}`).join(', ')} count${n.families.length === 1 ? 's' : ''} as one` : '';
+    const fam = n.families.length ? `. There are ${n.all} in all, but the family of ${n.families.map((f) => `${f.n} ${f.name}`).join(', ')} count${n.families.length === 1 ? 's' : ''} as one` : '';
     add(band[2], { pts: band[3], why: `Section 3 counts ${n.counted} protein-coding ${n.counted === 1 ? 'gene' : 'genes'}${fam}.` });
   }
 

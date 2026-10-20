@@ -15,12 +15,12 @@ const centre = (v) => ((Math.max(MIN, Math.min(MAX, v)) - MIN + 0.5) / N) * 100;
 const SEGS = [
   { from: MIN, to: -7, cls: 'b', label: 'Benign' },
   { from: -6, to: -1, cls: 'lb', label: 'Likely benign' },
-  { from: 0, to: 0, cls: 'icecold', label: 'Uncertain: ice cold', band: true },
-  { from: 1, to: 1, cls: 'cold', label: 'Uncertain: cold', band: true },
-  { from: 2, to: 2, cls: 'cool', label: 'Uncertain: cool', band: true },
-  { from: 3, to: 3, cls: 'tepid', label: 'Uncertain: tepid', band: true },
-  { from: 4, to: 4, cls: 'warm', label: 'Uncertain: warm', band: true },
-  { from: 5, to: 5, cls: 'hot', label: 'Uncertain: hot', band: true },
+  { from: 0, to: 0, cls: 'icecold', label: 'Uncertain (ice cold)', band: true },
+  { from: 1, to: 1, cls: 'cold', label: 'Uncertain (cold)', band: true },
+  { from: 2, to: 2, cls: 'cool', label: 'Uncertain (cool)', band: true },
+  { from: 3, to: 3, cls: 'tepid', label: 'Uncertain (tepid)', band: true },
+  { from: 4, to: 4, cls: 'warm', label: 'Uncertain (warm)', band: true },
+  { from: 5, to: 5, cls: 'hot', label: 'Uncertain (hot)', band: true },
   { from: 6, to: 9, cls: 'lp', label: 'Likely pathogenic' },
   { from: 10, to: MAX, cls: 'p', label: 'Pathogenic' }
 ];

@@ -24,7 +24,7 @@ function loadMolstar() {
       s.onload = () => resolve(window.molstar);
       s.onerror = () => {
         loading = null;
-        reject(new Error('the 3D viewer (Mol*) could not be loaded from cdn.jsdelivr.net'));
+        reject(new Error('the 3D viewer (Mol*) couldn’t be loaded from cdn.jsdelivr.net'));
       };
       document.head.appendChild(s);
     });
@@ -73,13 +73,13 @@ export async function showStructure(holder, opts) {
     .label({ position: here, text: opts.label || `residue ${opts.residue}`, label_size: 3, label_color: '#000000' });
   structure.component({ selector: here }).focus({ radius_extent: 14 });
   await mvs.loadMVS(viewer.plugin, builder.getState());
-  if (viewer.plugin.managers.structure.hierarchy.current.structures.length === 0) throw new Error('the model did not arrive from AlphaFold DB');
+  if (viewer.plugin.managers.structure.hierarchy.current.structures.length === 0) throw new Error('the model didn’t arrive from AlphaFold DB');
   viewer.plugin.managers.snapshot.clear();
   status.textContent = '';
   info.append(
     h('p', `AlphaFold model ${entry.modelEntityId || entry.entryId} of ${entry.uniprotDescription || opts.accession} (version ${entry.latestVersion}). `,
-      `${opts.what || 'The variant’s residue'} is dark; `, pRes.length ? `${pRes.length} residues with pathogenic missense variants in ClinVar are red. ` : '',
-      conf != null ? h('b', `AlphaFold’s confidence at residue ${opts.residue}: ${conf.toFixed(0)} (${band(conf)}).`) : ''),
-    h('p.muted', 'A predicted model, not an experimental structure: where its confidence is low, the shape is unreliable. Drag to turn it, scroll to zoom. ', h('a', { href: `https://alphafold.ebi.ac.uk/entry/${opts.accession}`, target: '_blank', rel: 'noopener' }, 'AlphaFold DB'), '.'));
+      `${opts.what || 'The variant’s residue'} is dark. `, pRes.length ? `The ${pRes.length} residues with pathogenic missense variants in ClinVar are red. ` : '',
+      conf != null ? h('b', `AlphaFold’s confidence at residue ${opts.residue} is ${conf.toFixed(0)} (${band(conf)}).`) : ''),
+    h('p.muted', 'This is a predicted model, not an experimental structure, so its shape is unreliable where the confidence is low. Drag to turn it and scroll to zoom. ', h('a', { href: `https://alphafold.ebi.ac.uk/entry/${opts.accession}`, target: '_blank', rel: 'noopener' }, 'Open in AlphaFold DB'), '.'));
   return viewer;
 }

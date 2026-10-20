@@ -51,8 +51,8 @@ async function lookedUp(root, q) {
   if (!r || !chromOK(r.chrom) || !(r.end > r.start)) {
     root.appendChild(p);
     p.appendChild(crumbs([['Home', '/'], ['Copy-number variant']]));
-    p.appendChild(h('h1', 'This is not a copy-number variant the page can read'));
-    p.appendChild(note('warn', h('p', 'Write it as a region with “del” or “dup”, for example ', h('code', 'del 22:18912231-21465672'), ', ', h('code', 'dup chr17:16,800,000-20,500,000'), ' or ', h('code', 'arr[GRCh38] 22q11.21(18912231_21465672)x1'), '.')));
+    p.appendChild(h('h1', 'The page can’t read this as a copy-number variant'));
+    p.appendChild(note('warn', h('p', 'Try writing it as a region with “del” or “dup”, for example ', h('code', 'del 22:18912231-21465672'), ', ', h('code', 'dup chr17:16,800,000-20,500,000'), ' or ', h('code', 'arr[GRCh38] 22q11.21(18912231_21465672)x1'), '.')));
     return;
   }
   const asm = r.assembly || (hq.get('assembly') === 'GRCh37' ? 'GRCh37' : hq.get('assembly') === 'GRCh38' ? 'GRCh38' : settings.get('assembly'));
@@ -62,7 +62,7 @@ async function lookedUp(root, q) {
     root.appendChild(p);
     p.appendChild(crumbs([['Home', '/'], ['Copy-number variant']]));
     p.appendChild(h('h1', `A copy-number change of ${fmtRegion(r.chrom, r.start, r.end)}`));
-    p.appendChild(h('p', `${fmtSize(r.end - r.start + 1)} on ${asm}. Is it a loss or a gain?`));
+    p.appendChild(h('p', `The region spans ${fmtSize(r.end - r.start + 1)} on ${asm}. Is it a loss or a gain?`));
     const where = `${normChrom(r.chrom)}:${r.start}-${r.end}`;
     p.appendChild(h('div.btn-row',
       linkBtn('A loss (deletion)', `/cnv/${encodeURIComponent('del ' + where)}?assembly=${asm}`, { cls: 'primary', icon: 'minus' }),
@@ -94,7 +94,7 @@ async function cnvPage(root, { v, pt, section }) {
 
   /* ---------- saving: a patient's CNV is saved as it is worked on ---------- */
   let dirty = false;
-  const stateEl = h('span.small.muted', { 'aria-live': 'polite' }, v.id ? '' : 'Not saved: add it to a patient to keep it');
+  const stateEl = h('span.small.muted', { 'aria-live': 'polite' }, v.id ? '' : 'Not saved until you add it to a patient');
   const saveNow = async (what) => {
     if (!v.patientId) {
       dirty = true;
@@ -163,12 +163,12 @@ async function cnvPage(root, { v, pt, section }) {
     const r = sc.result();
     const s = v.classification.saved;
     if (!v.patientId) {
-      saveBox.append(h('p.small.muted', 'Looked up, not yet a patient’s CNV.'), btn('Add to a patient…', () => addToPatient(ctx), { cls: 'primary', icon: 'plus' }));
+      saveBox.append(h('p.small.muted', 'This CNV was looked up and isn’t a patient’s yet.'), btn('Add to a patient…', () => addToPatient(ctx), { cls: 'primary', icon: 'plus' }));
       return;
     }
-    if (s) saveBox.appendChild(h('p.small', 'Last signed: ', clsBadge(s.cls, { short: true }), ` by ${s.by || 'you'}, ${dateStr(s.at, true)}`, s.cls !== r.cls ? h('span.res-differ', ' (changed since)') : null));
+    if (s) saveBox.appendChild(h('p.small', 'Last signed: ', clsBadge(s.cls, { short: true }), ` by ${s.by || 'you'}, ${dateStr(s.at, true)}`, s.cls !== r.cls ? h('span.res-differ', ' (the class has changed since)') : null));
     saveBox.appendChild(btn(s ? 'Sign the classification again' : 'Sign the classification', () => signOff(ctx), { cls: 'primary', icon: 'badgeCheck', title: 'Record this classification, with your name, the date and the points, in the CNV’s history' }));
-    saveBox.appendChild(h('p.small.muted', { style: { marginTop: '6px' } }, 'Your work is saved as you go; signing records a classification in its history and on the report.'));
+    saveBox.appendChild(h('p.small.muted', { style: { marginTop: '6px' } }, 'Your work is saved as you go. Signing records the classification in the CNV’s history and on the report.'));
   };
   drawSaveBox();
   ctx.drawSaveBox = drawSaveBox;
@@ -187,7 +187,7 @@ async function cnvPage(root, { v, pt, section }) {
     const facts = factList([
       ['Region', h('span.hgvs', `${asm} ${fmtRegion(v.chrom, v.start, v.end)}`)],
       ['Copy number', cnText],
-      ['Genes', n ? `${n.counted} protein-coding${n.counted !== n.all ? ` (${n.all} before families are counted once)` : ''}` : d.genes ? 'None protein-coding' : '…'],
+      ['Genes', n ? `${n.counted} protein-coding${n.counted !== n.all ? ` (${n.all} before families are counted once)` : ''}` : d.genes ? 'No protein-coding genes' : '…'],
       ['ISCN', h('span.row', { style: { gap: '4px', flexWrap: 'nowrap' } }, h('span.hgvs', isc), copyIscn)],
       pt ? ['Inheritance', inheritanceText(v.inheritance)] : null
     ].filter(Boolean));
@@ -197,7 +197,7 @@ async function cnvPage(root, { v, pt, section }) {
       h('div.vhead-l', title, facts),
       h('div.vhead-r', clsEl,
         h('div.btn-row',
-          linkBtn('Region', `/region/${encodeURIComponent(`${v.chrom}:${v.start}-${v.end}`)}?assembly=${asm}`, { cls: 'small', icon: 'region', title: 'The region’s page: its genes and curations, without the scoring' }),
+          linkBtn('Region', `/region/${encodeURIComponent(`${v.chrom}:${v.start}-${v.end}`)}?assembly=${asm}`, { cls: 'small', icon: 'region', title: 'Open the region’s page, with its genes and curations but no scoring' }),
           btn('', (e) => moreMenu(e.currentTarget), { cls: 'small icon-only', icon: 'dots', aria: 'More' })),
         stateEl));
   };
@@ -211,12 +211,12 @@ async function cnvPage(root, { v, pt, section }) {
   const moreMenu = (anchor) => popmenu(anchor, [
     ['copy', 'Copy the ISCN description', () => copyText(iscn(v, ctx.data.bands)).then(() => toast('Copied.'))],
     ['copy', 'Copy the region', () => copyText(`${fmtRegion(v.chrom, v.start, v.end)} (${asm})`).then(() => toast('Copied.'))],
-    ['genome', 'Open in the genome browser page', () => go(`/browser?locus=chr${v.chrom}:${v.start}-${v.end}&assembly=${asm}${pt ? '&patient=' + pt.id : ''}`)],
+    ['genome', 'Open in the genome browser', () => go(`/browser?locus=chr${v.chrom}:${v.start}-${v.end}&assembly=${asm}${pt ? '&patient=' + pt.id : ''}`)],
     ['refresh', 'Fetch the data again', () => load(true)],
-    v.patientId ? ['report', 'The patient’s report', () => go(`/patient/${v.patientId}/report`)] : null,
+    v.patientId ? ['report', 'Open the patient’s report', () => go(`/patient/${v.patientId}/report`)] : null,
     v.patientId ? null : ['plus', 'Add to a patient…', () => addToPatient(ctx)],
     v.patientId ? ['trash', 'Remove this CNV from the patient…', async () => {
-      if (await confirmBox('Remove this CNV?', 'Its scoring and notes go too. It can’t be undone.', { yes: 'Remove', danger: true })) {
+      if (await confirmBox('Remove this CNV?', 'Its scoring and notes will go too, and you can’t undo this.', { yes: 'Remove', danger: true })) {
         await db.deleteVariant(v.id);
         toast('Removed.', 'ok');
         go(`/patient/${v.patientId}/variants`);
@@ -339,7 +339,7 @@ async function parentsOf(pt) {
    ================================================================ */
 function waitingFor(ctx, key, text) {
   const st = ctx.status[key];
-  if (st === 'error') return note('bad', h('p', `${text} could not be fetched: ${ctx.errors[key]}. The rest of the page still works; try “Fetch the data again” from the ⋯ menu in a minute.`));
+  if (st === 'error') return note('bad', h('p', `Asking ${text} didn’t work (${ctx.errors[key]}). The rest of the page still works, and you can try “Fetch the data again” from the ⋯ menu in a minute.`));
   if (st !== 'ok') return loading(`Asking ${text}…`);
   return null;
 }
@@ -352,18 +352,18 @@ function drawSummary(ctx, body) {
     const n = geneCount(pc);
     const whole = pc.filter((g) => g.whole).length;
     // section 3 counts a family of genes (olfactory receptors, say) once; the whole/part split is of every gene
-    rows.push(['Genes', `${n.counted} protein-coding ${n.counted === 1 ? 'gene' : 'genes'}${n.all !== n.counted ? ` as section 3 counts them (${n.all} before each family of genes is counted once)` : ''}${pc.length ? `; ${whole === pc.length ? (pc.length === 1 ? 'it lies' : 'all lie') : `${whole} of the ${pc.length} lie`} wholly inside` : ''}`, 'genes']);
+    rows.push(['Genes', `${n.counted} protein-coding ${n.counted === 1 ? 'gene' : 'genes'}${n.all !== n.counted ? ` as section 3 counts them (${n.all} before each family of genes is counted once)` : ''}${pc.length ? `, and ${whole === pc.length ? (pc.length === 1 ? 'it lies' : 'all of them lie') : `${whole} of the ${pc.length} lie`} wholly inside it` : ''}`, 'genes']);
     const key = type === 'loss' ? 'hi' : 'ts';
     const est = pc.filter((g) => g[key] === 3);
     const reg = (d.regions || []).filter((r) => r[key] === 3);
     const benign = (d.regions || []).filter((r) => r[key] === 40);
     const bits = [];
-    if (reg.length) bits.push(`${reg.length === 1 ? 'an established' : reg.length + ' established'} ${type === 'loss' ? 'haploinsufficient' : 'triplosensitive'} ${reg.length === 1 ? 'region' : 'regions'} (${reg.map((r) => `${r.whole ? 'all' : pct(r.coverOfRegion)} of ${r.name || r.id}`).join('; ')})`);
+    if (reg.length) bits.push(`${reg.length === 1 ? 'An established' : reg.length + ' established'} ${type === 'loss' ? 'haploinsufficient' : 'triplosensitive'} ${reg.length === 1 ? 'region' : 'regions'} (${reg.map((r) => `${r.whole ? 'all' : pct(r.coverOfRegion)} of ${r.name || r.id}`).join('; ')})`);
     if (est.length) bits.push(`${est.length} established ${type === 'loss' ? 'haploinsufficient' : 'triplosensitive'} ${est.length === 1 ? 'gene' : 'genes'} (${est.slice(0, 4).map((g) => g.symbol + (g.whole ? '' : ', in part')).join('; ')}${est.length > 4 ? '…' : ''})`);
     if (benign.length) bits.push(benign.length === 1 ? `ClinGen’s established benign region ${benign[0].name || benign[0].id}` : `${benign.length} of ClinGen’s established benign regions (such as ${benign[0].name || benign[0].id})`);
     if (!bits.length) {
       const pred = pc.filter((g) => (type === 'loss' ? (g.hiWhy || []).length >= 2 : (g.tsWhy || []).length >= 1));
-      bits.push(`no established ${type === 'loss' ? 'haploinsufficient' : 'triplosensitive'} gene or region${pred.length ? `; ${pred.length} predicted (${pred.slice(0, 4).map((g) => g.symbol).join(', ')}${pred.length > 4 ? '…' : ''})` : ''}`);
+      bits.push(`No established ${type === 'loss' ? 'haploinsufficient' : 'triplosensitive'} gene or region${pred.length ? `, but ${pred.length} predicted (${pred.slice(0, 4).map((g) => g.symbol).join(', ')}${pred.length > 4 ? '…' : ''})` : ''}`);
     }
     rows.push(['Dosage', bits.join('; '), 'dosage']);
   } else rows.push(['Genes', ctx.status.genes === 'error' ? 'Could not be fetched' : '…', 'genes']);
@@ -371,7 +371,7 @@ function drawSummary(ctx, body) {
   const g = d.gnomad;
   if (g && !g.skipped) {
     const same = g.list.filter((x) => (x.type === type || x.type === 'both') && x.coverOfCnv >= 0.5).sort((a, b) => (b.af || 0) - (a.af || 0));
-    rows.push(['Population', same.length ? `${same.length} ${kindWord(type, same.length)} in ${g.dataset} ${same.length === 1 ? 'covers' : 'cover'} at least half of it; ${same.length === 1 ? 'it' : 'the most frequent'} ${afPhrase(same[0].af)}` : `No ${kindWord(type, 1)} in ${g.dataset} covers half of it`, 'population']);
+    rows.push(['Population', same.length ? `${same.length} ${kindWord(type, same.length)} in ${g.dataset} ${same.length === 1 ? 'covers' : 'cover'} at least half of it, and ${same.length === 1 ? 'it' : 'the most frequent'} ${afPhrase(same[0].af)}` : `No ${kindWord(type, 1)} in ${g.dataset} covers half of it`, 'population']);
   } else rows.push(['Population', g && g.skipped ? 'Too large to compare with gnomAD’s structural variants here' : ctx.status.gnomad === 'error' ? 'Could not be fetched' : '…', 'population']);
   // ClinVar
   const cv = d.clinvar;

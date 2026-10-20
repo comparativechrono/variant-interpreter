@@ -36,7 +36,7 @@
    "consanguinity": "no",
    "referral": "Referred by the breast clinic with breast cancer at 29 and a strong family history of early cancers.",
    "summary": "She is 33 and was diagnosed with HER2-positive breast cancer at 29, which has been treated. Her brother had an osteosarcoma at 15. She meets the revised Chompret criteria for Li-Fraumeni syndrome, since she had breast cancer before 31 and has a first-degree relative who had a sarcoma before 56.",
-   "familyHistory": "Her mother, who was not tested, had breast cancer at 36 and died at 39. Her brother, now 36, had an osteosarcoma at 15 and carries the variant. Her sister is well at 30 and has not been tested. Her maternal aunt, now 52, had a leiomyosarcoma at 41 and carries the variant. Her maternal uncle is well at 55 and does not carry it. Her maternal grandfather had a glioblastoma at 45 and died at 46. Her maternal grandmother is well at 82, and her father is well at 64.",
+   "familyHistory": "Her mother had breast cancer at 36 and died at 39 without being tested. Her brother, now 36, had an osteosarcoma at 15, and her maternal aunt, now 52, had a leiomyosarcoma at 41. Both carry the variant. Her maternal uncle, who is well at 55, does not. Her sister, who is well at 30, has not been tested. Her maternal grandfather had a glioblastoma at 45 and died at 46. Her maternal grandmother is well at 82, and her father is well at 64.",
    "test": {
     "type": "Gene panel",
     "panel": {

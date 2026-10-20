@@ -25,7 +25,7 @@ const ORDER = ['SA', 'VS', 'S', 'M', 'P'];
 /* the evidence sections of a variant's page, and what each holds */
 export const SECTIONS = {
   population: ['Population', 'allele counts and frequencies from gnomAD v4.1 (exomes, genomes and both together) by genetic ancestry group, the grpmax filtering allele frequency that BA1 and BS1 are judged by, and a calculator for the highest frequency a pathogenic variant could credibly have.'],
-  type: ['Variant type and PVS1', 'the consequence on the chosen transcript, the exon or intron the variant is in, whether nonsense-mediated decay is expected, and the PVS1 decision tree, which takes you through one question at a time.'],
+  type: ['Variant type and PVS1', 'the consequence on the chosen transcript, the exon or intron the variant is in, whether nonsense-mediated decay is expected, and the PVS1 decision tree, which you work through one question at a time.'],
   predictions: ['Predictions', 'scores from REVEL, BayesDel, AlphaMissense, CADD, PrimateAI and phyloP, each drawn against its calibrated thresholds for PP3 and BP4.'],
   splicing: ['Splicing', 'SpliceAI’s four scores (acceptor gain and loss, donor gain and loss) and where each change would be.'],
   protein: ['Protein', 'the protein’s domains, with ClinVar’s pathogenic variants drawn above the line and benign ones below, counts of each near the variant’s residue, and AlphaFold’s model in 3D.'],

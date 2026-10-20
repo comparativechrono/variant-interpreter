@@ -27,7 +27,7 @@
   {
    "id": "pah-pku",
    "title": "A raised phenylalanine on newborn screening",
-   "teaser": "A baby has two PAH variants in trans, and one of them is in an intron. You’ll count PM3 points, use the phenotype for PP4 and look at the evidence about splicing.",
+   "teaser": "A baby has two PAH variants in trans, one of them in an intron. You’ll count PM3 points, use the phenotype for PP4 and look at the evidence about splicing.",
    "tags": [
     "PAH",
     "Recessive",
@@ -63,7 +63,7 @@
   {
    "id": "gjb2-consanguineous",
    "title": "Profound deafness in a child whose parents are cousins",
-   "teaser": "A child is homozygous for GJB2 c.35del, a pathogenic variant that is also common. The case looks at frequency thresholds for a recessive disorder and at why BA1 has exceptions.",
+   "teaser": "A child is homozygous for GJB2 c.35del, a pathogenic variant that is also common. The case covers frequency thresholds for a recessive disorder and why BA1 has exceptions.",
    "tags": [
     "GJB2",
     "Recessive",

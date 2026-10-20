@@ -425,7 +425,7 @@
     ],
     "source": "ClinGen Cardiomyopathy expert panel (VCEP), Evidence Repository, specifications v2.0.0; ClinVar VCV000042945 (Benign, reviewed by expert panel, 2025-11-11).",
     "notes": {
-     "BA1": "Met by the panel’s gene-specific threshold for MYH7, which is a filtering allele frequency of 0.1% or more. The variant is at about 0.8% in South Asian alleles in gnomAD v4.1, and it was at 0.7% in ExAC when the panel curated it. It doesn’t reach the general BA1 threshold of 5%, so under the general rules it would be BS1 (strong) with BP7, which makes it only likely benign. This is where gene-specific thresholds matter.",
+     "BA1": "Met by the panel’s gene-specific threshold for MYH7, which is a filtering allele frequency of 0.1% or more. The variant is at about 0.8% in South Asian alleles in gnomAD v4.1, and was at 0.7% in ExAC when the panel curated it. It doesn’t reach the general BA1 threshold of 5%, so the general rules would give BS1 (strong) with BP7, which is only likely benign. This is where gene-specific thresholds matter.",
      "BP7": "Met, because the change is synonymous and has no predicted effect on splicing (SpliceAI 0)."
     }
    }

@@ -192,11 +192,11 @@ export function itemRow(sc, code, opts = {}) {
     box.checked = on;
     box.addEventListener('change', () => {
       const off = sc.set(code, { on: box.checked });
-      if (off.length && opts.announce) opts.announce(`${code} replaces ${off.join(' and ')}: they exclude each other.`);
+      if (off.length && opts.announce) opts.announce(`${code} replaces ${off.join(' and ')}, because they exclude each other.`);
     });
     const chip = h('label.cnv-code', { for: id }, box, h('span', code));
     // the text: two lines of it; pressing it shows the rest, and the guidance
-    const more = h('button.cnv-textbtn', { type: 'button', 'aria-expanded': expanded ? 'true' : 'false', title: expanded ? 'Show less' : 'Show all of it, with the guidance', dataset: { k: 'more' } },
+    const more = h('button.cnv-textbtn', { type: 'button', 'aria-expanded': expanded ? 'true' : 'false', title: expanded ? 'Show less' : 'Show the full text and guidance', dataset: { k: 'more' } },
       h('span.cnv-text' + (expanded ? '.full' : ''), it.text));
     more.addEventListener('click', () => {
       expanded = !expanded;
@@ -207,10 +207,10 @@ export function itemRow(sc, code, opts = {}) {
     if (expanded) {
       const bits = [];
       if (it.note) bits.push(it.note);
-      if (it.min != null && !it.options) bits.push(`Points from ${rangeText(it.min, it.max)}; the default is ${defaultText(it, sc)}.`);
-      if (it.kind === 'case') bits.push(`Points for each ${it.unit || 'case'}${it.perAssumed != null ? `: ${signedPts(it.perConfirmed)} if de novo with parentage confirmed, ${signedPts(it.perAssumed)} if assumed` : ''}${it.perMin != null ? `; from ${rangeText(it.perMin, it.perMax)}` : ''}${it.max != null ? `; at most ${it.max < 0 ? '−' : '+'}${pts2(it.max)} in all` : ''}${it.cap ? `; 4A to 4C together at most +${pts2(it.cap.max)}` : ''}.`);
+      if (it.min != null && !it.options) bits.push(`Points can be from ${rangeText(it.min, it.max)}, and the default is ${defaultText(it, sc)}.`);
+      if (it.kind === 'case') bits.push(`Points are given for each ${it.unit || 'case'}${it.perAssumed != null ? `: ${signedPts(it.perConfirmed)} if it’s de novo with parentage confirmed, or ${signedPts(it.perAssumed)} if de novo is assumed` : ''}.${it.perMin != null ? ` Each can score from ${rangeText(it.perMin, it.perMax)}.` : ''}${it.max != null ? ` The item gives at most ${it.max < 0 ? '−' : '+'}${pts2(it.max)} in all.` : ''}${it.cap ? ` 4A to 4C together give at most +${pts2(it.cap.max)}.` : ''}`);
       const ex = sc.mates(code);
-      if (ex.length) bits.push(`Excludes ${ex.join(', ')}: using it turns ${ex.length === 1 ? 'that one' : 'them'} off.`);
+      if (ex.length) bits.push(`It excludes ${ex.join(', ')}, so using it turns ${ex.length === 1 ? 'that one' : 'them'} off.`);
       if (bits.length) row.appendChild(h('div.cnv-guide.small', bits.join(' ')));
     }
     // an item whose alternative is used is drawn faintly; using it replaces the other
@@ -241,7 +241,7 @@ export function itemRow(sc, code, opts = {}) {
       row.appendChild(line);
     }
     if (on || sc.v.cnv.notes[code]) {
-      const note = h('input', { type: 'text', placeholder: 'The evidence for it (goes on the report)', 'aria-label': `Evidence for ${code}`, disabled: sc.readOnly || null, dataset: { k: 'note' } });
+      const note = h('input', { type: 'text', placeholder: 'Your evidence for it, which goes on the report', 'aria-label': `Evidence for ${code}`, disabled: sc.readOnly || null, dataset: { k: 'note' } });
       note.value = sc.v.cnv.notes[code] || '';
       note.addEventListener('change', () => sc.note(code, note.value.trim()));
       row.appendChild(h('div.cnv-note', note));
@@ -350,7 +350,7 @@ function caseList(sc, code, it, st) {
     cases.push({ label: '', confirmed: true });
     commit();
   });
-  box.appendChild(h('div.btn-row', add, h('span.small.muted', `${cases.length} ${cases.length === 1 ? it.unit || 'case' : (it.unit || 'case') + 's'}${it.max != null ? `; at most ${it.max < 0 ? '−' : '+'}${pts2(it.max)} in all` : ''}`)));
+  box.appendChild(h('div.btn-row', add, h('span.small.muted', `${cases.length} ${cases.length === 1 ? it.unit || 'case' : (it.unit || 'case') + 's'}${it.max != null ? `, at most ${it.max < 0 ? '−' : '+'}${pts2(it.max)} in all` : ''}`)));
   return box;
 }
 
@@ -360,10 +360,10 @@ export function cnvWarnings(sc) {
   const on = (c) => sc.isOn(c);
   const out = [];
   const s4 = Object.keys(sc.items).filter((k) => /^4[A-N]$/.test(k) && on(k));
-  if (on('2A') && s4.length) out.push(`Section 2 already gives points for an established ${sc.type === 'loss' ? 'haploinsufficient' : 'triplosensitive'} gene or region (2A): the standards go straight to section 5, without ${s4.join(', ')}.`);
+  if (on('2A') && s4.length) out.push(`Section 2 already gives points for an established ${sc.type === 'loss' ? 'haploinsufficient' : 'triplosensitive'} gene or region (2A), so the standards go straight to section 5 without ${s4.join(', ')}.`);
   const hiItems = ['2A', '2B', '2C-1', '2C-2', '2D-1', '2D-2', '2D-3', '2D-4'].filter((k) => sc.items[k] && on(k));
-  if (sc.type === 'loss' && on('2H') && hiItems.length) out.push(`2H is for when no established haploinsufficient gene or region is involved: the ACGS 2024 guidelines do not use it once 2A to 2D-4 apply (here ${hiItems.join(', ')}).`);
-  if (on('4O') && on('2A')) out.push('4O (common in the population) and 2A (an established dosage-sensitive gene or region) contradict each other: look again at both.');
+  if (sc.type === 'loss' && on('2H') && hiItems.length) out.push(`2H is for when no established haploinsufficient gene or region is involved, so the ACGS 2024 guidelines don’t use it once 2A to 2D-4 apply. Here you’ve used ${hiItems.join(', ')}.`);
+  if (on('4O') && on('2A')) out.push('4O (common in the population) and 2A (an established dosage-sensitive gene or region) contradict each other, so look again at both.');
   if (on('1B') && (on('2A') || on('3B') || on('3C'))) out.push('1B says there are no protein-coding genes or functional elements, which the other items contradict.');
   const s3 = ['3A', '3B', '3C'].some(on);
   const s5 = Object.keys(sc.items).some((k) => /^5[A-H]$/.test(k) && on(k));
@@ -395,7 +395,7 @@ export function cnvPanel(sc, opts = {}) {
   });
   sugLabel();
   const head = h('div.acmg-head', h('h2', 'Classification'), mode === 'never' ? null : sugBtn);
-  const which = h('p.small.muted.cnv-which', `ACMG/ClinGen standards for copy-number variants (Riggs et al. 2020): a copy-number ${sc.type}. Points add up across the sections.`);
+  const which = h('p.small.muted.cnv-which', `This panel scores a copy-number ${sc.type} with the ACMG/ClinGen standards for copy-number variants (Riggs et al. 2020). Points add up across the sections.`);
   const secs = h('div.acmg-crit.cnv-secs');
   const subtotals = {};
   // on a phone the panel comes before the evidence: its sections start closed there
@@ -416,7 +416,7 @@ export function cnvPanel(sc, opts = {}) {
     bar.set(r.total);
     result.innerHTML = '';
     result.appendChild(h('div.res-line', clsBadge(r.cls, { big: true }), h('span.res-pts', `${r.total > 0 ? '+' : r.total < 0 ? '−' : ''}${pts2(r.total)} points`)));
-    result.appendChild(h('div.res-crit', r.rows.length ? h('span.hgvs', sc.summary(r)) : h('span.muted', 'Nothing scored yet. Use the items below, or beside their evidence.')));
+    result.appendChild(h('div.res-crit', r.rows.length ? h('span.hgvs', sc.summary(r)) : h('span.muted', 'Nothing is scored yet. You can use the items below, or the same items beside their evidence on the page.')));
     for (const w of cnvWarnings(sc)) result.appendChild(h('div.small.res-warn', { html: icon('warning') + '<span>' + esc(w) + '</span>' }));
     for (const S of RUBRIC[sc.type]) {
       const t = r.rows.filter((x) => x.section === S.key).reduce((a, x) => a + x.pts, 0);

@@ -125,7 +125,7 @@ const GENE_USE = {
 
 /* the services the browser asks as people work; key: the site setting in assets/js/config.js, if any */
 const SERVICES = [
-  { key: 'ensembl', name: 'Ensembl REST API (EMBL-EBI)', sends: 'A variant (its HGVS description, or its position and alleles), a gene symbol or a region', gets: 'The Variant Effect Predictor’s annotation, which gives the consequence on each transcript, HGVS, MANE, scores from CADD, REVEL, SpliceAI, AlphaMissense and others, conservation, dbSNP identifiers and papers. It also gives the genes in a region', terms: ['Ensembl’s data have no restrictions on use, but each prediction tool’s scores keep their authors’ terms, and several of those allow only non-commercial use', 'https://www.ensembl.org/info/about/legal/index.html'] },
+  { key: 'ensembl', name: 'Ensembl REST API (EMBL-EBI)', sends: 'A variant (its HGVS description, or its position and alleles), a gene symbol or a region', gets: 'The genes in a region, and the Variant Effect Predictor’s annotation with the consequence on each transcript, HGVS, MANE, scores from CADD, REVEL, SpliceAI, AlphaMissense and others, conservation, dbSNP identifiers and papers', terms: ['Ensembl’s data have no restrictions on use, but each prediction tool’s scores keep their authors’ terms, and several of those allow only non-commercial use', 'https://www.ensembl.org/info/about/legal/index.html'] },
   { key: 'gnomad', name: 'gnomAD (Broad Institute)', sends: 'A variant’s position and alleles, a gene symbol or a region', gets: 'Allele counts and frequencies by genetic ancestry group, filtering allele frequencies, gene constraint, ClinVar’s variants in the gene and structural variants', terms: ['CC0 (public domain)', 'https://gnomad.broadinstitute.org/terms'] },
   { key: 'eutils', name: 'NCBI E-utilities (ClinVar)', sends: 'A variant’s position or HGVS description', gets: 'ClinVar’s records at and around the variant, with their classifications, review status and conditions', terms: ['NCBI’s policies on its public data', 'https://www.ncbi.nlm.nih.gov/home/about/policies/'] },
   { key: 'uniprot', name: 'UniProt', sends: 'A protein’s accession', gets: 'The protein’s domains, regions and function', terms: ['CC BY 4.0', 'https://www.uniprot.org/help/license'] },
@@ -200,7 +200,7 @@ async function sources(b) {
     [h('div', h('b', 'igv.js'), h('div.small.muted', 'The genome browser (assets/vendor/igv/)')), '3.8.9', h('span', 'MIT, © Broad Institute and the Regents of the University of California'), 'the Bioinformatics workbench’s copy, unchanged'],
     [h('div', h('b', 'Mol*'), h('div.small.muted', 'The 3D structure viewer')), '5.12.0', 'MIT', 'loaded from cdn.jsdelivr.net when first used, with subresource integrity'],
     [h('div', h('b', 'Atkinson Hyperlegible Next and Mono'), h('div.small.muted', 'The fonts (assets/fonts/)')), 'from genomics.tel', 'SIL Open Font Licence 1.1', 'genomics.tel, with their licences beside them'],
-    [h('div', h('b', 'The lab’s helpers'), h('div.small.muted', 'Icons, page helpers and the local server')), '', 'MIT', 'the Pedigree workbench (icons) and the variant practicals (core.js, adapted; serve.py)']
+    [h('div', h('b', 'The lab’s helpers'), h('div.small.muted', 'Icons, page helpers and the local server')), '', 'MIT', 'the Pedigree workbench (icons) and the variant practicals (core.js, adapted, and serve.py)']
   ]));
   b.append(h('h2', 'The guidelines'));
   b.appendChild(h('p', 'The criteria are described in the site’s own words, based on the published guidelines and ClinGen’s recommendations. These are cited where they’re used and listed in the ', h('a', { href: link('/learn/references') }, 'guide’s references'), '. Nothing here is endorsed by the ACMG, the AMP, ClinGen or the ACGS.'));
@@ -273,7 +273,7 @@ function hosting(b) {
     ]),
     h('p.small.muted', 'Students can see a case file’s answers if they look inside it. For assessed work, give out the answers later, or set allowCompare to false.'),
     h('h2', 'Bringing the data up to date'),
-    h('p', 'The HPO and the gene table are copies, made by two scripts from the public files they name. To update them, run python3 build/make_hpo.py and then python3 build/make_genes.py, each with the folder of downloaded files. build/README.md in the repository has the details. Everything else is asked for as students work, so it’s always current.'),
+    h('p', 'The HPO and the gene table are copies, made by two scripts from the public files they name. To update them, run python3 build/make_hpo.py and then python3 build/make_genes.py, each with the folder of downloaded files. The details are in build/README.md in the repository. Everything else is asked for as students work, so it’s always current.'),
     h('h2', 'On your own computer'),
     h('p', 'Browsers won’t run the site from files opened directly. Instead, run python3 serve.py in the site’s folder and open http://localhost:8000/. The serve.py script is a small web server that also answers the range requests the genome browser makes.'));
 }
