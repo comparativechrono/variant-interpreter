@@ -7,7 +7,7 @@
 
 const CRITICAL = {
   q: 'Is the truncated or altered region critical to the protein’s function?',
-  help: 'E.g. a domain where pathogenic missense variants cluster, or the end of the protein where other truncating variants are pathogenic. Look at the protein view and ClinVar.',
+  help: 'It might be a domain where pathogenic missense variants cluster, or the end of the protein where other truncating variants are pathogenic. Check the protein view and ClinVar.',
   options: [
     { label: 'Yes, it is critical', result: 'S' },
     { label: 'No, or its role is not known', next: 'frequent' }
@@ -15,7 +15,7 @@ const CRITICAL = {
 };
 const FREQUENT = {
   q: 'Are loss-of-function variants in this exon frequent in the general population, or is the exon absent from biologically relevant transcripts?',
-  help: 'gnomAD’s loss-of-function variants in the exon, and whether the exon is in the transcripts expressed in the tissue that matters (e.g. GTEx).',
+  help: 'Look at gnomAD’s loss-of-function variants in the exon, and check whether the exon is in the transcripts expressed in the tissue that matters (in GTEx, for example).',
   options: [
     { label: 'Yes', result: 'NA' },
     { label: 'No', next: 'size' }
@@ -23,7 +23,7 @@ const FREQUENT = {
 };
 const SIZE = {
   q: 'Does the variant remove more than 10% of the protein?',
-  help: 'From the position of the new stop (or the deleted exons) to the end of the protein.',
+  help: 'Measure from the position of the new stop, or of the deleted exons, to the end of the protein.',
   options: [
     { label: 'Yes, more than 10%', result: 'S' },
     { label: 'No, 10% or less', result: 'M' }
@@ -31,7 +31,7 @@ const SIZE = {
 };
 const RELEVANT = {
   q: 'Is the exon present in the biologically relevant transcript(s)?',
-  help: 'The transcripts expressed in the tissue the disease affects. An exon left out of them, or a variant only in a minor transcript, may not cause loss of function.',
+  help: 'These are the transcripts expressed in the tissue the disease affects. An exon left out of them, or a variant only in a minor transcript, may not cause loss of function.',
   options: [
     { label: 'Yes', result: 'VS' },
     { label: 'No', result: 'NA' }
@@ -51,7 +51,7 @@ export const TREE = {
   },
   nmd: {
     q: 'Is the transcript predicted to undergo nonsense-mediated decay (NMD)?',
-    help: 'A premature stop more than 50–55 bases before the last exon–exon junction triggers NMD; one in the last exon, or within 50 bases of the end of the penultimate exon, escapes it. The variant page works this out from the exon numbers.',
+    help: 'A premature stop more than 50–55 bases before the last exon–exon junction triggers NMD. One in the last exon, or within 50 bases of the end of the penultimate exon, escapes it. The variant’s page works this out from the exon numbers.',
     options: [
       { label: 'Yes, NMD is predicted', next: 'relevant' },
       { label: 'No, it escapes NMD', next: 'critical' }
@@ -59,7 +59,7 @@ export const TREE = {
   },
   splice: {
     q: 'What does the change do to the transcript?',
-    help: 'Usually the exon is skipped, or a cryptic splice site nearby is used. Is the exon’s length a multiple of 3 (skipping it keeps the frame)? SpliceAI’s scores and positions help.',
+    help: 'Usually the exon is skipped, or a cryptic splice site nearby is used. If the exon’s length is a multiple of 3, skipping it keeps the reading frame. SpliceAI’s scores and positions can help you decide.',
     options: [
       { label: 'Exon skipping or a cryptic site disrupts the reading frame, and NMD is predicted', next: 'relevant' },
       { label: 'It disrupts the reading frame, but NMD is not predicted', next: 'critical' },
@@ -71,13 +71,13 @@ export const TREE = {
     options: [
       { label: 'The whole gene', result: 'VS' },
       { label: 'One or more exons: the reading frame is disrupted, and NMD is predicted', next: 'relevant' },
-      { label: 'One or more exons: the frame is disrupted, but NMD is not predicted', next: 'critical' },
+      { label: 'One or more exons: the reading frame is disrupted, but NMD is not predicted', next: 'critical' },
       { label: 'One or more exons: the reading frame is kept', next: 'critical' }
     ]
   },
   dup: {
     q: 'Is the duplication in tandem, and what does it do to the reading frame?',
-    help: 'A duplication must be wholly within the gene, and in tandem (next to the original copy) to disrupt it. Where its location has not been shown, it is presumed to be in tandem.',
+    help: 'To disrupt the gene, a duplication must lie wholly within it and be in tandem, next to the original copy. If its location hasn’t been shown, it is presumed to be in tandem.',
     options: [
       { label: 'Proven in tandem; the frame is disrupted and NMD is predicted', result: 'VS' },
       { label: 'Location not proven (presumed in tandem); the frame is disrupted and NMD is predicted', result: 'S' },
@@ -94,7 +94,7 @@ export const TREE = {
   },
   upstream: {
     q: 'Are pathogenic variants known upstream of the closest potential in-frame start codon?',
-    help: 'If a variant before the next in-frame methionine is pathogenic, starting there instead does not rescue the protein.',
+    help: 'If a variant before the next in-frame methionine is pathogenic, starting translation there instead doesn’t rescue the protein.',
     options: [
       { label: 'Yes, at least one', result: 'M' },
       { label: 'No', result: 'P' }

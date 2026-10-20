@@ -60,7 +60,7 @@ export function proteinPlot(opts) {
     const L = Math.max(1, opts.length || 1);
     const W = 1000, padL = 20, padR = 20, axisY = 118, H = 236;
     const x = (p) => padL + ((Math.max(1, Math.min(L, p)) - 1) / Math.max(1, L - 1)) * (W - padL - padR);
-    const root = svg('svg', { viewBox: `0 0 ${W} ${H}`, class: 'pplot-svg', role: 'img', 'aria-label': `${opts.gene || 'The protein'}: ${L} residues, with its domains and ClinVar variants` });
+    const root = svg('svg', { viewBox: `0 0 ${W} ${H}`, class: 'pplot-svg', role: 'img', 'aria-label': `${opts.gene || 'The protein'}, ${L} residues long, with its domains and ClinVar variants` });
     // the variants, counted by position and side
     const bins = new Map();
     const BIN = Math.max(1, Math.round(L / 220));

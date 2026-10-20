@@ -9,7 +9,7 @@
 /* ---------------- de novo (ClinGen SVI recommendation, version 1.1) ---------------- */
 export const DENOVO_PHENO = [
   { key: 'specific', label: 'Highly specific for the gene', confirmed: 2, assumed: 1 },
-  { key: 'consistent', label: 'Consistent with the gene, not highly specific', confirmed: 1, assumed: 0.5 },
+  { key: 'consistent', label: 'Consistent with the gene but not highly specific', confirmed: 1, assumed: 0.5 },
   { key: 'heterogeneous', label: 'Consistent, but non-specific and very heterogeneous (e.g. developmental delay, autism)', confirmed: 0.5, assumed: 0.25 },
   { key: 'inconsistent', label: 'Not consistent with the gene’s known phenotype', confirmed: 0, assumed: 0 }
 ];

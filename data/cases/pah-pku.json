@@ -6,19 +6,19 @@
  "case": {
   "id": "pah-pku",
   "title": "A raised phenylalanine on newborn screening",
-  "brief": "<p><b>Referral from the newborn screening laboratory.</b> A baby boy had a blood spot phenylalanine of 1,250 µmol/L on day 5. At 7 days his plasma phenylalanine was 1,480 µmol/L with a low tyrosine; blood spot pterins and DHPR activity were normal, so BH4 deficiency is excluded.</p><p><i>PAH</i> sequencing found two heterozygous variants: NM_000277.3:c.1222C&gt;T p.(Arg408Trp) and NM_000277.3:c.1066-11G&gt;A, which is in an intron. His mother carries the first; his father carries the second.</p>",
+  "brief": "<p><b>Referral from the newborn screening laboratory.</b> A baby boy had a blood spot phenylalanine of 1,250 µmol/L on day 5. At 7 days his plasma phenylalanine was 1,480 µmol/L with a low tyrosine. His blood spot pterins and DHPR activity were normal, so BH4 deficiency is excluded.</p><p><i>PAH</i> sequencing found two heterozygous variants: NM_000277.3:c.1222C&gt;T p.(Arg408Trp) and NM_000277.3:c.1066-11G&gt;A, which is in an intron. His mother carries the first and his father carries the second.</p>",
   "tasks": [
-   "Are the two variants in trans? What do the parents’ results show, and what are PM3’s points for this patient?",
+   "Are the two variants in trans? What do the parents’ results show, and how many PM3 points does this patient add?",
    "c.1066-11G>A is not at a canonical splice site. What do SpliceAI and the literature say it does to splicing, and which criterion does that evidence go under?",
-   "Both variants are in gnomAD. Why does that not count against them (think of carriers of a recessive disorder)?",
-   "Classify both variants and sign; compare with the ClinGen PKU expert panel."
+   "Both variants are in gnomAD. Why doesn’t that count against them? Think about carriers of a recessive disorder.",
+   "Classify both variants and sign them, then compare with the ClinGen PKU expert panel."
   ],
-  "source": "Variants: NM_000277.3(PAH):c.1222C>T, GRCh38 12-102840493-G-A, CA251523, ClinVar VCV000000577; NM_000277.3(PAH):c.1066-11G>A, GRCh38 12-102843790-C-T, CA251538, ClinVar VCV000000607; ClinGen PKU VCEP classifications (Evidence Repository). Checked October 2026. The patient and family are fictional."
+  "source": "The variants are NM_000277.3(PAH):c.1222C>T (GRCh38 12-102840493-G-A, CA251523, ClinVar VCV000000577) and NM_000277.3(PAH):c.1066-11G>A (GRCh38 12-102843790-C-T, CA251538, ClinVar VCV000000607). The classifications are the ClinGen PKU VCEP’s, from the Evidence Repository, checked in October 2026. The patient and family are fictional."
  },
  "patients": [
   {
    "id": "case-pah",
-   "ref": "Case 3: newborn with a raised phenylalanine on newborn screening",
+   "ref": "Case 3: a baby with a raised phenylalanine on newborn screening",
    "created": "2026-10-20T09:00:00.000Z",
    "updated": "2026-10-20T09:00:00.000Z",
    "sex": "male",
@@ -34,9 +34,9 @@
    "ancestryGroup": "nfe",
    "ancestry": "Irish (mother) and southern Italian (father)",
    "consanguinity": "no",
-   "referral": "Newborn blood spot screening: phenylalanine 1,250 µmol/L on day 5.",
-   "summary": "Boy referred at 7 days after newborn screening. Plasma phenylalanine 1,480 µmol/L, tyrosine low. Blood spot pterins and dihydropteridine reductase (DHPR) activity normal, so BH4 deficiency is excluded. Started on a phenylalanine-restricted diet.",
-   "familyHistory": "Parents unrelated, both well. Older sister well, with a normal newborn screen. Parental testing: the mother carries c.1222C>T, the father carries c.1066-11G>A.",
+   "referral": "Newborn blood spot screening found a phenylalanine of 1,250 µmol/L on day 5.",
+   "summary": "He was referred at 7 days old after newborn screening. His plasma phenylalanine was 1,480 µmol/L and his tyrosine was low. Blood spot pterins and dihydropteridine reductase (DHPR) activity were normal, so BH4 deficiency is excluded. He has been started on a phenylalanine-restricted diet.",
+   "familyHistory": "His parents are unrelated and both are well. His older sister is well and had a normal newborn screen. Parental testing shows that his mother carries c.1222C>T and his father carries c.1066-11G>A.",
    "test": {
     "type": "Single gene",
     "panel": {
@@ -243,7 +243,7 @@
     "drawStrokes": []
    },
    "probandPerson": "p-proband",
-   "notes": "Fictional patient and family; the variants and the published evidence about them are real.",
+   "notes": "The patient and family are fictional, but the variants and the published evidence about them are real.",
    "tags": [],
    "caseId": null,
    "log": []
@@ -294,11 +294,11 @@
     ],
     "source": "ClinGen Phenylketonuria expert panel (VCEP), Evidence Repository; ClinVar VCV000000577 (Pathogenic, reviewed by expert panel, 2018-08-06).",
     "notes": {
-     "PS3": "Enzyme activity about 1 to 2% of normal in expression studies (PMIDs 25596310, 17935162).",
-     "PM3": "Strong: found in trans with other pathogenic PAH variants, and homozygous, in people with PKU (the panel’s points). This patient adds another observation in trans, confirmed by the parents’ results.",
+     "PS3": "Met, because expression studies show enzyme activity of about 1 to 2% of normal (PMIDs 25596310, 17935162).",
+     "PM3": "Met at a strong level using the panel’s points. The variant has been found in people with PKU both in trans with other pathogenic PAH variants and in the homozygous state. This patient adds another observation in trans, which his parents’ results confirm.",
      "PP3": "The computational tools agree that it damages the protein.",
-     "PP4": "Moderate, by the panel’s rule: a phenylalanine level typical of PKU, with BH4 deficiency excluded.",
-     "PM2": "Not met: about 1 in 600 European alleles in gnomAD v4.1, above the panel’s PM2 threshold of 0.02%. Common for a pathogenic variant, as many recessive ones are, because carriers are well (the panel’s BS1 threshold is 0.2%)."
+     "PP4": "Met at moderate strength under the panel’s rule, because the phenylalanine level is typical of PKU and BH4 deficiency has been excluded.",
+     "PM2": "Not met, because the variant is at about 1 in 600 European alleles in gnomAD v4.1, which is above the panel’s PM2 threshold of 0.02%. Many pathogenic variants of recessive disorders are this common, because carriers are well. For comparison, the panel’s BS1 threshold is 0.2%."
     }
    }
   },
@@ -345,11 +345,11 @@
     ],
     "source": "ClinGen Phenylketonuria expert panel (VCEP), Evidence Repository, specifications v2.0.0; ClinVar VCV000000607 (Pathogenic, reviewed by expert panel, 2024-12-30).",
     "notes": {
-     "PVS1": "Strong, from RNA: the change makes a new splice acceptor, so the patient’s mRNA has 9 extra bases between exons 10 and 11 (an in-frame insertion of three amino acids), with only traces of the normal product; liver from a patient had no enzyme activity (PMID 1769645). The splicing is shown, not just predicted.",
-     "PM3": "Very strong: compound heterozygous with known pathogenic PAH variants in at least 15 people with PKU, the phase not confirmed for all of them (5.5 points by the panel’s count; PMIDs 23500595, 8990013). This patient adds one more, in trans by his parents’ results.",
-     "PP4": "Moderate: phenylalanine levels typical of PKU, with BH4 deficiency excluded.",
-     "PP3": "Not met by the panel, although SpliceAI predicts an acceptor gain (0.98): the same splicing effect is already counted under PVS1, with RNA evidence, and ClinGen’s splicing guidance doesn’t count it twice.",
-     "PM2": "Not met: about 3 in 10,000 alleles in gnomAD, above the panel’s threshold of 0.0002."
+     "PVS1": "Met at a strong level, because RNA studies show the effect on splicing directly. The change creates a new splice acceptor, so the patient’s mRNA has 9 extra bases between exons 10 and 11, with only traces of the normal product. This is an in-frame insertion of three amino acids. Liver from a patient had no enzyme activity (PMID 1769645).",
+     "PM3": "Met at a very strong level. The variant has been found compound heterozygous with known pathogenic PAH variants in at least 15 people with PKU, although the phase wasn’t confirmed for all of them. By the panel’s count that comes to 5.5 points (PMIDs 23500595, 8990013). This patient adds one more, and his parents’ results show that his variants are in trans.",
+     "PP4": "Met at moderate strength, because the phenylalanine levels are typical of PKU and BH4 deficiency has been excluded.",
+     "PP3": "The panel didn’t apply PP3, although SpliceAI predicts an acceptor gain (0.98). The same splicing effect is already counted under PVS1, with RNA evidence, and ClinGen’s splicing guidance doesn’t count it twice.",
+     "PM2": "Not met, because the variant is at about 3 in 10,000 alleles in gnomAD, which is above the panel’s threshold of 0.0002."
     }
    }
   }

@@ -15,20 +15,20 @@ import { strengthKind } from '../ui.js';
 
 /* one sentence on each set of guidelines, from what acmg/frameworks.js sets */
 const ABOUT_FW = {
-  acgs2024: 'The UK’s guidelines: points, PM2 at moderate strength, PP3 and BP4 at supporting strength only (REVEL and SpliceAI), and at least two criteria for any class but uncertain.',
-  clingen: 'ClinGen’s guidance and its expert panels’ practice: points, PM2 at supporting strength, and predictors calibrated up to PP3_Strong and BP4_Strong.',
-  acmg2015: 'The original combining rules of Richards et al. (2015), counting criteria at each strength, with PP5 and BP6 still in use.'
+  acgs2024: 'The UK’s guidelines. They use points, keep PM2 at moderate strength and use PP3 and BP4 at supporting strength only (with REVEL and SpliceAI). Any class but uncertain needs at least two criteria.',
+  clingen: 'ClinGen’s guidance and its expert panels’ practice. They use points, put PM2 at supporting strength and use predictors calibrated up to PP3_Strong and BP4_Strong.',
+  acmg2015: 'The original combining rules of Richards et al. (2015), which count the criteria at each strength. PP5 and BP6 are still in use.'
 };
 const SUGGEST = [
-  ['show', 'Show them from the start', 'Each criterion the evidence seems to support is marked, with the reason. You still decide, and apply each one yourself.'],
-  ['button', 'Show them when I ask', 'Hidden until you press Show suggestions beside the criteria, so that you weigh the evidence first.'],
-  ['never', 'Never show them', 'For practising as in an assessment.']
+  ['show', 'Show suggestions from the start', 'The site marks each criterion the evidence seems to support and gives its reason. You still decide, and you apply each criterion yourself.'],
+  ['button', 'Show suggestions when you ask', 'Suggestions stay hidden until you press Show suggestions beside the criteria, so that you weigh the evidence first.'],
+  ['never', 'Never show suggestions', 'Use this to practise as you would in an assessment.']
 ];
 
 export function render(root) {
   const p = page('narrow.settings-page');
   root.appendChild(p);
-  p.appendChild(pageHead({ title: 'Settings', lede: 'Your choices, kept in this browser. Each takes effect at once, on every page.' }));
+  p.appendChild(pageHead({ title: 'Settings', lede: 'Your choices are kept in this browser, and each one takes effect straight away on every page.' }));
   const body = h('div.set-body');
   p.appendChild(body);
   const draw = () => {
@@ -65,36 +65,36 @@ function nameSection() {
     const v = input.value.trim();
     if (v === (settings.get('name') || '')) return;
     settings.set('name', v);
-    saved(v ? `Your classifications will be signed ${v}.` : 'Your name is cleared.');
+    saved(v ? `You’ll sign your classifications as ${v}.` : 'Your name has been cleared.');
   };
   input.addEventListener('change', save);
   input.addEventListener('keydown', (e) => e.key === 'Enter' && input.blur());
   return section('Your name', null,
-    h('div.field.set-name', h('label', { for: 'set-name' }, 'Name'), input, h('span.hint', 'It goes on each classification you sign and on your reports, as a laboratory classifier’s would. It stays in this browser.')));
+    h('div.field.set-name', h('label', { for: 'set-name' }, 'Name'), input, h('span.hint', 'It goes on each classification you sign and on your reports, just as a laboratory classifier’s name would. It stays in this browser.')));
 }
 
 /* ---------------- guidelines ---------------- */
 function guidelinesSection(redraw) {
   const cur = settings.get('framework');
   const items = FRAMEWORK_LIST.map((k) => [k, fw(k).label, ABOUT_FW[k]]);
-  return section('Guidelines', 'How the criteria are combined, the strengths they may take, and how strengths are written. You can also change this beside the criteria on any variant’s page.',
+  return section('Guidelines', 'Your guidelines decide how the criteria are combined, the strengths they can take and how strengths are written. You can also change this beside the criteria on any variant’s page.',
     choices('fw', 'Guidelines', items, cur, (v) => {
       settings.set('framework', v);
       saved(`You now follow ${fw(v).label}.`);
       redraw();
     }, { mark: (v) => (v === (CFG.framework || 'acgs2024') ? 'the site’s default' : null) }),
-    h('p.small', h('a', { href: link('/learn/frameworks') }, 'How the three differ'), '.'));
+    h('p.small', 'See ', h('a', { href: link('/learn/frameworks') }, 'how the three sets of guidelines differ'), '.'));
 }
 
 /* ---------------- suggestions ---------------- */
 function suggestionsSection() {
   if (CFG.suggestions === 'never') {
-    return section('Suggestions', null, note('', h('p', 'Suggestions from the evidence are switched off on this site, for this course. You weigh every criterion yourself.')));
+    return section('Suggestions', null, note('', h('p', 'Suggestions from the evidence are switched off on this site for this course, so you weigh every criterion yourself.')));
   }
-  return section('Suggestions', 'The site can point out the criteria that the evidence seems to support (for example, PM2 for a variant absent from gnomAD), with its reasons. It never applies one for you.',
+  return section('Suggestions', 'The site can point out the criteria that the evidence seems to support and explain why, for example PM2 for a variant absent from gnomAD. It never applies a criterion for you.',
     choices('sug', 'Suggestions', SUGGEST, settings.get('suggestions'), (v) => {
       settings.set('suggestions', v);
-      saved('Saved. Suggestions: ' + SUGGEST.find((x) => x[0] === v)[1].toLowerCase() + '.');
+      saved('Saved. The site will ' + SUGGEST.find((x) => x[0] === v)[1].toLowerCase() + '.');
     }, { mark: (v) => (v === (CFG.suggestions || 'button') ? 'the site’s default' : null) }));
 }
 
@@ -114,8 +114,8 @@ function predictorSection() {
       h('p.small', p.about),
       h('div.set-marks', marks.map((m) => h('span.set-mark', h('span.crit.' + strengthKind(m.code, m.strength), labelFor(m.code, m.strength, F)), ` ${m.code === 'PP3' ? '≥' : acgsRevel ? '<' : '≤'} ${m.at}`))),
       h('p.small.muted', fw(F).key === 'acgs2024'
-        ? 'With the ACGS 2024 guidelines, PP3 and BP4 are supporting only: REVEL at its ACGS thresholds, other tools at ClinGen’s supporting thresholds.'
-        : 'ClinGen’s calibrated thresholds (Pejaver et al. 2022; AlphaMissense, Bergquist et al. 2025). Choose one tool before looking at the scores, and keep to it.'));
+        ? 'With the ACGS 2024 guidelines, PP3 and BP4 are used at supporting strength only. REVEL is read at its ACGS thresholds, and other tools at ClinGen’s supporting thresholds.'
+        : 'These are ClinGen’s calibrated thresholds (Pejaver et al. 2022, and Bergquist et al. 2025 for AlphaMissense). Choose one tool before you look at the scores, and keep to it.'));
   };
   sel.addEventListener('change', () => {
     settings.set('predictor', sel.value);
@@ -123,7 +123,7 @@ function predictorSection() {
     saved(`PP3 and BP4 suggestions now follow ${PREDICTORS[sel.value].label}.`);
   });
   show(cur);
-  return section('The predictor for PP3 and BP4', 'The one missense predictor whose thresholds the suggestions for PP3 and BP4 use, as ClinGen recommends. Every tool’s score is still shown on a variant’s page.',
+  return section('The predictor for PP3 and BP4', 'Choose the one missense predictor whose thresholds the suggestions for PP3 and BP4 will use, as ClinGen recommends. Every tool’s score is still shown on a variant’s page.',
     h('div.field.set-pred', h('label', { for: 'set-pred' }, 'Predictor'), sel), info);
 }
 
@@ -139,26 +139,26 @@ function displaySection() {
     return h('label.set-check', b, h('span', h('b', label), h('span.set-choice-d', about)));
   };
   return section('The classification panel', null,
-    box('vusBands', 'Show the bands of uncertain significance', 'A variant of uncertain significance is also given its band, from ice cold (0 points) to hot (5), as NHS England’s GeNotes names them.', 'The bands of uncertain significance are shown.', 'The bands of uncertain significance are hidden.'),
-    box('showDeprecated', 'Show retired criteria', 'PP5 and BP6, which ClinGen and the ACGS no longer use, are offered with the other criteria.', 'PP5 and BP6 are shown.', 'PP5 and BP6 are hidden (unless already met).'));
+    box('vusBands', 'Show the bands of uncertain significance', 'A variant of uncertain significance is also given its band, from ice cold (0 points) to hot (5 points), using the names from NHS England’s GeNotes.', 'The bands of uncertain significance are now shown.', 'The bands of uncertain significance are now hidden.'),
+    box('showDeprecated', 'Show retired criteria', 'PP5 and BP6 are offered with the other criteria, even though ClinGen and the ACGS no longer use them.', 'PP5 and BP6 are now shown.', 'PP5 and BP6 are now hidden, unless they’re already met.'));
 }
 
 /* ---------------- the genome build ---------------- */
 function buildSection() {
   const def = CFG.defaultAssembly || 'GRCh38';
-  return section('Genome build', 'The build for variants you look up by position, and for new patients’ variants. Each variant keeps the build it was entered on.',
-    choices('asm', 'Genome build', [['GRCh38', 'GRCh38 (hg38)', 'The current build, which gnomAD v4, MANE and most laboratories use.'], ['GRCh37', 'GRCh37 (hg19)', 'The previous build, still found in older reports and files (gnomAD v2.1).']], settings.get('assembly'), (v) => {
+  return section('Genome build', 'This is the build used for variants you look up by position and for new patients’ variants. Each variant keeps the build it was entered on.',
+    choices('asm', 'Genome build', [['GRCh38', 'GRCh38 (hg38)', 'The current build, which gnomAD v4, MANE and most laboratories use.'], ['GRCh37', 'GRCh37 (hg19)', 'The previous build, which you’ll still find in older reports and files, such as gnomAD v2.1.']], settings.get('assembly'), (v) => {
       settings.set('assembly', v);
-      saved(`New look-ups use ${v}.`);
+      saved(`New look-ups will use ${v}.`);
     }, { mark: (v) => (v === def ? 'the site’s default' : null) }));
 }
 
 /* ---------------- reset ---------------- */
 function resetSection(redraw) {
   return section('Start again', null,
-    h('p.set-intro', 'Put every setting back to the site’s defaults. Your name is kept, and so are your patients.'),
+    h('p.set-intro', 'This puts every setting back to the site’s defaults. Your name is kept, and so are your patients.'),
     btn('Reset the settings', async () => {
-      const ok = await confirmBox('Reset the settings?', 'The guidelines, suggestions, predictor, display and genome build go back to the site’s defaults. Your name and your patients are not changed.', { yes: 'Reset' });
+      const ok = await confirmBox('Reset the settings?', 'The guidelines, suggestions, predictor, display and genome build will go back to the site’s defaults. Your name and your patients won’t change.', { yes: 'Reset' });
       if (!ok) return;
       const name = settings.get('name');
       settings.reset();

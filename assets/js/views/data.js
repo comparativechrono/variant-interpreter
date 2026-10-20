@@ -11,7 +11,7 @@ export async function render(root) {
   root.appendChild(p);
   p.appendChild(pageHead({
     title: 'Cases and data',
-    lede: 'Open a practice case or a case file from your tutor, keep a copy of your work as a file, and move it to another computer.'
+    lede: 'Open a practice case or a case file from your tutor. You can also save your work as a file, to keep a copy or to move it to another computer.'
   }));
 
   // ---- cases
@@ -31,21 +31,21 @@ export async function render(root) {
     ], rows, { caption: 'Cases' }));
   } catch (e) {
     casesBox.innerHTML = '';
-    casesBox.appendChild(note('warn', h('p', 'The list of cases could not be read: ' + e.message)));
+    casesBox.appendChild(note('warn', h('p', `The list of cases couldn’t be loaded: ${e.message}. Reload the page to try again.`)));
   }
 
   // ---- files
   p.appendChild(section('Open a file', { icon: 'import' },
-    h('p', 'A case file from your tutor, or work you exported earlier (a ', h('code', '.json'), ' file saved by the Variant interpreter). Its patients are added to the ones in this browser; nothing is replaced.'),
+    h('p', 'Open a case file from your tutor, or work you downloaded earlier. Both are ', h('code', '.json'), ' files saved by the Variant interpreter. The file’s patients are added to the ones already in this browser, and nothing is replaced.'),
     h('div.btn-row', btn('Choose a file…', () => importFile(), { cls: 'primary', icon: 'openfolder' }))));
 
   // ---- export
   const ps = await db.listPatients();
   const exportBox = h('div');
   p.appendChild(section('Keep or hand in your work', { icon: 'export' }, exportBox));
-  exportBox.appendChild(h('p', 'Your patients are kept by this browser, on this computer. Shared computers often clear their browsers when you log out, so download your work at the end of each session. The file opens here again, on any computer.'));
+  exportBox.appendChild(h('p', 'Your patients are kept in this browser, on this computer. Shared computers often clear their browsers when you log out, so download your work at the end of each session. You can open the file here again, or on any other computer.'));
   exportBox.appendChild(h('div.btn-row',
-    btn(`Download all ${ps.length ? fmt(ps.length) + ' ' : ''}patients`, () => exportAll(), { cls: 'primary', icon: 'download', disabled: !ps.length }),
+    btn(`Download all patients${ps.length ? ` (${fmt(ps.length)})` : ''}`, () => exportAll(), { cls: 'primary', icon: 'download', disabled: !ps.length }),
     btn('Download some…', () => exportSome(ps), { icon: 'list', disabled: !ps.length })));
 
   // ---- storage
@@ -53,16 +53,16 @@ export async function render(root) {
   const cached = await db.cacheSize();
   const store = h('div');
   p.appendChild(section('What this browser keeps', { icon: 'database' }, store));
-  store.appendChild(h('p', `${fmt(ps.length)} patients, and ${fmt(cached)} answers from the online databases, kept so that variants open quickly a second time.` +
-    (est && est.usage != null ? ` In all the site uses about ${fmt(est.usage / 1048576, 1)} MB of this browser’s storage.` : '')));
+  store.appendChild(h('p', `This browser holds ${fmt(ps.length)} ${ps.length === 1 ? 'patient' : 'patients'} and ${fmt(cached)} saved ${cached === 1 ? 'answer' : 'answers'} from the online databases, which help variants open quickly the second time.` +
+    (est && est.usage != null ? ` In all, the site uses about ${fmt(est.usage / 1048576, 1)} MB of this browser’s storage.` : '')));
   store.appendChild(h('div.btn-row',
     btn('Forget the saved answers', async () => {
       await db.cacheClear();
-      toast('The saved answers from the databases are gone: they will be fetched afresh.', 'ok');
+      toast('The saved answers have been forgotten. They’ll be fetched again when you next need them.', 'ok');
       go('/data', true);
     }, { icon: 'refresh', title: 'Annotations are fetched again the next time each variant is opened' }),
     btn('Remove everything…', async () => {
-      const ok = await confirmBox('Remove everything?', 'This removes every patient, variant and classification kept in this browser, and your settings. Download your work first if you want to keep it. It can’t be undone.', { yes: 'Remove everything', danger: true });
+      const ok = await confirmBox('Remove everything?', 'This removes every patient, variant and classification kept in this browser, as well as your settings, and it can’t be undone. If you want to keep your work, download it first.', { yes: 'Remove everything', danger: true });
       if (!ok) return;
       await db.wipeAll();
       settings.reset();
@@ -97,7 +97,7 @@ export async function importFile() {
   try {
     doc = JSON.parse(await file.text());
   } catch (e) {
-    toast('That file is not JSON, so it was not saved by the Variant interpreter.', 'error');
+    toast('That file isn’t JSON, so it can’t be from the Variant interpreter. Check that you chose the right file.', 'error');
     return;
   }
   await importDoc(doc, file.name);
@@ -122,7 +122,7 @@ export async function openCase(c) {
   try {
     doc = await fetchJSON(c.file);
   } catch (e) {
-    toast('The case could not be read: ' + e.message, 'error');
+    toast(`The case couldn’t be loaded: ${e.message}. Reload the page to try again.`, 'error');
     return;
   }
   const info = doc.case || {};

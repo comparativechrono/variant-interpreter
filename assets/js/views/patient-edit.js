@@ -36,14 +36,14 @@ export async function render(root, params) {
   const isNew = !params.id;
   const pt = isNew ? db.blankPatient() : await db.getPatient(params.id);
   if (!pt) {
-    root.appendChild(h('div.page.narrow', note('bad', h('p', `There is no patient ${params.id} in this browser.`))));
+    root.appendChild(h('div.page.narrow', note('bad', h('p', `Patient ${params.id} isn’t in this browser.`))));
     return;
   }
   const p = page('narrow');
   root.appendChild(p);
   p.appendChild(crumbs(isNew ? [['Patients', '/patients'], ['New patient']] : [['Patients', '/patients'], ['Patient ' + pt.id, '/patient/' + pt.id], ['Details']]));
-  p.appendChild(pageHead({ title: isNew ? 'New patient' : `Patient ${pt.id}: details`, lede: isNew ? 'What the referral and the clinical assessment say. You can change any of it later, and add phenotypes, family and variants on the patient’s page.' : null }));
-  if (isNew) p.appendChild(note('warn', h('p', h('b', 'Use made-up or teaching cases only. '), 'Don’t enter anything that could identify a real person: no names, dates of birth, NHS or hospital numbers. Use your own reference, such as “Case 3”.')));
+  p.appendChild(pageHead({ title: isNew ? 'New patient' : `Patient ${pt.id}: details`, lede: isNew ? 'Record what the referral and the clinical assessment say. You can change any of it later, and add the phenotypes, family and variants on the patient’s page.' : null }));
+  if (isNew) p.appendChild(note('warn', h('p', h('b', 'Use made-up or teaching cases only. '), 'Don’t enter anything that could identify a real person, such as a name, date of birth, or NHS or hospital number. Use your own reference instead, such as “Case 3”.')));
 
   const ref = input(pt.ref, { placeholder: 'e.g. Case 3, or Workshop 2 – trio', maxlength: 80 });
   const sex = select(Object.entries(SEX), pt.sex);
@@ -59,14 +59,14 @@ export async function render(root, params) {
   const cons = select([['unknown', 'Not known'], ['no', 'No'], ['yes', 'Yes']], pt.consanguinity);
   const referral = textarea(pt.referral, { rows: 2, placeholder: 'e.g. Global developmental delay and seizures from 4 months; ?genetic cause' });
   const summary = textarea(pt.summary, { rows: 4, placeholder: 'The clinical findings in a few sentences' });
-  const famhx = textarea(pt.familyHistory, { rows: 3, placeholder: 'Who else is affected, and how; anything else the family tells you' });
+  const famhx = textarea(pt.familyHistory, { rows: 3, placeholder: 'Who else is affected and how, and anything else the family tells you' });
   const ttype = select(TESTS.map((t) => [t, t || 'Not recorded']), pt.test && pt.test.type);
   const lab = input(pt.test && pt.test.lab, { placeholder: 'e.g. a regional genomics laboratory' });
   const tdate = input(pt.test && pt.test.date, { type: 'date' });
   const panel = new PanelPicker(pt.test && pt.test.panel);
   const notes = textarea(pt.notes, { rows: 3 });
 
-  const ageRow = h('div.fields', field('Age at the last assessment: years', years), field('and months', months, 'Under 2 years: give months too'));
+  const ageRow = h('div.fields', field('Age at the last assessment (years)', years), field('and months', months, 'For a child under 2, give the months too'));
   const gestRow = h('div.fields', field('Gestation', gest, 'Completed weeks'));
   const syncPre = () => {
     ageRow.hidden = prenatal.box.checked;
@@ -83,17 +83,17 @@ export async function render(root, params) {
       prenatal.el,
       ageRow, gestRow,
       h('div.fields', field('Age at onset', onset), field('Parents related to each other', cons)),
-      h('div.fields', field('Genetic ancestry group', anc, 'gnomAD’s groups: the frequency in the patient’s own group is shown beside the others'), field('Ancestry as recorded', ancText))),
+      h('div.fields', field('Genetic ancestry group', anc, 'These are gnomAD’s groups. The frequency in the patient’s own group is shown beside the others.'), field('Ancestry as recorded', ancText))),
     h('div.panel.stack',
       h('h2', 'Why they were tested'),
       field('Reason for referral', referral),
       field('Clinical summary', summary),
-      field('Family history', famhx, 'Relatives can be added, and the pedigree drawn, on the Family tab')),
+      field('Family history', famhx, 'You can add relatives and draw the pedigree on the Family tab.')),
     h('div.panel.stack',
       h('h2', 'The test'),
       h('div.fields', field('Test', ttype), field('Laboratory', lab), field('Date reported', tdate)),
-      field('Gene panel (Genomics England PanelApp)', panel.el, 'The panel applied to an exome or genome. Its genes are marked on the patient’s variants.')),
-    h('div.panel.stack', h('h2', 'Notes'), field('Your notes', notes, 'Anything else; they appear on the patient’s page, not on the report')));
+      field('Gene panel (Genomics England PanelApp)', panel.el, 'Choose the panel that was applied to the exome or genome. Its genes are then marked in the patient’s variant table.')),
+    h('div.panel.stack', h('h2', 'Notes'), field('Your notes', notes, 'Anything else you want to record. Your notes appear on the patient’s page but not on the report.')));
   p.appendChild(form);
 
   let dirty = false;

@@ -6,19 +6,19 @@
  "case": {
   "id": "pten-macrocephaly",
   "title": "A boy with a large head and autism",
-  "brief": "<p><b>Referral from community paediatrics.</b> A boy of 4 has a head circumference of +4.1 SD, global developmental delay and autism. His height is average. He has pigmented macules on the glans penis. His parents are well and their head circumferences are normal.</p><p><i>PTEN</i> testing found a heterozygous variant, NM_000314.8:c.80-1G&gt;C, at an intron 1 splice acceptor. Neither parent carries it; parentage has not been tested.</p>",
+  "brief": "<p><b>Referral from community paediatrics.</b> A boy of 4 has a head circumference of +4.1 SD, global developmental delay and autism. His height is average. He has pigmented macules on the glans penis. His parents are well and their head circumferences are normal.</p><p><i>PTEN</i> testing found a heterozygous variant, NM_000314.8:c.80-1G&gt;C, at an intron 1 splice acceptor. Neither parent carries it, but parentage has not been tested.</p>",
   "tasks": [
    "Work through the PVS1 decision tree for a canonical splice site. What does SpliceAI predict, and does it matter here?",
-   "The variant is absent from both parents, but parentage is unconfirmed: PS2 or PM6? How many points, given his phenotype?",
-   "Classify, sign and compare with the ClinGen PTEN expert panel.",
-   "What surveillance does a diagnosis of PTEN hamartoma tumour syndrome bring, for him and later in life?"
+   "Neither parent carries the variant, but parentage is unconfirmed. Is it PS2 or PM6, and how many points does it score, given his phenotype?",
+   "Classify the variant and sign it, then compare with the ClinGen PTEN expert panel.",
+   "What surveillance does a diagnosis of PTEN hamartoma tumour syndrome mean for him, now and later in life?"
   ],
-  "source": "Variant: NM_000314.8(PTEN):c.80-1G>C, GRCh38 10-87894024-G-C, ClinGen allele CA000586 (absent from gnomAD v4.1). ClinVar VCV000189462; ClinGen PTEN VCEP classification (Evidence Repository). Checked October 2026. The patient and family are fictional."
+  "source": "The variant is NM_000314.8(PTEN):c.80-1G>C (GRCh38 10-87894024-G-C, ClinGen allele CA000586), and it is absent from gnomAD v4.1. The sources are ClinVar VCV000189462 and the ClinGen PTEN VCEP’s classification in the Evidence Repository, checked in October 2026. The patient and family are fictional."
  },
  "patients": [
   {
    "id": "case-pten",
-   "ref": "Case 8: boy with a large head, developmental delay and autism",
+   "ref": "Case 8: a boy with a large head, developmental delay and autism",
    "created": "2026-10-20T09:00:00.000Z",
    "updated": "2026-10-20T09:00:00.000Z",
    "sex": "male",
@@ -34,9 +34,9 @@
    "ancestryGroup": "nfe",
    "ancestry": "White British",
    "consanguinity": "no",
-   "referral": "Community paediatrics: head circumference +4.1 SD, global developmental delay and a diagnosis of autism.",
-   "summary": "Boy of 4. Head circumference +4.1 SD (it crossed centiles upwards in the first year); height on the 50th centile. Global developmental delay (walked at 22 months, few words) and autism. Pigmented macules on the glans penis. No seizures.",
-   "familyHistory": "Parents unrelated, well, with normal head circumferences. Neither parent carries the variant; parentage has not been tested.",
+   "referral": "Referred by community paediatrics with a head circumference of +4.1 SD, global developmental delay and a diagnosis of autism.",
+   "summary": "He is 4 and has a head circumference of +4.1 SD, which crossed centiles upwards in his first year. His height is on the 50th centile. He has global developmental delay and autism. He walked at 22 months and has few words. He has pigmented macules on the glans penis. He has not had any seizures.",
+   "familyHistory": "His parents are unrelated and well, and their head circumferences are normal. Neither parent carries the variant, but parentage has not been tested.",
    "test": {
     "type": "Single gene",
     "panel": {
@@ -227,7 +227,7 @@
     "drawStrokes": []
    },
    "probandPerson": "p-proband",
-   "notes": "Fictional patient and family; the variant and the published evidence about it are real.",
+   "notes": "The patient and family are fictional, but the variant and the published evidence about it are real.",
    "tags": [],
    "caseId": null,
    "log": []
@@ -269,11 +269,11 @@
     ],
     "source": "ClinGen PTEN expert panel (VCEP), Evidence Repository, specifications v3.1.0; ClinVar VCV000189462 (Pathogenic, reviewed by expert panel, 2025-12-05).",
     "notes": {
-     "PVS1": "A canonical splice acceptor (−1) of PTEN, where loss of function causes disease: full strength by the decision tree.",
-     "PM6": "Strong, by the panel’s rule: one assumed de novo occurrence (parents tested, parentage not confirmed) counts as strong in a person with a highly specific phenotype, such as macrocephaly with developmental delay. This patient is such a case.",
-     "PM2": "Supporting: absent from gnomAD v4.1.",
-     "PP3": "Not met: SpliceAI gives only 0.33 for this change, and a canonical site variant is assessed under PVS1. A low SpliceAI score doesn’t undo PVS1 at a canonical site, with one exception in the ACGS 2024 guidelines: a +2T>C change, which can leave a working GC donor, needs SpliceAI of 0.8 or more. This variant is at an acceptor’s −1, so the exception does not apply.",
-     "BP7": "Not met: it is at the −1 position of an intron, not a synonymous or deep intronic change."
+     "PVS1": "Met at full strength by the decision tree, because the variant is at a canonical splice acceptor (−1) of PTEN, a gene in which loss of function causes disease.",
+     "PM6": "Met at a strong level by the panel’s rule. One assumed de novo occurrence, where the parents have been tested but parentage hasn’t been confirmed, counts as strong in a person with a highly specific phenotype, such as macrocephaly with developmental delay. This patient is such a case.",
+     "PM2": "Met at supporting strength, because the variant is absent from gnomAD v4.1.",
+     "PP3": "Not met, because SpliceAI gives only 0.33 for this change and a canonical site variant is assessed under PVS1. A low SpliceAI score doesn’t undo PVS1 at a canonical site. The ACGS 2024 guidelines make one exception: a +2T>C change, which can leave a working GC donor, needs a SpliceAI score of 0.8 or more. This variant is at an acceptor’s −1 position, so the exception does not apply.",
+     "BP7": "Not met, because a variant at the −1 position of an intron is neither a synonymous nor a deep intronic change."
     }
    }
   }

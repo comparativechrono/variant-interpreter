@@ -57,7 +57,7 @@ export function addSequenceDialog(pt, existing = []) {
     if (!text) return;
     const r = readQuery(text);
     if (r.kind === 'cnv' || r.kind === 'region') {
-      out.appendChild(note('warn', h('p', 'That is a region: add it as a copy-number variant instead.')));
+      out.appendChild(note('warn', h('p', 'That’s a region, so add it as a copy-number variant instead.')));
       return;
     }
     out.appendChild(loading(`Finding ${text} on ${asm.value}…`));
@@ -69,7 +69,7 @@ export function addSequenceDialog(pt, existing = []) {
     }
     found = res;
     choice = 0;
-    if (res.candidates.length > 1) out.appendChild(h('p.small', res.note || 'This matches more than one variant: choose the one the test found.'));
+    if (res.candidates.length > 1) out.appendChild(h('p.small', res.note || 'This matches more than one variant. Choose the one the test found.'));
     const list = h('div.add-cands', { role: 'radiogroup', 'aria-label': 'The variant' });
     res.candidates.forEach((c, i) => {
       const r2 = h('input', { type: 'radio', name: 'cand', value: String(i) });
@@ -87,9 +87,9 @@ export function addSequenceDialog(pt, existing = []) {
     }
   });
   const body = h('div.stack',
-    h('div.add-q', field('Variant', q, 'A change on a transcript (c.), on a chromosome (g. or chromosome-position-reference-alternative), an rsID, or a protein change'), btn('Find it', find, { cls: 'primary', icon: 'search' })),
+    h('div.add-q', field('Variant', q, 'You can enter a change on a transcript (c.), a change on a chromosome (g. or chromosome-position-reference-alternative), an rsID or a protein change.'), btn('Find it', find, { cls: 'primary', icon: 'search' })),
     out,
-    h('div.fields', field('Genome build', asm), field('Zygosity', zyg), field('How the patient got it', inh, 'Change it later on the variant’s page, e.g. when the parents are tested')));
+    h('div.fields', field('Genome build', asm), field('Zygosity', zyg), field('How the patient got it', inh, 'You can change this later on the variant’s page, for example when the parents are tested.')));
   modal(`Add a variant to Patient ${pt.id}`, body, {
     wide: true,
     actions: [['Cancel', null, 'ghost'], ['Add and open', async () => {
@@ -101,13 +101,13 @@ export function addSequenceDialog(pt, existing = []) {
       const c = found.candidates[choice];
       const dup = existing.find((x) => sameSeq(x, { chrom: c.chrom, pos: c.pos, ref: c.ref, alt: c.alt, assembly: asm.value }));
       if (dup) {
-        toast('This patient already has that variant: opening it.', null);
+        toast('This patient already has that variant, so it’s been opened for you.', null);
         go(`/patient/${pt.id}/variant/${dup.id}`);
         return;
       }
       const rec = seqRecord(pt, c, { assembly: asm.value, input: q.value.trim(), zygosity: zyg.value, inheritance: inh.value });
       const saved = await db.saveVariant(rec, `Variant added: ${rec.input}`);
-      toast('Added. Its evidence is being gathered.', 'ok');
+      toast('Variant added. Its evidence is being gathered now.', 'ok');
       go(`/patient/${pt.id}/variant/${saved.id}`);
     }, 'primary']]
   });
@@ -147,7 +147,7 @@ export function addCnvDialog(pt) {
     if (r) msg.appendChild(h('p.small.muted', `${fmtRegion(r.chrom, r.start, r.end)}: ${fmtSize(r.end - r.start + 1)}`));
   });
   const body = h('div.stack',
-    field('Region', region, 'Chromosome, start and end (1-based), or an ISCN array result'),
+    field('Region', region, 'Give the chromosome, start and end (1-based), or an ISCN array result.'),
     msg,
     h('div.fields', field('Genome build', asm), field('Type', type), field('Copy number', cn), field('How the patient got it', inh)));
   modal(`Add a copy-number variant to Patient ${pt.id}`, body, {
@@ -161,12 +161,12 @@ export function addCnvDialog(pt) {
       }
       if (r.end - r.start < 49) {
         msg.innerHTML = '';
-        msg.appendChild(note('warn', h('p', 'That is under 50 bases: add it as a sequence variant instead.')));
+        msg.appendChild(note('warn', h('p', 'That’s under 50 bases, so add it as a sequence variant instead.')));
         return true;
       }
       const rec = cnvRecord(pt, { chrom: r.chrom, start: r.start, end: r.end, type: type.value, copyNumber: +cn.value, assembly: asm.value, input: region.value.trim() }, { inheritance: inh.value });
       const saved = await db.saveVariant(rec, `Copy-number variant added: ${rec.input}`);
-      toast('Added.', 'ok');
+      toast('Copy-number variant added.', 'ok');
       go(`/patient/${pt.id}/variant/${saved.id}`);
     }, 'primary']]
   });
@@ -178,7 +178,7 @@ export function pasteListDialog(pt, existing = [], onDone) {
   const ta = h('textarea', { rows: 8, spellcheck: 'false', placeholder: 'One variant per line, e.g.\nNM_000546.6:c.818G>A\n17-43124027-ACT-A\nrs113993960\ndel chr22:18912231-21465672' });
   const asm = select(ASSEMBLIES, settings.get('assembly'));
   const prog = h('div', { 'aria-live': 'polite' });
-  modal(`Add a list of variants to Patient ${pt.id}`, h('div.stack', field('Variants', ta, 'Sequence variants are found with Ensembl, one at a time; lines it can’t read are listed afterwards'), field('Genome build', asm), prog), {
+  modal(`Add a list of variants to Patient ${pt.id}`, h('div.stack', field('Variants', ta, 'Sequence variants are looked up in Ensembl one at a time. Any lines it can’t read are listed afterwards.'), field('Genome build', asm), prog), {
     wide: true,
     actions: [['Cancel', null, 'ghost'], ['Add them', async () => {
       const lines = ta.value.split(/\n/).map((s) => s.trim()).filter(Boolean).slice(0, 60);
@@ -207,14 +207,14 @@ export function pasteListDialog(pt, existing = [], onDone) {
           continue;
         }
         const rec = seqRecord(pt, c, { assembly: asm.value, input: lines[i] });
-        if (res.candidates.length > 1) rec.notes = `“${lines[i]}” could be ${res.candidates.length} DNA changes; the first was added: check it.`;
+        if (res.candidates.length > 1) rec.notes = `“${lines[i]}” could be any of ${res.candidates.length} DNA changes. The first was added, so check that it’s the right one.`;
         have.push(await db.saveVariant(rec, `Variant added: ${lines[i]}`));
         added++;
       }
       prog.innerHTML = '';
       prog.appendChild(h('p', `${added} added.`));
       if (bad.length) {
-        prog.appendChild(note('warn', h('p', 'Not added:'), h('ul', bad.map(([l, why]) => h('li', h('span.hgvs', l), ': ', why)))));
+        prog.appendChild(note('warn', h('p', 'These lines weren’t added:'), h('ul', bad.map(([l, why]) => h('li', h('span.hgvs', l), ': ', why)))));
         if (onDone) onDone();
         return true;
       }
@@ -230,7 +230,7 @@ const PROTEIN_ALTERING = new Set(['transcript_ablation', 'splice_acceptor_varian
 /** read a VCF (or .vcf.gz) file: text */
 async function readVcfFile(file) {
   if (/\.gz$|\.bgz$/i.test(file.name)) {
-    if (typeof DecompressionStream === 'undefined') throw new Error('This browser can’t unpack .gz files: unpack it first');
+    if (typeof DecompressionStream === 'undefined') throw new Error('This browser can’t unpack .gz files, so unpack it on your computer and choose the .vcf file instead');
     // bgzip files are gzip members one after another; the stream reads them all
     return new Response(file.stream().pipeThrough(new DecompressionStream('gzip'))).text();
   }
@@ -250,7 +250,7 @@ export async function importVcfDialog(pt, existing = [], onDone) {
     return;
   }
   if (!parsed.recs.length) {
-    toast('There are no variants in that file (is it a VCF?).', 'error');
+    toast('There are no variants in that file. Check that it’s a VCF.', 'error');
     return;
   }
   const asm = select(ASSEMBLIES, parsed.assembly || settings.get('assembly'));
@@ -303,7 +303,7 @@ export async function importVcfDialog(pt, existing = [], onDone) {
     rows.sort((a, b) => (a.a && b.a ? rankOf([a.cons]) - rankOf([b.cons]) : 0));
     listBox.innerHTML = '';
     status.innerHTML = '';
-    status.appendChild(h('p.small', `${fmt(recs.length)} variants in the file${parsed.recs.length > recs.length ? ` (the first ${fmt(recs.length)} of ${fmt(parsed.recs.length)} are read)` : ''}; ${fmt(rows.length)} shown. ${chosen.size} chosen (up to ${MAX}).`));
+    status.appendChild(h('p.small', `${fmt(recs.length)} ${recs.length === 1 ? 'variant was' : 'variants were'} read from the file${parsed.recs.length > recs.length ? ` (the first ${fmt(recs.length)} of ${fmt(parsed.recs.length)})` : ''}, and ${fmt(rows.length)} ${rows.length === 1 ? 'is' : 'are'} shown. ${chosen.size} chosen (up to ${MAX}).`));
     const tbl = table([
       { key: 'pick', label: '', sort: false, fmt: (x) => {
         const b = h('input', { type: 'checkbox', 'aria-label': `Choose ${x.key}` });
@@ -312,7 +312,7 @@ export async function importVcfDialog(pt, existing = [], onDone) {
           if (b.checked) {
             if (chosen.size >= MAX) {
               b.checked = false;
-              toast(`Up to ${MAX} at a time.`);
+              toast(`You can choose up to ${MAX} variants at a time.`);
               return;
             }
             chosen.add(x.key);
@@ -328,9 +328,9 @@ export async function importVcfDialog(pt, existing = [], onDone) {
       { key: 'af', label: 'gnomAD', num: true, fmt: (x) => (x.a ? (x.af != null ? fmtAF(x.af) : 'absent') : '') },
       { key: 'zyg', label: 'Genotype', fmt: (x) => `${gtOf(x.r) || '–'} (${x.zyg})` },
       { key: 'qual', label: 'Quality', num: true, fmt: (x) => (x.r.qual != null ? fmt(x.r.qual, 0) : '–') + (x.r.filter && x.r.filter !== 'PASS' && x.r.filter !== '.' ? ` ${x.r.filter}` : '') }
-    ], rows.slice(0, 400), { compact: true, caption: 'Variants in the file', empty: 'No variant passes the filters.' });
+    ], rows.slice(0, 400), { compact: true, caption: 'Variants in the file', empty: 'No variants pass the filters. Try loosening them.' });
     listBox.appendChild(tbl);
-    if (rows.length > 400) listBox.appendChild(h('p.small.muted', `The first 400 of ${fmt(rows.length)} are shown: narrow the filters.`));
+    if (rows.length > 400) listBox.appendChild(h('p.small.muted', `Only the first 400 of ${fmt(rows.length)} are shown. Narrow the filters to shorten the list.`));
   };
   const annotateBtn = btn('Annotate with Ensembl VEP', async () => {
     annotateBtn.disabled = true;
@@ -339,32 +339,32 @@ export async function importVcfDialog(pt, existing = [], onDone) {
       const todo = recs.filter((r) => (!fCall.box.checked || !['reference', 'unknown'].includes(zygosityOfGT(gtOf(r), r.chrom, pt.sex))) && !(ann && ann.has(`${r.chrom}-${r.pos}-${r.ref}-${r.alt}`))).slice(0, 2000);
       const got = await vepMany(todo, asm.value, (i, n) => {
         status.innerHTML = '';
-        status.appendChild(loading(`Annotating: ${i} of ${n}…`));
+        status.appendChild(loading(`Annotating ${i} of ${n}…`));
       });
       ann = ann || new Map();
       for (const [k, a] of got) ann.set(k, a);
       view();
     } catch (e) {
       status.innerHTML = '';
-      status.appendChild(note('bad', h('p', 'Ensembl did not answer: ' + e.message)));
+      status.appendChild(note('bad', h('p', `Ensembl didn’t answer: ${e.message}. Try again in a moment.`)));
     } finally {
       annotateBtn.disabled = false;
     }
-  }, { cls: 'primary', icon: 'sparkle', title: 'Genes, consequences and gnomAD frequencies, for up to 2,000 variants (sent to Ensembl in batches of 100)' });
+  }, { cls: 'primary', icon: 'sparkle', title: 'Looks up genes, consequences and gnomAD frequencies for up to 2,000 variants, sending them to Ensembl in batches of 100' });
   [fRare, fProt.box, fPanel.box, fCall.box, sample].forEach((el) => el.addEventListener('change', view));
   const body = h('div.stack',
-    h('p', `${file.name}: ${fmt(parsed.recs.length)} variants${parsed.samples.length ? `, ${parsed.samples.length} ${parsed.samples.length === 1 ? 'sample' : 'samples'}` : ''}${parsed.assembly ? `, ${parsed.assembly} by its header` : ''}.`),
+    h('p', `${file.name} has ${fmt(parsed.recs.length)} variants${parsed.samples.length ? ` and ${parsed.samples.length} ${parsed.samples.length === 1 ? 'sample' : 'samples'}` : ''}${parsed.assembly ? `. Its header gives the build as ${parsed.assembly}` : ''}.`),
     h('div.fields', field('Genome build', asm), field('Sample (the patient)', sample)),
     h('div.vcf-filters', annotateBtn, fCall.el, h('label.vcf-rare', h('span.visually-hidden', 'Frequency'), fRare), fProt.el, fPanel.el),
-    h('p.small.muted', 'Annotating sends the variants’ positions to Ensembl, nothing else. The filters for frequency and consequence work once the variants are annotated. A real exome has tens of thousands of variants: these are the first steps of triage, not all of it. The frequency is the higher of gnomAD’s exome and genome frequencies, all groups together: a variant common in one group can still pass.'),
+    h('p.small.muted', 'Annotating sends only the variants’ positions to Ensembl. The frequency and consequence filters work once the variants are annotated. A real exome has tens of thousands of variants, and these filters are only the first steps of triage. The frequency is the higher of gnomAD’s exome and genome frequencies, with all groups taken together, so a variant that’s common in one group can still pass.'),
     status, listBox);
   view();
-  modal(`Variants from a VCF for Patient ${pt.id}`, body, {
+  modal(`Import variants from a VCF for Patient ${pt.id}`, body, {
     wide: true,
     sticky: true,
     actions: [['Cancel', null, 'ghost'], ['Add the chosen variants', async () => {
       if (!chosen.size) {
-        toast('Tick the variants to add first.');
+        toast('Tick the variants you want to add first.');
         return true;
       }
       let added = 0;

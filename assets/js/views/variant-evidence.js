@@ -46,14 +46,14 @@ function drawSummary(ctx, body) {
     ['Effect', h('span', niceConsequence(d.consequence), d.impact ? h('span.tag', { style: { marginLeft: '6px' } }, d.impact.toLowerCase() + ' impact') : null), 'type'],
     ['Population', !g ? '…' : !g.found || !s || !s.ac ? `Not in ${g.dataset}` : `${fmtAF(s.af)} (${fmt(s.ac)} of ${fmt(s.an)} alleles${s.hom ? `, ${fmt(s.hom)} homozygous` : ''})${faf ? `; grpmax FAF ${fmtAF(faf.faf)}` : ''}`, 'population'],
     d.consequence === 'missense_variant' ? ['Missense prediction', score != null ? `${P.label} ${score.toFixed(3)}` + (d.predictors.alphamissense != null && name !== 'AlphaMissense' ? `; AlphaMissense ${d.predictors.alphamissense.toFixed(3)}` : '') : 'No score', 'predictions'] : null,
-    ['Splicing', spl ? `SpliceAI ${spl.max.toFixed(2)}${spl.max >= 0.2 ? ': an effect is predicted' : spl.max <= 0.1 ? ': no effect predicted' : ': uncertain'}` : 'No SpliceAI score', 'splicing'],
+    ['Splicing', spl ? `SpliceAI ${spl.max.toFixed(2)}${spl.max >= 0.2 ? ' predicts an effect' : spl.max <= 0.1 ? ' predicts no effect' : ' is in the uncertain range'}` : 'No SpliceAI score', 'splicing'],
     ['ClinVar', !ev.clinvar ? '…' : cv ? h('span', cv.classification, ' ', stars(cv.stars), cv.conditions.length ? ` – ${cv.conditions.slice(0, 2).join('; ')}` : '') : 'Not in ClinVar', 'clinvar'],
     ['Gene', ctx.gene ? geneLine(ctx.gene) : d.gene || '–', 'gene']
   ].filter(Boolean);
   const t = h('table.glance', h('tbody', rows.map(([k, v, key]) => h('tr', h('th', { scope: 'row' }, k), h('td', v), h('td.num', h('a', { href: '#sec-' + key, onclick: (e) => { e.preventDefault(); ctx.scrollTo(key); } }, 'Evidence'))))));
   body.appendChild(t);
-  if (ctx.pt && (ctx.pt.phenotypes || []).length) body.appendChild(h('p.small.muted', 'The patient’s phenotype is compared with the gene’s diseases in the Gene and disease section.'));
-  if (!ctx.pt) body.appendChild(note('', h('p', 'This variant was looked up, not opened from a patient: there is no family or phenotype to weigh. ', h('b', 'Add it to a patient'), ' (beside the classification) to use the family and phenotype criteria.')));
+  if (ctx.pt && (ctx.pt.phenotypes || []).length) body.appendChild(h('p.small.muted', 'The Gene and disease section compares the patient’s phenotype with the gene’s diseases.'));
+  if (!ctx.pt) body.appendChild(note('', h('p', 'This variant isn’t linked to a patient, so there’s no family or phenotype to weigh. To use the family and phenotype criteria, ', h('b', 'add it to a patient'), ' with the button beside the classification.')));
 }
 function geneLine(g) {
   const v = bestValidity(g);
@@ -79,8 +79,8 @@ function drawPopulation(ctx, body) {
   const asm = ctx.asm;
   const gnLink = `https://gnomad.broadinstitute.org/variant/${ctx.v.chrom}-${ctx.v.pos}-${ctx.v.ref}-${ctx.v.alt}?dataset=${asm === 'GRCh37' ? 'gnomad_r2_1' : 'gnomad_r4'}`;
   if (!g.found) {
-    body.appendChild(h('p', h('b', `Not found in ${g.dataset}. `), 'No one among its ', asm === 'GRCh37' ? '141,456' : 'about 807,000', ' people was seen with this variant (or it did not pass quality control). ', ext(gnLink, 'Open gnomAD'), '.'));
-    body.appendChild(note('warn', h('p', 'Before using absence as evidence (PM2), check that gnomAD sequenced this position well: open it in gnomAD and look at the coverage. Absence means little for a region that is poorly covered, or for complex indels and repeats.')));
+    body.appendChild(h('p', h('b', `This variant isn’t in ${g.dataset}. `), 'Either none of the ', asm === 'GRCh37' ? '141,456' : 'roughly 807,000', ' people in it was seen with this variant, or the variant didn’t pass quality control. ', ext(gnLink, 'Open in gnomAD'), '.'));
+    body.appendChild(note('warn', h('p', 'Before you use absence as evidence for PM2, check that gnomAD sequenced this position well by opening it in gnomAD and looking at the coverage. Absence means little in a poorly covered region, or for complex indels and repeats.')));
   } else {
     const parts = [['Exomes', g.exome], ['Genomes', g.genome], [g.joint && g.joint.combined ? 'Both together' : 'Joint', g.joint]].filter((x) => x[1]);
     // the frequencies first, so that on a phone they are in view without scrolling the table sideways
@@ -107,8 +107,8 @@ function drawPopulation(ctx, body) {
       { key: 'ac', label: 'Alleles', num: true, fmt: (r) => `${fmt(r.ac)} / ${fmt(r.an)}` },
       { key: 'hom', label: 'Hom.', num: true, fmt: (r) => fmt(r.hom) }
     ], groups, { compact: true, caption: 'Frequency by group' }));
-    body.appendChild(h('p.small.muted', `${g.dataset}. The grpmax filtering allele frequency (FAF) is the highest frequency, among the large continental groups, that the counts are consistent with (95% confidence): the figure ClinGen and the ACGS compare with BA1 and BS1. `, ext(gnLink, 'Open in gnomAD'), '.'));
-    if (g.flags && g.flags.length) body.appendChild(note('warn', h('p', 'gnomAD flags this variant: ' + g.flags.join(', ') + '. Its frequency may be unreliable.')));
+    body.appendChild(h('p.small.muted', `${g.dataset}. The grpmax filtering allele frequency (FAF) is the highest frequency that the counts are consistent with, at 95% confidence, in any of the large continental groups. It’s the figure ClinGen and the ACGS compare with BA1 and BS1. `, ext(gnLink, 'Open in gnomAD'), '.'));
+    if (g.flags && g.flags.length) body.appendChild(note('warn', h('p', 'gnomAD flags this variant (' + g.flags.join(', ') + '), so its frequency may be unreliable.')));
   }
   body.appendChild(afCalculator(ctx));
   body.appendChild(crits(ctx, ['BA1', 'BS1', 'BS2', 'PM2']));
@@ -144,16 +144,16 @@ function afCalculator(ctx) {
     calc.max = max;
     out.innerHTML = '';
     if (!max) {
-      out.appendChild(h('p.err.small', 'Give the prevalence as 1/N or a decimal, and the three proportions between 0 and 1.'));
+      out.appendChild(h('p.err.small', 'Enter the prevalence as 1/N or a decimal, and the three proportions as numbers between 0 and 1.'));
       return;
     }
     const g = ctx.ev && ctx.ev.gnomad;
     const faf = grpmaxFAF(g);
     const an = g && g.found ? (g.joint || g.exome || g.genome || {}).an : null;
-    if (!calc.userSet) out.appendChild(h('p.small.res-differ', 'These are example values, not this disorder’s: set the prevalence, heterogeneity and penetrance for the disorder before using the answer.'));
-    out.append(...[h('p', 'Highest credible allele frequency: ', h('b', fmtAF(max)), ` (${oneIn(max)}).`,
-      an ? ` Among ${fmt(an)} alleles, a pathogenic variant at that frequency would be seen at most about ${fmt(maxTolerableAC(max, an))} times (95%).` : ''),
-    faf && calc.userSet ? h('p', faf.faf > max ? h('b.res-differ', `The grpmax FAF (${fmtAF(faf.faf)}) is above it: too common for this disorder (BS1).`) : `The grpmax FAF (${fmtAF(faf.faf)}) is below it: not too common for this disorder.`) : null].filter(Boolean));
+    if (!calc.userSet) out.appendChild(h('p.small.res-differ', 'These are example values. Set the prevalence, heterogeneity and penetrance for this disorder before you use the answer.'));
+    out.append(...[h('p', 'The highest credible allele frequency is ', h('b', fmtAF(max)), ` (${oneIn(max)}).`,
+      an ? ` Among ${fmt(an)} alleles, a pathogenic variant at that frequency would be seen about ${fmt(maxTolerableAC(max, an))} times at most, with 95% confidence.` : ''),
+    faf && calc.userSet ? h('p', faf.faf > max ? h('b.res-differ', `The grpmax FAF (${fmtAF(faf.faf)}) is above this, so the variant is too common for this disorder (BS1).`) : `The grpmax FAF (${fmtAF(faf.faf)}) is below this, so the variant isn’t too common for this disorder.`) : null].filter(Boolean));
     if (byUser === true) {
       ctx.save();
       ctx.refreshSuggestions();
@@ -161,11 +161,11 @@ function afCalculator(ctx) {
   };
   for (const el of [inh, prev, al, ge, pe]) el.addEventListener('change', () => run(true));
   const box = h('details.calc', { open: calc.userSet ? true : null },
-    h('summary', h('span', { html: icon('calc') }), 'Is it too common for the disorder? The frequency calculator'),
-    h('p.small.muted', 'Whiffin et al. (2017): the highest frequency a pathogenic variant could have, from the prevalence of the disorder, the share of cases this gene causes (genetic heterogeneity), the share of those this one variant causes at most (allelic heterogeneity), and the penetrance. For BS1, compare it with the grpmax FAF; for PM2 with a recessive disorder, the frequency should be well below it (ten times below, says the ACGS).'),
+    h('summary', h('span', { html: icon('calc') }), 'Is it too common for the disorder? Use the frequency calculator'),
+    h('p.small.muted', 'Whiffin et al. (2017) work out the highest frequency a pathogenic variant could have from the prevalence of the disorder, the share of cases this gene causes (genetic heterogeneity), the largest share of those cases that one variant causes (allelic heterogeneity) and the penetrance. For BS1, compare the result with the grpmax FAF. For PM2 with a recessive disorder, the frequency should be well below it, and the ACGS says ten times below.'),
     h('div.fields', field('Inheritance', inh), field('Prevalence', prev, 'e.g. 1/10000'), field('Allelic heterogeneity', al, 'largest share of cases from one variant'), field('Genetic heterogeneity', ge, 'share of cases from this gene'), field('Penetrance', pe)),
     out,
-    h('p.small', ext('https://www.cardiodb.org/allelefrequencyapp/', 'The calculator of Whiffin et al.'), ' has worked examples.'));
+    h('p.small', ext('https://www.cardiodb.org/allelefrequencyapp/', 'Whiffin et al.’s own calculator'), ' has worked examples.'));
   setTimeout(run, 0);
   return box;
 }
@@ -198,11 +198,11 @@ function drawType(ctx, body) {
       ['Nonsense-mediated decay', nmd.escapes == null ? 'Not known' : nmd.escapes ? h('span', h('b', 'Expected to escape NMD'), `: ${nmd.why}`) : h('span', h('b', 'NMD expected'), `: ${nmd.why}`)],
       nmd.removedPct != null ? ['Protein lost', `About ${nmd.removedPct.toFixed(0)}% of the protein is downstream of the variant`] : null,
       d.lof ? ['LOFTEE', `${d.lof.call === 'HC' ? 'High confidence' : 'Low confidence'} loss of function${d.lof.filter ? ' (' + d.lof.filter + ')' : ''}${d.lof.flags ? '; flags: ' + d.lof.flags : ''}`] : null,
-      d.nmd ? ['VEP’s NMD plugin', d.nmd === 'NMD_escaping_variant' ? 'Predicts escape from NMD (its rules include the first 100 coding bases, where translation may restart; that is not part of the PVS1 tree)' : d.nmd] : null,
-      ['Is loss of function a cause of disease?', lof.yes ? h('span', h('b', 'Yes: '), lof.why.join('; ')) : h('span', h('b', 'Not shown here. '), 'PVS1 needs loss of function to be an established mechanism (look for a ClinGen haploinsufficiency score of 3, Gene2Phenotype’s mechanism, or pathogenic LoF variants in ClinVar).')]
+      d.nmd ? ['VEP’s NMD plugin', d.nmd === 'NMD_escaping_variant' ? 'Predicts escape from NMD. Its rules include the first 100 coding bases, where translation may restart, but that rule isn’t part of the PVS1 tree.' : d.nmd] : null,
+      ['Is loss of function a cause of disease?', lof.yes ? h('span', h('b', 'Yes: '), lof.why.join('; ')) : h('span', h('b', 'Not shown here. '), 'PVS1 needs loss of function to be an established mechanism of disease. Look for a ClinGen haploinsufficiency score of 3, the mechanism Gene2Phenotype gives, or pathogenic LoF variants in ClinVar.')]
     ]));
   } else if (cons.some((c) => ['inframe_insertion', 'inframe_deletion', 'stop_lost'].includes(c))) {
-    body.appendChild(note('', h('p', 'An in-frame change or a stop-loss: it alters the length of the protein. PM4 if it is outside a repeat region; BP3 if in a repeat of no known function.')));
+    body.appendChild(note('', h('p', 'As an in-frame change or a stop-loss, this variant alters the length of the protein. PM4 applies if it’s outside a repeat region, and BP3 if it’s in a repeat with no known function.')));
   }
   body.appendChild(pvs1Tree(ctx));
   body.appendChild(crits(ctx, ['PVS1', 'PM4', 'BP3']));
@@ -217,7 +217,7 @@ function pvs1Tree(ctx) {
     if (s != null) calc.answers = [s];
   }
   const box = h('details.calc.pvs1', { open: d.lofConsequence ? true : null }, h('summary', h('span', { html: icon('route') }), 'The PVS1 decision tree (Abou Tayoun et al. 2018)'));
-  if (!d.lofConsequence) box.appendChild(h('p.small.res-differ', `PVS1 is for null variants (nonsense, frameshift, canonical ±1 or 2 splice site, start-loss, exon deletions and duplications). This variant’s consequence is ${niceConsequence(d.consequence)}, so the tree does not apply to it; it is here to explore.`));
+  if (!d.lofConsequence) box.appendChild(h('p.small.res-differ', `PVS1 is for null variants: nonsense, frameshift, canonical ±1 or 2 splice site, start-loss, and exon deletions and duplications. This variant’s consequence is ${niceConsequence(d.consequence)}, so the tree doesn’t apply to it, but you can still explore it here.`));
   const inner = h('div');
   box.appendChild(inner);
   const draw = () => {
@@ -236,11 +236,11 @@ function pvs1Tree(ctx) {
     inner.appendChild(ol);
     if (w.done) {
       calc.result = { strength: w.strength, path: w.path, na: !!w.na };
-      inner.appendChild(h('div.tree-result' + (w.na ? '.na' : ''), h('b', RESULT_TEXT[w.na ? 'NA' : w.strength]), w.na ? ': do not use PVS1.' : d.lofConsequence ? '. Apply it below (the suggestion says the same).' : ', had this been a null variant.'));
+      inner.appendChild(h('div.tree-result' + (w.na ? '.na' : ''), h('b', RESULT_TEXT[w.na ? 'NA' : w.strength]), w.na ? '. Don’t use it for this variant.' : d.lofConsequence ? '. You can apply it below, where the suggestion says the same.' : ', if this had been a null variant.'));
       if (ctx.gene) {
         const v = bestValidity(ctx.gene);
-        if (v && /Moderate/.test(v.classification)) inner.appendChild(note('warn', h('p', `ClinGen rates the gene–disease relationship “${v.classification}”. The tree assumes a strong or definitive one: Abou Tayoun et al. take PVS1 down one level for a moderate gene with two or more loss-of-function variants reported and a null mouse model that has the disease, two levels with only one of these (their Table 1).`)));
-        else if (v && !/Definitive|Strong/.test(v.classification)) inner.appendChild(note('warn', h('p', `ClinGen rates the gene–disease relationship “${v.classification}”. The tree assumes a strong or definitive one (a moderate one at lower strength): PVS1 should not be used.`)));
+        if (v && /Moderate/.test(v.classification)) inner.appendChild(note('warn', h('p', `ClinGen rates the gene–disease relationship as “${v.classification}”. The tree assumes a strong or definitive one. For a moderate gene, Abou Tayoun et al. take PVS1 down one level if two or more loss-of-function variants have been reported and a null mouse model has the disease, and down two levels if only one of these is true (their Table 1).`)));
+        else if (v && !/Definitive|Strong/.test(v.classification)) inner.appendChild(note('warn', h('p', `ClinGen rates the gene–disease relationship as “${v.classification}”. The tree assumes a strong or definitive relationship, or a moderate one at lower strength, so PVS1 shouldn’t be used.`)));
       }
     } else if (w.node) {
       const q = h('div.tree-node', h('p', h('b', w.node.q)), w.node.help ? h('p.small.muted', w.node.help) : null);
@@ -286,8 +286,8 @@ function drawPredictions(ctx, body) {
     ctx.redraw(['predictions']);
   });
   const isMissense = d.consequence === 'missense_variant' || (d.consequences || []).includes('missense_variant');
-  body.appendChild(h('div.row', h('span', 'The predictor you use for missense variants (choose it before you look):'), pick));
-  if (!isMissense) body.appendChild(note('', h('p', `This is not a missense variant, so the missense predictors don’t apply to it; for ${d.lofConsequence ? 'a loss-of-function variant, PVS1 covers the effect' : 'other variants, look at splicing (PP3/BP4 from SpliceAI)'}.`)));
+  body.appendChild(h('div.row', h('span', 'Choose your predictor for missense variants before you look at the scores:'), pick));
+  if (!isMissense) body.appendChild(note('', h('p', `This isn’t a missense variant, so the missense predictors don’t apply to it. ${d.lofConsequence ? 'For a loss-of-function variant, PVS1 covers the effect' : 'For other variants, look at splicing instead (PP3 or BP4 from SpliceAI)'}.`)));
   const bars = h('div.pred-bars');
   for (const [name, P] of Object.entries(PREDICTORS)) {
     const v = p[P.key];
@@ -302,10 +302,10 @@ function drawPredictions(ctx, body) {
     p.blosum62 != null ? ['BLOSUM62', `${p.blosum62} (${p.blosum62 < 0 ? 'a substitution rarely seen in related proteins' : 'a substitution seen in related proteins'})`] : null,
     d.predictors.alphamissenseClass ? ['AlphaMissense’s own class', d.predictors.alphamissenseClass.replace(/_/g, ' ')] : null
   ].filter(Boolean);
-  if (extra.length) body.appendChild(h('details', h('summary', 'Other scores'), kv(extra), h('p.small.muted', 'SIFT and PolyPhen-2 at their developers’ thresholds do not reach even supporting strength (Pejaver et al. 2022); they are shown for comparison.')));
+  if (extra.length) body.appendChild(h('details', h('summary', 'Other scores'), kv(extra), h('p.small.muted', 'At their developers’ thresholds, SIFT and PolyPhen-2 don’t reach even supporting strength (Pejaver et al. 2022), so they’re shown only for comparison.')));
   body.appendChild(h('p.small.muted', F === 'acgs2024'
-    ? 'With the ACGS 2024 guidelines, PP3 and BP4 are supporting only: REVEL ≥ 0.7 for PP3 and < 0.4 for BP4. The coloured bands show those; other tools are shown at ClinGen’s supporting thresholds.'
-    : 'The bands are ClinGen’s calibrated thresholds (Pejaver et al. 2022; Bergquist et al. 2025 for AlphaMissense). Use one predictor, chosen in advance, once.'));
+    ? 'Under the ACGS 2024 guidelines, PP3 and BP4 are supporting only, with REVEL ≥ 0.7 for PP3 and < 0.4 for BP4. The coloured bands show those thresholds, and the other tools are shown at ClinGen’s supporting thresholds.'
+    : 'The bands are ClinGen’s calibrated thresholds (Pejaver et al. 2022, and Bergquist et al. 2025 for AlphaMissense). Choose one predictor in advance, and use its result only once.'));
   body.appendChild(crits(ctx, ['PP3', 'BP4']));
   body.appendChild(sectionNote(ctx, 'predictions'));
 }
@@ -344,7 +344,7 @@ function drawSplicing(ctx, body) {
   const v = ctx.v;
   const lookup = `https://spliceailookup.broadinstitute.org/#variant=${encodeURIComponent(`chr${v.chrom}-${v.pos}-${v.ref}-${v.alt}`)}&hg=${ctx.asm === 'GRCh37' ? '37' : '38'}&distance=500&mask=1`;
   if (!s) {
-    body.appendChild(h('p', 'VEP has no SpliceAI score for this variant (it has precomputed scores for substitutions and small indels near genes). ', ext(lookup, 'Ask SpliceAI-lookup'), ', which computes them.'));
+    body.appendChild(h('p', 'VEP has no SpliceAI score for this variant. Its scores are precomputed, and cover substitutions and small indels near genes. ', ext(lookup, 'SpliceAI-lookup'), ' can compute the scores for you.'));
   } else {
     const row = (k, label, ds, dp) => ({ k, label, ds, dp });
     const rows = [row('ag', 'Acceptor gain', s.ag, s.pag), row('al', 'Acceptor loss', s.al, s.pal), row('dg', 'Donor gain', s.dg, s.pdg), row('dl', 'Donor loss', s.dl, s.pdl)];
@@ -360,11 +360,11 @@ function drawSplicing(ctx, body) {
     body.appendChild(grid);
     const F = framework();
     const sf = fw(F).splice;
-    body.appendChild(h('p', 'Highest score: ', h('b', s.max.toFixed(2)), '. ', s.max >= 0.5 ? 'A strong prediction of an effect on splicing.' : s.max >= sf.pp3 ? `At or above ${sf.pp3}: SpliceAI predicts an effect (PP3 for splicing, at supporting strength).` : s.max <= sf.bp4 ? `At or below ${sf.bp4}: no effect predicted (BP4, and BP7 for a synonymous or deep intronic variant).` : 'Between 0.1 and 0.2: uninformative (Walker et al. 2023).'));
-    body.appendChild(h('p.small.muted', 'Scores are the change in the probability that a base is used as an acceptor or donor (0 to 1), within 500 bases of the variant; positions are relative to it. Masked scores (gains of sites already used, and losses of sites not used, are left out). ', ext(lookup, 'Open in SpliceAI-lookup'), ' for the transcripts and the raw scores, and Pangolin’s.'));
+    body.appendChild(h('p', 'The highest score is ', h('b', s.max.toFixed(2)), '. ', s.max >= 0.5 ? 'That’s a strong prediction of an effect on splicing.' : s.max >= sf.pp3 ? `That’s at or above ${sf.pp3}, so SpliceAI predicts an effect (PP3 for splicing, at supporting strength).` : s.max <= sf.bp4 ? `That’s at or below ${sf.bp4}, so no effect is predicted (BP4, and BP7 for a synonymous or deep intronic variant).` : 'Scores between 0.1 and 0.2 are uninformative (Walker et al. 2023).'));
+    body.appendChild(h('p.small.muted', 'Each score, from 0 to 1, is the change in the probability that a base within 500 bases of the variant is used as an acceptor or donor. Positions are relative to the variant. These are masked scores, so gains of sites that are already used and losses of sites that aren’t used are left out. ', ext(lookup, 'Open in SpliceAI-lookup'), ' to see the transcripts, the raw scores and Pangolin’s scores.'));
   }
   const dist = /c\.[*-]?\d+([+-])(\d+)/.exec(d.hgvsc || '');
-  if (dist) body.appendChild(h('p', `Intronic: ${dist[2]} bases into the intron at its ${dist[1] === '+' ? '5′ end (a donor side)' : '3′ end (an acceptor side)'}. ${+dist[2] <= 2 ? 'At a canonical ±1 or 2 position: the PVS1 tree applies.' : (dist[1] === '+' && +dist[2] <= 6) || (dist[1] === '-' && +dist[2] <= 20) ? 'Within the splice region, where BP7 does not apply.' : 'Outside the splice region.'}`));
+  if (dist) body.appendChild(h('p', `This variant is intronic, ${dist[2]} bases into the intron from its ${dist[1] === '+' ? '5′ end (the donor side)' : '3′ end (the acceptor side)'}. ${+dist[2] <= 2 ? 'It’s at a canonical ±1 or 2 position, so the PVS1 tree applies.' : (dist[1] === '+' && +dist[2] <= 6) || (dist[1] === '-' && +dist[2] <= 20) ? 'It’s within the splice region, where BP7 doesn’t apply.' : 'It’s outside the splice region.'}`));
   body.appendChild(crits(ctx, ['PP3', 'BP4', 'BP7']));
   body.appendChild(sectionNote(ctx, 'splicing'));
 }
@@ -380,7 +380,7 @@ async function drawProtein(ctx, body) {
     return;
   }
   if (!d.gene || d.biotype !== 'protein_coding') {
-    body.appendChild(h('p.muted', 'Not in a protein-coding transcript.'));
+    body.appendChild(h('p.muted', 'This variant isn’t in a protein-coding transcript.'));
     return;
   }
   const holder = h('div', loading('Fetching the protein from UniProt and the gene’s ClinVar variants from gnomAD…'));
@@ -390,16 +390,16 @@ async function drawProtein(ctx, body) {
   let up = null, cvg = ctx.clinvarGene;
   const errs = [];
   await Promise.all([
-    acc ? uniprot(acc).then((x) => (up = x)).catch((e) => errs.push('UniProt: ' + e.message)) : Promise.resolve(),
-    cvg ? Promise.resolve() : gnomadGene(d.gene, ctx.asm).then((g) => { cvg = ctx.clinvarGene = g ? g.clinvar_variants || [] : []; ctx.gnomadGene = g; ctx.refreshSuggestions(); }).catch((e) => errs.push('gnomAD (ClinVar variants of the gene): ' + e.message))
+    acc ? uniprot(acc).then((x) => (up = x)).catch((e) => errs.push('UniProt didn’t answer: ' + e.message)) : Promise.resolve(),
+    cvg ? Promise.resolve() : gnomadGene(d.gene, ctx.asm).then((g) => { cvg = ctx.clinvarGene = g ? g.clinvar_variants || [] : []; ctx.gnomadGene = g; ctx.refreshSuggestions(); }).catch((e) => errs.push('gnomAD didn’t send the gene’s ClinVar variants: ' + e.message))
   ]);
   holder.innerHTML = '';
   if (errs.length) holder.appendChild(note('warn', h('p', errs.join('. '))));
   const len = up ? up.length : null;
-  if (len && d.proteinPos && d.proteinPos > len) holder.appendChild(note('warn', h('p', `The variant is at residue ${d.proteinPos} of the transcript’s protein, but UniProt’s ${acc} has ${len}: they are different isoforms, so positions may not match.`)));
+  if (len && d.proteinPos && d.proteinPos > len) holder.appendChild(note('warn', h('p', `The variant is at residue ${d.proteinPos} of the transcript’s protein, but UniProt’s ${acc} has only ${len} residues. They’re different isoforms, so the positions may not match.`)));
   holder.appendChild(plot.proteinPlot({ length: len || (d.proteinPos ? Math.round(d.proteinPos * 1.2) : 500), features: up ? up.features : [], clinvar: cvg || [], variantPos: d.proteinPos, variantLabel: d.hgvsp || '', gene: d.gene }));
   if (up) {
-    holder.appendChild(h('p.small.muted', `${up.name} (UniProt ${up.accession}, ${up.length} residues). `, ext(`https://www.uniprot.org/uniprotkb/${up.accession}/entry`, 'UniProt'), '. ClinVar variants from gnomAD’s copy of ClinVar, one star or more.'));
+    holder.appendChild(h('p.small.muted', `${up.name} (UniProt ${up.accession}, ${up.length} residues). `, ext(`https://www.uniprot.org/uniprotkb/${up.accession}/entry`, 'Open in UniProt'), '. The ClinVar variants come from gnomAD’s copy of ClinVar and have one star or more.'));
     if (up.function) holder.appendChild(h('details', h('summary', 'What the protein does (UniProt)'), h('p.small', up.function)));
   }
   // PM1: what is around the variant
@@ -424,7 +424,7 @@ async function drawProtein(ctx, body) {
       const m = await import('../widgets/structure.js');
       m.showStructure(holder3d, { accession: up.accession, residue: d.proteinPos, label: d.hgvsp, gene: d.gene, clinvar: cvg }).catch((e) => {
         holder3d.innerHTML = '';
-        holder3d.appendChild(note('bad', h('p', 'The 3D model could not be shown: ' + e.message)));
+        holder3d.appendChild(note('bad', h('p', 'The 3D model couldn’t be shown: ' + e.message)));
       });
     }, { icon: 'cube' });
     const holder3d = h('div.struct-holder');
@@ -449,10 +449,10 @@ function drawClinvar(ctx, body) {
   if (self) {
     body.appendChild(h('div.cv-self',
       h('div.row', h('b', self.classification), stars(self.stars), h('span.small.muted', self.review)),
-      h('div.small', self.conditions.length ? 'For: ' + self.conditions.join('; ') : 'No condition given'),
+      h('div.small', self.conditions.length ? 'Classified for ' + self.conditions.join('; ') : 'No condition given'),
       h('div.small.muted', `${self.submissions} submission${self.submissions === 1 ? '' : 's'}${self.evaluated ? ', last evaluated ' + self.evaluated : ''}. `, ext(self.url, 'Open in ClinVar ' + (self.accession || ''))),
-      h('p.small', { style: { marginTop: '6px' } }, 'Other laboratories’ classifications are evidence about the evidence: read what they found (PS4, PS3, segregation…) and weigh it under those criteria. ClinGen retired PP5 and BP6, which counted the classifications themselves.')));
-  } else body.appendChild(h('p', 'This variant is not in ClinVar (as NCBI’s search finds it, at its position).'));
+      h('p.small', { style: { marginTop: '6px' } }, 'Other laboratories’ classifications are evidence about the evidence. Read what they found, such as cases (PS4), functional work (PS3) or segregation, and weigh it under those criteria. ClinGen retired PP5 and BP6, which counted the classifications themselves.')));
+  } else body.appendChild(h('p', 'NCBI’s search finds no ClinVar record of this variant at its position.'));
   const sr = sameResidue(ev);
   if ((ev.d && ev.d.proteinPos) || sr.others.length) {
     body.appendChild(h('h3.vsub', ev.d && ev.d.proteinPos ? `Other variants at this residue (${ev.d.proteinPos}) and position` : 'Other variants at this position'));
@@ -461,7 +461,7 @@ function drawClinvar(ctx, body) {
       { key: 'title', label: 'Variant', fmt: (r) => h('span', h('a', { href: r.url, target: '_blank', rel: 'noopener' }, h('span.hgvs', r.hgvsc || r.title)), r.hgvsp ? h('span.hgvs.muted', ' ' + r.hgvsp) : null) },
       { key: 'rel', label: 'Relation' },
       { key: 'classification', label: 'Classification', fmt: (r) => h('span', r.classification, ' ', stars(r.stars)) }
-    ], rows, { compact: true }) : h('p.muted', 'None in ClinVar.'));
+    ], rows, { compact: true }) : h('p.muted', 'ClinVar has no other variants here.'));
   }
   const d = ev.d || {};
   const v = ctx.v;
@@ -494,15 +494,15 @@ function drawClinvar(ctx, body) {
     try {
       const res = await epmc.search(q, { sort });
       papers.innerHTML = '';
-      papers.appendChild(h('p.small', `${fmt(res.count)} papers mention ${d.gene || 'the gene'} with one of the variant’s names (`, h('span.hgvs', q), `). ${res.count > res.papers.length ? `The ${res.papers.length} ${sort === 'recent' ? 'newest' : 'most cited'}:` : ''} `,
+      papers.appendChild(h('p.small', `${fmt(res.count)} papers mention ${d.gene || 'the gene'} with one of the variant’s names (`, h('span.hgvs', q), `). ${res.count > res.papers.length ? `The ${res.papers.length} ${sort === 'recent' ? 'newest' : 'most cited'} are listed below.` : ''} `,
         btn(sort === 'recent' ? 'Most cited first' : 'Newest first', () => findPapers(sort === 'recent' ? 'cited' : 'recent'), { cls: 'small' })));
       papers.appendChild(h('ol.paper-list', res.papers.map((x) => h('li',
         ext(x.pmid ? `https://europepmc.org/article/MED/${x.pmid}` : x.doi ? `https://doi.org/${x.doi}` : `https://europepmc.org/search?query=${encodeURIComponent(x.title)}`, x.title),
         h('div.small.muted', [x.authors.length > 90 ? x.authors.slice(0, 88) + '…' : x.authors, x.journal, x.year].filter(Boolean).map((t) => String(t).replace(/\.+$/, '')).join('. ') + `.${x.cited ? ` Cited by ${fmt(x.cited)}.` : ''}${x.open ? ' Free to read.' : ''}`)))));
-      papers.appendChild(h('p.small.muted', 'A mention is not evidence: read each paper for what it shows (cases for PS4 or PS2, functional work for PS3, families for PP1), and beware of somatic (tumour) findings in a germline question.'));
+      papers.appendChild(h('p.small.muted', 'A mention isn’t evidence in itself. Read each paper for what it shows, such as cases for PS4 or PS2, functional work for PS3 or families for PP1, and watch out for somatic (tumour) findings when the question is about the germline.'));
     } catch (e) {
       papers.innerHTML = '';
-      papers.appendChild(note('warn', h('p', 'Europe PMC did not answer: ' + e.message)));
+      papers.appendChild(note('warn', h('p', 'Europe PMC didn’t answer: ' + e.message)));
     }
   };
   if (d.gene && (d.hgvsc || d.hgvsp || d.rsid)) body.appendChild(h('div', btn('Find papers that name this variant', () => findPapers('cited'), { cls: 'small', icon: 'book', title: 'Search Europe PMC for the gene with the variant’s c., p. and rsID names' }), papers));

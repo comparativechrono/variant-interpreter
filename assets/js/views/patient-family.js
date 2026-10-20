@@ -27,13 +27,13 @@ export async function render(body, { patient: pt, variants: vs }) {
   const cover = h('div.fam-cover', h('span.spinner'), h('span', 'Opening Pedigree Studio…'));
   let api = null;
   const bar = h('div.fam-bar',
-    btn('Start from a few questions…', () => quickDialog(), { cls: 'primary small', icon: 'wand', title: 'Draw the proband, parents, siblings and children from a few answers; then add to it in the Studio' }),
-    btn('Tidy', () => api && api.tidy(), { cls: 'small', icon: 'align', title: 'Lay the pedigree out again (it can be undone in the Studio)' }),
+    btn('Start from a few questions…', () => quickDialog(), { cls: 'primary small', icon: 'wand', title: 'Draw the proband, parents, siblings and children from a few answers, then add to the drawing in the Studio' }),
+    btn('Tidy', () => api && api.tidy(), { cls: 'small', icon: 'align', title: 'Lay out the pedigree again. You can undo this in the Studio.' }),
     btn('Fit', () => api && api.fit(), { cls: 'small', icon: 'maximize', title: 'Fit the drawing to the frame' }),
     h('span.grow'),
     state);
   body.append(
-    h('p.small.muted.fam-help', 'Draw the family in the Studio below: add relatives from a person’s menu, shade the affected and name the condition in the key, and mark the proband. It is saved with the patient as you draw. Then give each relative’s results for the patient’s variants in the table underneath: the variant pages use them for segregation (PP1, BS4) and de novo or in-trans evidence.'),
+    h('p.small.muted.fam-help', 'Draw the family in the Studio below. Add relatives from a person’s menu, shade those who are affected, name the condition in the key and mark the proband. The drawing is saved with the patient as you go. Then enter each relative’s results for the patient’s variants in the table underneath. The variant pages use these results for segregation (PP1, BS4) and for de novo and in-trans evidence.'),
     bar,
     h('div.fam-stage', frame, cover));
   const tableBox = h('div.fam-table', { 'aria-live': 'polite' });
@@ -77,7 +77,7 @@ export async function render(body, { patient: pt, variants: vs }) {
       if (pt.pedigree && (pt.pedigree.persons || []).length) api.load(pt.pedigree, { message: `Patient ${pt.id}’s family` });
       else {
         api.clear();
-        api.status('No pedigree yet: start from a few questions, or draw it');
+        api.status('There’s no pedigree yet, so start from a few questions or draw it');
       }
     } catch (e) {
       toast('The pedigree could not be shown: ' + e.message, 'error', 8000);
@@ -96,11 +96,11 @@ export async function render(body, { patient: pt, variants: vs }) {
     tableBox.innerHTML = '';
     const fam = readFamily(seg, pt);
     if (!fam || !fam.people.length) {
-      tableBox.appendChild(h('p.muted', 'The relatives appear here once the pedigree is drawn.'));
+      tableBox.appendChild(h('p.muted', 'The relatives will appear here once you’ve drawn the pedigree.'));
       return;
     }
-    if (!fam.proband) tableBox.appendChild(note('warn', h('p', 'Mark the proband in the drawing (select the patient, then “Proband” in the Studio’s menu), so that relationships and segregation can be worked out.')));
-    if (!fam.conditions.length) tableBox.appendChild(note('', h('p', 'Shade the affected relatives and name the condition in the drawing’s key: segregation needs to know who is affected.')));
+    if (!fam.proband) tableBox.appendChild(note('warn', h('p', 'Mark the proband in the drawing so that relationships and segregation can be worked out. To do this, select the patient and choose “Proband” in the Studio’s menu.')));
+    if (!fam.conditions.length) tableBox.appendChild(note('', h('p', 'Shade the affected relatives and name the condition in the drawing’s key, because segregation needs to know who is affected.')));
     const seqs = vs;
     const tbl = h('table.data.compact.fam-gt');
     const head = h('tr', h('th', { scope: 'col' }, 'Person'), h('th', { scope: 'col' }, 'Relationship'), h('th', { scope: 'col' }, fam.conditions.length ? `Status (${fam.conditions[0].label})` : 'Status'));
@@ -149,7 +149,7 @@ export async function render(body, { patient: pt, variants: vs }) {
     const heads = Array.from(head.children).map((th) => th.textContent.trim());
     tb.querySelectorAll('tr').forEach((tr) => Array.from(tr.children).forEach((td, i) => td.setAttribute('data-label', heads[i] || '')));
     tableBox.appendChild(h('div.table-wrap.vtable', tbl));
-    if (!vs.length) tableBox.appendChild(h('p.small.muted', 'Add the patient’s variants (Variants tab) to record who else has them.'));
+    if (!vs.length) tableBox.appendChild(h('p.small.muted', 'Add the patient’s variants on the Variants tab to record who else has them.'));
     const hints = h('div.fam-hints', { 'aria-live': 'polite' });
     tableBox.appendChild(hints);
     for (const v of vs) checkInheritance(v, fam, hints);
@@ -173,15 +173,15 @@ export async function render(body, { patient: pt, variants: vs }) {
     const old = hints.querySelector('#' + id);
     if (old) old.remove();
     if (!guess || guess === v.inheritance || (guess === 'denovo-assumed' && v.inheritance === 'denovo-confirmed')) return;
-    const words = { 'denovo-assumed': 'de novo (both parents tested and without it; confirm parentage to call it confirmed)', maternal: 'inherited from the mother', paternal: 'inherited from the father', biparental: 'inherited from both parents' };
+    const words = { 'denovo-assumed': 'de novo, as neither parent has it (confirm parentage before you call it confirmed)', maternal: 'inherited from the mother', paternal: 'inherited from the father', biparental: 'inherited from both parents' };
     const s = summariseVariant(v);
-    const fix = btn('Use it', async () => {
+    const fix = btn('Update the inheritance', async () => {
       v.inheritance = guess;
       await db.saveVariant(v, `Inheritance from the parents’ results: ${words[guess]}`);
       toast('Inheritance updated.', 'ok');
       hints.querySelector('#' + id)?.remove();
     }, { cls: 'small' });
-    hints.appendChild(h('div.note', { id }, h('p', `The parents’ results say ${s.gene ? s.gene + ' ' : ''}${s.short} is ${words[guess]}; its page says otherwise. `, fix)));
+    hints.appendChild(h('div.note', { id }, h('p', `The parents’ results suggest that ${s.gene ? s.gene + ' ' : ''}${s.short} is ${words[guess]}. The variant’s page says otherwise. `, fix)));
   };
 
   /* ---------- a pedigree from a few answers ---------- */
@@ -189,16 +189,16 @@ export async function render(body, { patient: pt, variants: vs }) {
     const pSex = select([['female', 'Female'], ['male', 'Male'], ['unknown', 'Not known']], pt.sex === 'female' || pt.sex === 'male' ? pt.sex : 'unknown');
     const pAff = checkbox('The proband is affected', true);
     const parents = checkbox('Draw the parents', true);
-    const mAff = checkbox('Mother affected', false);
-    const fAff = checkbox('Father affected', false);
+    const mAff = checkbox('The mother is affected', false);
+    const fAff = checkbox('The father is affected', false);
     const cons = checkbox('The parents are related (consanguineous)', pt.consanguinity === 'yes');
     const gp = checkbox('Draw the grandparents', false);
     const num = (v) => h('input', { type: 'number', min: 0, max: 8, step: 1, value: v, style: { width: '5em' } });
     const bro = num(0), broA = num(0), sis = num(0), sisA = num(0), son = num(0), sonA = num(0), dau = num(0), dauA = num(0);
     const cond = h('input', { type: 'text', value: (pt.assessment && pt.assessment.disease) || ((pt.phenotypes || []).find((t) => t.observed !== false) || {}).name || 'Affected', placeholder: 'The condition, for the key' });
-    const row = (label, n, a) => h('div.qp-row', h('span', label), n, h('span.small.muted', 'of whom affected'), a);
+    const row = (label, n, a) => h('div.qp-row', h('span', label), n, h('span.small.muted', 'number affected'), a);
     const bodyEl = h('div.stack',
-      first ? h('p', `Patient ${pt.id} has no pedigree yet. Answer a few questions to start one; add more relatives in the Studio afterwards.`) : note('warn', h('p', 'This replaces the drawing in the Studio (Undo there brings it back).')),
+      first ? h('p', `Patient ${pt.id} doesn’t have a pedigree yet. Answer a few questions to start one, and then add more relatives in the Studio.`) : note('warn', h('p', 'This replaces the drawing in the Studio. You can get it back with Undo there.')),
       h('div.fields', field('The proband’s sex', pSex), field('The condition (for the key)', cond)),
       h('div.qp-checks', pAff.el, parents.el, mAff.el, fAff.el, cons.el, gp.el),
       h('div.qp-rows', row('Brothers', bro, broA), row('Sisters', sis, sisA), row('Sons', son, sonA), row('Daughters', dau, dauA)));

@@ -102,7 +102,7 @@ const LP_RULES = [
   { name: 'Likely pathogenic (v)', text: '2 moderate and at least 2 supporting', slots: [['M', 2], ['P', 2]] },
   { name: 'Likely pathogenic (vi)', text: '1 moderate and at least 4 supporting', slots: [['M', 1], ['P', 4]] }
 ];
-const LP_SVI = { name: 'Likely pathogenic (ClinGen SVI 2020)', text: '1 very strong and 1 supporting (as with PVS1 and PM2_Supporting)', slots: [['VS', 1], ['P', 1]] };
+const LP_SVI = { name: 'Likely pathogenic (ClinGen SVI 2020)', text: '1 very strong and 1 supporting, as with PVS1 and PM2_Supporting', slots: [['VS', 1], ['P', 1]] };
 
 /** can the slots be filled from these strengths? Fill the strongest slots first, each with the weakest evidence
     that is strong enough, so that strong evidence is kept for the slots that need it */
@@ -128,22 +128,22 @@ export function richards(met, opts = {}) {
   // a benign moderate counts as two supporting (Brnich et al. 2019, Table 3; Pejaver et al. 2022 likewise)
   const bp = b.filter((m) => m.strength === 'P').length + 2 * bm;
   const notes = [];
-  if (bm) notes.push('Benign evidence at moderate strength is not in the 2015 rules: each counts as two supporting, as Brnich et al. (2019) and Pejaver et al. (2022) advise.');
+  if (bm) notes.push('The 2015 rules have no benign evidence at moderate strength, so each such criterion counts as two supporting, as Brnich et al. (2019) and Pejaver et al. (2022) advise.');
   let pRule = null;
   for (const r of P_RULES) if (fits(r.slots, pLevels)) { pRule = { cls: 'p', ...r }; break; }
   if (!pRule) for (const r of LP_RULES) if (fits(r.slots, pLevels)) { pRule = { cls: 'lp', ...r }; break; }
   if (!pRule && opts.sviPVS1PM2 !== false && fits(LP_SVI.slots, pLevels)) pRule = { cls: 'lp', ...LP_SVI };
   let bRule = null;
-  if (ba) bRule = { cls: 'b', name: 'Benign (i)', text: '1 stand-alone (BA1)' };
+  if (ba) bRule = { cls: 'b', name: 'Benign (i)', text: '1 stand-alone criterion, BA1' };
   else if (bs >= 2) bRule = { cls: 'b', name: 'Benign (ii)', text: 'at least 2 strong' };
   else if (bs >= 1 && bp >= 1) bRule = { cls: 'lb', name: 'Likely benign (i)', text: '1 strong and 1 supporting' };
   else if (bp >= 2) bRule = { cls: 'lb', name: 'Likely benign (ii)', text: 'at least 2 supporting' };
   const anyP = pLevels.length > 0, anyB = b.length > 0;
   if (pRule && bRule) {
-    return { cls: 'vus', conflict: true, rule: { name: 'Uncertain significance (ii)', text: 'the criteria for a pathogenic class and for a benign class are both met: they contradict each other' }, pRule, bRule, notes };
+    return { cls: 'vus', conflict: true, rule: { name: 'Uncertain significance (ii)', text: 'the criteria for a pathogenic class and for a benign class are both met, and they contradict each other' }, pRule, bRule, notes };
   }
-  if (pRule && anyB) notes.push('Benign criteria are met too, though not enough for a benign class. The 2015 rules leave weighing them to you; the points system subtracts them.');
-  if (bRule && anyP) notes.push('Pathogenic criteria are met too, though not enough for a pathogenic class. The 2015 rules leave weighing them to you; the points system adds them.');
+  if (pRule && anyB) notes.push('Benign criteria are met too, though not enough for a benign class. The 2015 rules leave you to weigh them, while the points system subtracts them.');
+  if (bRule && anyP) notes.push('Pathogenic criteria are met too, though not enough for a pathogenic class. The 2015 rules leave you to weigh them, while the points system adds them.');
   if (pRule) return { cls: pRule.cls, rule: pRule, notes };
   if (bRule) return { cls: bRule.cls, rule: bRule, notes };
   return { cls: 'vus', rule: { name: 'Uncertain significance (i)', text: 'the criteria for the other classes are not met' }, notes };
@@ -155,7 +155,7 @@ export function classify(state, opts = {}) {
   const met = metList(state, f.key);
   const notes = [];
   const WORD = { SA: 'stand-alone', VS: 'very strong', S: 'strong', M: 'moderate', P: 'supporting' };
-  for (const m of met) if (m.given) notes.push(`${m.code} is marked ${WORD[m.given]}, which ${f.label} does not use for it: it counts as ${WORD[m.strength]} here.`);
+  for (const m of met) if (m.given) notes.push(`${m.code} is marked ${WORD[m.given]}, but ${f.label} doesn’t use that strength for it, so it counts as ${WORD[m.strength]} here.`);
   let pts = pointsOf(met);
   // ClinGen: PM1 and PP3 together count at most 4 points (Pejaver et al. 2022), for the overlap between a hotspot and
   // the predictors. The ACGS 2024 guidelines (PP3 at supporting only) set no such cap.
@@ -163,7 +163,7 @@ export function classify(state, opts = {}) {
   if (f.key === 'clingen' && pm1 && pp3 && (POINTS[pm1.strength] || 0) + (POINTS[pp3.strength] || 0) > 4) {
     const over = (POINTS[pm1.strength] || 0) + (POINTS[pp3.strength] || 0) - 4;
     pts -= over;
-    notes.push(`ClinGen counts PM1 and PP3 together as at most 4 points (Pejaver et al. 2022): ${over} ${over === 1 ? 'point' : 'points'} of PM1 ${over === 1 ? 'does' : 'do'} not count.`);
+    notes.push(`ClinGen counts PM1 and PP3 together as at most 4 points (Pejaver et al. 2022), so ${over} ${over === 1 ? 'point' : 'points'} of PM1 ${over === 1 ? 'does' : 'do'} not count.`);
   }
   const hasBA1 = met.some((m) => m.code === 'BA1' && m.strength === 'SA');
   const byPoints = { cls: classOfPoints(pts, hasBA1), points: pts, posterior: hasBA1 ? 0 : posterior(pts) };
@@ -175,9 +175,9 @@ export function classify(state, opts = {}) {
     const side = byPoints.cls === 'p' || byPoints.cls === 'lp' ? 'P' : 'B';
     const own = met.filter((m) => m.dir === side);
     const loneBS1 = side === 'B' && own.length === 1 && own[0].code === 'BS1' && own[0].strength === 'S';
-    if (loneBS1) notes.push('ACGS 2024: BS1_Strong alone may make a variant likely benign, but only for a highly penetrant dominant disorder.');
+    if (loneBS1) notes.push('Under the ACGS 2024 guidelines, BS1_Strong alone may make a variant likely benign, but only for a highly penetrant dominant disorder.');
     else if (own.length < 2) {
-      notes.push(`ACGS 2024: a ${side === 'P' ? 'pathogenic' : 'benign'} class needs at least two criteria (BA1 apart${side === 'B' ? ', and BS1_Strong for a highly penetrant dominant disorder' : ''}), so with one this stays uncertain.`);
+      notes.push(`Under the ACGS 2024 guidelines, a ${side === 'P' ? 'pathogenic' : 'benign'} class needs at least two criteria (except for BA1${side === 'B' ? ', and BS1_Strong for a highly penetrant dominant disorder' : ''}), so with only one the variant stays uncertain.`);
       byPoints.capped = byPoints.cls;
       byPoints.cls = 'vus';
     }

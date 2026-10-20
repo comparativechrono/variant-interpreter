@@ -46,7 +46,7 @@ async function showSaveState() {
   const el = $('#savestate');
   if (!ok) {
     el.classList.add('memory');
-    el.title = 'This browser is not letting the site keep anything (a private window?). Your work lasts only until the page is closed: export it from Cases and data.';
+    el.title = 'This browser isn’t letting the site keep anything, perhaps because it’s a private window. Your work lasts only until the page is closed, so download it from Cases and data before then.';
     el.querySelector('span').textContent = 'Not saved: private window?';
   }
 }
@@ -170,7 +170,7 @@ async function suggestions(q) {
   const band = r.kind === 'text' || r.kind === 'gene' ? await bandRegion(q, settings.get('assembly')) : null;
   if (band) out.push({ group: 'Region', kind: 'Band', label: `${band.name}: ${fmtRegion(band.chrom, band.start, band.end)}`, sub: 'Genes, dosage sensitivity and known CNVs in this band', to: `/region/${enc(`${band.chrom}:${band.start}-${band.end}`)}` });
   if (r.kind === 'vcf') out.push({ group: 'Variant', kind: 'Variant', label: `${r.chrom}-${r.pos}-${r.ref}-${r.alt || '-'}`, sub: 'Annotate and classify this variant', to: `/variant/${enc(`${r.chrom}-${r.pos}-${r.ref}-${r.alt || '-'}`)}` });
-  if (r.kind === 'hgvs') out.push({ group: 'Variant', kind: 'Variant', label: r.hgvs, sub: r.ref === 'protein' ? 'A protein change: the variant page will look for the DNA changes that make it' : 'Annotate and classify this variant', to: `/variant/${enc(r.hgvs)}` });
+  if (r.kind === 'hgvs') out.push({ group: 'Variant', kind: 'Variant', label: r.hgvs, sub: r.ref === 'protein' ? 'This is a protein change, so the variant page will look for the DNA changes that make it' : 'Annotate and classify this variant', to: `/variant/${enc(r.hgvs)}` });
   if (r.kind === 'rsid') out.push({ group: 'Variant', kind: 'dbSNP', label: r.id, sub: 'Annotate and classify this variant', to: `/variant/${enc(r.id)}` });
   if (r.kind === 'cnv') out.push({ group: 'Variant', kind: 'CNV', label: `${r.type === 'gain' ? 'Gain' : r.type === 'loss' ? 'Loss' : 'Copy-number change'} of ${fmtRegion(r.chrom, r.start, r.end)}`, sub: 'Classify this copy-number variant (ACMG/ClinGen 2020)', to: `/cnv/${enc(q)}` });
   if (r.kind === 'region' || r.kind === 'cnv') out.push({ group: 'Region', kind: 'Region', label: fmtRegion(r.chrom, r.start, r.end), sub: 'Genes, dosage sensitivity and known CNVs in this region', to: `/region/${enc(`${r.chrom}:${r.start}-${r.end}`)}` });

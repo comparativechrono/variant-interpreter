@@ -175,7 +175,7 @@ export async function fetchWithTimeout(url, opts = {}, ms = 25000) {
   } catch (e) {
     if (e.name === 'AbortError') throw new FetchError(outer && outer.aborted ? 'Cancelled' : 'The service took too long to answer', 0, url);
     if (e instanceof FetchError) throw e;
-    throw new FetchError(e.message === 'Failed to fetch' ? 'Could not reach the service (offline, or blocked)' : e.message, 0, url);
+    throw new FetchError(e.message === 'Failed to fetch' ? 'The service couldn’t be reached, perhaps because you’re offline or it’s blocked' : e.message, 0, url);
   } finally {
     clearTimeout(t);
   }

@@ -39,9 +39,9 @@ export async function render(body, { patient: pt, variants: vs }) {
   const iscn = (v) => iscnOf(v, B[v.assembly || 'GRCh38']);
 
   /* ---------- the tools (not printed) ---------- */
-  const summaryIn = h('textarea', { rows: 4, placeholder: 'The result in a few sentences, as the first thing the clinician reads' });
+  const summaryIn = h('textarea', { rows: 4, placeholder: 'Summarise the result in a few sentences. It’s the first thing the clinician reads.' });
   summaryIn.value = pt.report.summary || draftSummary(pt, S, B[(vs.find((v) => v.kind === 'cnv') || {}).assembly || 'GRCh38']);
-  const recIn = h('textarea', { rows: 3, placeholder: 'e.g. Testing of the parents is recommended; referral to…; cascade testing is available to relatives' });
+  const recIn = h('textarea', { rows: 3, placeholder: 'e.g. Testing of the parents is recommended. Referral to… Cascade testing is available to relatives.' });
   recIn.value = pt.report.recommendations || '';
   const saveWords = async () => {
     pt.report = Object.assign({}, pt.report, { summary: summaryIn.value.trim(), recommendations: recIn.value.trim(), at: nowISO() });
@@ -55,12 +55,12 @@ export async function render(body, { patient: pt, variants: vs }) {
     h('div.btn-row', btn('Print or save as PDF', () => window.print(), { cls: 'primary', icon: 'print' }),
       btn('Copy the text', async () => {
         await copyText(paper.innerText);
-        toast('The report’s text is copied.', 'ok');
+        toast('The report’s text has been copied.', 'ok');
       }, { icon: 'copy' })),
-    unsigned.length ? note('warn', h('p', `${unsigned.length} of ${S.length} ${S.length === 1 ? 'variant is' : 'variants are'} not signed yet, so ${unsigned.length === 1 ? 'its class is' : 'their classes are'} reported as they stand, marked “not signed”. Sign each classification on its page.`)) : null,
+    unsigned.length ? note('warn', h('p', `${unsigned.length} of ${S.length} ${S.length === 1 ? 'variant is' : 'variants are'} not signed yet, so ${unsigned.length === 1 ? 'its class is' : 'their classes are'} reported as calculated so far and marked “not signed”. You can sign each classification on the variant’s page.`)) : null,
     h('details.report-edit', { open: !pt.report.summary || null },
-      h('summary', 'The summary and recommendations (your words)'),
-      field('Result summary', summaryIn, 'A draft is written from the variants and the assessment: make it yours'),
+      h('summary', 'Your summary and recommendations'),
+      field('Result summary', summaryIn, 'A draft is written for you from the variants and the assessment. Edit it to make it your own.'),
       field('Recommendations', recIn)));
   body.appendChild(tools);
 
@@ -71,7 +71,7 @@ export async function render(body, { patient: pt, variants: vs }) {
   const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   paper.appendChild(h('header.rp-head',
     h('div', h('p.rp-kicker', 'Genomic test report'), h('h1.rp-title', `Patient ${pt.id}${pt.ref ? ': ' + pt.ref : ''}`)),
-    h('p.rp-teaching', 'For teaching only. Not a clinical report: the patient is fictional or anonymised.')));
+    h('p.rp-teaching', 'For teaching only. This is not a clinical report, and the patient is fictional or anonymised.')));
   paper.appendChild(h('dl.rp-facts',
     pair('Sex', facts.pairs[0][1]), pair(facts.pairs[1][0], facts.pairs[1][1]),
     pt.karyotype ? pair('Karyotype', pt.karyotype) : null,
@@ -132,8 +132,8 @@ export async function render(body, { patient: pt, variants: vs }) {
   };
   const withResults = fam.filter((r) => vs.some((v) => resultOf(v, r.id)));
   if (withResults.length) {
-    const GT = { het: 'has it (heterozygous)', hom: 'has it (homozygous)', hemi: 'has it (hemizygous)', ref: 'does not have it' };
-    const GT_CNV = { het: 'has it', hom: 'has it on both copies', hemi: 'has it', ref: 'does not have it' };
+    const GT = { het: 'detected (heterozygous)', hom: 'detected (homozygous)', hemi: 'detected (hemizygous)', ref: 'not detected' };
+    const GT_CNV = { het: 'detected', hom: 'detected on both copies', hemi: 'detected', ref: 'not detected' };
     paper.appendChild(h('section.rp-sec', h('h2', 'Relatives tested'),
       h('ul', withResults.map((r) => h('li', `${cap(r.relation)} (${r.label}, ${r.affected === 'affected' ? 'affected' : r.affected === 'unaffected' ? 'unaffected' : 'status not known'}): `,
         vs.filter((v) => resultOf(v, r.id)).map((v) => {
@@ -153,12 +153,12 @@ export async function render(body, { patient: pt, variants: vs }) {
   const HOW = {
     acgs2024: 'following the ACGS Best Practice Guidelines for Variant Classification in Rare Disease 2024 (Durkie et al.), with the evidence combined as points (Tavtigian et al. 2018, 2020)',
     clingen: 'following ClinGen’s guidance for applying them, with the evidence combined as points (Tavtigian et al. 2018, 2020)',
-    acmg2015: 'with the evidence combined by the rules of the 2015 paper'
+    acmg2015: 'combining the evidence by the rules of the 2015 paper'
   };
-  const how = used.length === 1 ? HOW[used[0]] || HOW.acgs2024 : `${used.map((k) => HOW[k] || HOW.acgs2024).join('; or ')}, as each variant’s classification says`;
+  const how = used.length === 1 ? HOW[used[0]] || HOW.acgs2024 : `${used.map((k) => HOW[k] || HOW.acgs2024).join('; or ')}, as recorded in each variant’s classification`;
   paper.appendChild(h('section.rp-sec.rp-methods', h('h2', 'Methods and limitations'),
-    h('p', `${seqS.length ? `Sequence variants were classified with the ACMG/AMP criteria (Richards et al. 2015), ${how}. ` : ''}${S.length > seqS.length ? 'Copy-number variants were scored with the ACMG/ClinGen technical standards (Riggs et al. 2020). ' : ''}Evidence was gathered from Ensembl VEP, gnomAD, ClinVar, ClinGen, UniProt, AlphaFold DB and SpliceAI, as each variant’s page lists, on the dates the variants were annotated.`),
-    h('p', 'Variants are described with HGVS nomenclature on the MANE Select transcript unless stated. The classification of a variant can change as evidence accumulates; variants of uncertain significance should not be used for clinical decisions. This report was produced in a teaching tool and is not validated for clinical use.')));
+    h('p', `${seqS.length ? `Sequence variants were classified with the ACMG/AMP criteria (Richards et al. 2015), ${how}. ` : ''}${S.length > seqS.length ? 'Copy-number variants were scored with the ACMG/ClinGen technical standards (Riggs et al. 2020). ' : ''}Evidence was gathered from Ensembl VEP, gnomAD, ClinVar, ClinGen, UniProt, AlphaFold DB and SpliceAI on the dates the variants were annotated, as listed on each variant’s page.`),
+    h('p', 'Variants are described with HGVS nomenclature on the MANE Select transcript unless otherwise stated. The classification of a variant can change as evidence accumulates. Variants of uncertain significance should not be used for clinical decisions. This report was produced in a teaching tool and is not validated for clinical use.')));
 
   // sign-off
   const signers = Array.from(new Set(S.filter((x) => x.s.final).map((x) => x.s.signed.by).filter(Boolean)));
@@ -188,16 +188,16 @@ function draftSummary(pt, S, B) {
   };
   const one = ({ v, s }) => {
     const cls = CLS_WORD[s.cls].toLowerCase();
-    if (v.kind === 'cnv') return `A ${cls} copy-number ${v.cnvType === 'gain' ? 'gain' : 'loss'}, ${iscnOf(v, B)}${v.genesSummary ? ` (${v.genesSummary})` : ''}${inhWords(v)}.`;
+    if (v.kind === 'cnv') return `A ${cls} copy-number ${v.cnvType === 'gain' ? 'gain' : 'loss'}, ${iscnOf(v, B)}${v.genesSummary ? ` (${v.genesSummary})` : ''}${inhWords(v)}, was identified.`;
     const zyg = v.zygosity && v.zygosity !== 'unknown' ? v.zygosity + ' ' : '';
     const an = /^[aeiou]/i.test(zyg || cls) ? 'An' : 'A';
-    return `${an} ${zyg}${cls} variant${s.gene ? ' in ' + s.gene : ''}, ${variantLong(v)}${inhWords(v)}.`;
+    return `${an} ${zyg}${cls} variant${s.gene ? ' in ' + s.gene : ''}, ${variantLong(v)}${inhWords(v)}, was identified.`;
   };
   if (key.length) {
     parts.push(key.map(one).join(' '));
     if (pt.assessment && pt.assessment.disease) parts.push(`${key.length === 1 ? 'This is' : 'These are'} consistent with a diagnosis of ${pt.assessment.disease}.`);
   } else if (looked.length) parts.push('No pathogenic or likely pathogenic variant was found to explain the patient’s features.');
-  if (vus.length) parts.push(`${vus.length === 1 ? 'A variant' : vus.length + ' variants'} of uncertain significance ${vus.length === 1 ? 'was' : 'were'}${key.length ? ' also' : ''} found (${vus.map(({ v }) => summariseVariant(v).short).join('; ')}); ${vus.length === 1 ? 'it' : 'they'} should not be used for clinical decisions.`);
+  if (vus.length) parts.push(`${vus.length === 1 ? 'A variant' : vus.length + ' variants'} of uncertain significance ${vus.length === 1 ? 'was' : 'were'}${key.length ? ' also' : ''} identified (${vus.map(({ v }) => summariseVariant(v).short).join('; ')}). ${vus.length === 1 ? 'It' : 'They'} should not be used for clinical decisions.`);
   if (notYet) parts.push(`${notYet === 1 ? 'One variant has' : notYet + ' variants have'} not been assessed yet.`);
   return parts.join(' ');
 }
@@ -216,11 +216,11 @@ function seqBlock(pt, v, s, F) {
   return h('section.rp-sec.rp-var',
     h('h3', s.gene ? h('i', s.gene + ' ') : '', h('span.hgvs', variantLong(v))),
     h('p.rp-var-cls', clsBadge(s.cls, { band: signed ? signed.band : r.band }), h('span', `${r.points > 0 ? '+' : ''}${r.points} points (${fw(fk).label})`, signed ? h('span.small.muted', `; signed by ${signed.by || 'not named'}, ${dateStr(signed.at)}`) : h('span.small.muted', '; not signed')),
-      signed && signed.calculated && signed.calculated !== signed.cls ? h('span.small', ` Changed from the calculated ${CLS_WORD[signed.calculated].toLowerCase()}: ${signed.reason}`) : null),
+      signed && signed.calculated && signed.calculated !== signed.cls ? h('span.small', ` Changed from the calculated class of ${CLS_WORD[signed.calculated].toLowerCase()}: ${signed.reason}`) : null),
     h('p.small.muted', `${genomicText(v)}; ${zygText(v.zygosity).toLowerCase()}; ${inheritanceText(v.inheritance).toLowerCase()}${v.contribution ? '; contribution to the phenotype: ' + contributionText(v.contribution).toLowerCase() : ''}.`),
     signed && signed.summary ? h('p', signed.summary) : null,
     met.length ? h('table.rp-table.rp-small', h('thead', h('tr', h('th', { scope: 'col' }, 'Criterion met'), h('th', { scope: 'col' }, 'Strength'), h('th', { scope: 'col' }, 'Evidence'))),
-      h('tbody', met.map((m) => h('tr', h('td', h('b', labelFor(m.code, m.strength, fk)), h('div.small.muted', (BY_CODE[m.code] || {}).name || '')), h('td', `${SW[m.strength] || m.strength}${m.strength === 'SA' ? '' : ` (${m.dir === 'B' ? '−' : '+'}${POINTS[m.strength]})`}`), h('td', (crit[m.code] || {}).note || h('span.muted', 'No note')))))) : h('p', 'No criteria met.'),
+      h('tbody', met.map((m) => h('tr', h('td', h('b', labelFor(m.code, m.strength, fk)), h('div.small.muted', (BY_CODE[m.code] || {}).name || '')), h('td', `${SW[m.strength] || m.strength}${m.strength === 'SA' ? '' : ` (${m.dir === 'B' ? '−' : '+'}${POINTS[m.strength]})`}`), h('td', (crit[m.code] || {}).note || h('span.muted', 'No note')))))) : h('p', 'No criteria were met.'),
     notMet.length ? h('p.small', h('b', 'Weighed and not met: '), notMet.map((x) => `${x.code}${x.note ? ' (' + x.note + ')' : ''}`).join('; '), '.') : null,
     h('p.small.muted', `Not weighed: ${notWeighed.length ? notWeighed.join(', ') : 'none'}.`));
 }
@@ -239,6 +239,6 @@ function cnvBlock(pt, v, s, iscnText) {
     v.genesSummary ? h('p.small.muted', `Genes: ${v.genesSummary}.`) : null,
     signed && signed.summary ? h('p', signed.summary) : null,
     sc.rows.length ? h('table.rp-table.rp-small', h('thead', h('tr', h('th', { scope: 'col' }, 'Item'), h('th', { scope: 'col' }, 'Points'), h('th', { scope: 'col' }, 'Evidence'))),
-      h('tbody', sc.rows.map((r) => h('tr', h('td', h('b', r.code), h('div.small.muted', (itemOf(type, r.code) || {}).text || '')), h('td', fmtPts(r.pts)), h('td', notes[r.code] || h('span.muted', 'No note')))))) : h('p', 'No items scored.'));
+      h('tbody', sc.rows.map((r) => h('tr', h('td', h('b', r.code), h('div.small.muted', (itemOf(type, r.code) || {}).text || '')), h('td', fmtPts(r.pts)), h('td', notes[r.code] || h('span.muted', 'No note')))))) : h('p', 'No items were scored.'));
 }
 export { link };

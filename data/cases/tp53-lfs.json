@@ -6,19 +6,19 @@
  "case": {
   "id": "tp53-lfs",
   "title": "A family with early cancers",
-  "brief": "<p><b>Referral from the breast clinic.</b> A woman of 33 had HER2-positive breast cancer at 29. Her brother had an osteosarcoma at 15. Her mother had breast cancer at 36 and died at 39; a maternal aunt had a leiomyosarcoma at 41; her maternal grandfather died of a glioblastoma at 46.</p><p>Testing for Li-Fraumeni syndrome (the <i>TP53</i> and <i>POT1</i> panel) found a heterozygous variant in <i>TP53</i>: NM_000546.6:c.818G&gt;A p.(Arg273His). Since then her brother and her maternal aunt have been tested and carry it; her maternal uncle, well at 55, does not. Her sister, well at 30, has not been tested.</p>",
+  "brief": "<p><b>Referral from the breast clinic.</b> A woman of 33 had HER2-positive breast cancer at 29. Her brother had an osteosarcoma at 15. Her mother had breast cancer at 36 and died at 39. A maternal aunt had a leiomyosarcoma at 41, and her maternal grandfather died of a glioblastoma at 46.</p><p>Testing with the Li-Fraumeni syndrome panel of <i>TP53</i> and <i>POT1</i> found a heterozygous <i>TP53</i> variant, NM_000546.6:c.818G&gt;A p.(Arg273His). Since then her brother and her maternal aunt have been tested, and both carry it. Her maternal uncle, who is well at 55, does not carry it. Her sister, who is well at 30, has not been tested.</p>",
   "tasks": [
-   "Open the variant and go through its evidence: frequency, predictions, the protein (is codon 273 a hotspot?), ClinVar and the literature.",
-   "On the Family tab, check the relatives’ genotypes, then use the segregation calculator on the variant’s page: is PP1 met, and at what strength?",
-   "Classify the variant and sign it; then compare your criteria with the ClinGen TP53 expert panel’s.",
+   "Open the variant and go through its evidence: its frequency, the predictions, the protein, ClinVar and the literature. Is codon 273 a hotspot?",
+   "Check the relatives’ genotypes on the Family tab, then use the segregation calculator on the variant’s page. Is PP1 met, and if so, at what strength?",
+   "Classify the variant and sign it, then compare your criteria with the ClinGen TP53 expert panel’s.",
    "Write the report. What would you offer her sister?"
   ],
-  "source": "Variant: NM_000546.6(TP53):c.818G>A, GRCh38 17-7673802-C-T, ClinGen allele CA000434. ClinVar VCV000012366; ClinGen TP53 VCEP classification (Evidence Repository). Checked October 2026. The patient and family are fictional."
+  "source": "The variant is NM_000546.6(TP53):c.818G>A (GRCh38 17-7673802-C-T, ClinGen allele CA000434). The sources are ClinVar VCV000012366 and the ClinGen TP53 VCEP’s classification in the Evidence Repository, checked in October 2026. The patient and family are fictional."
  },
  "patients": [
   {
    "id": "case-tp53",
-   "ref": "Case 1: woman with breast cancer at 29 and a family of early cancers",
+   "ref": "Case 1: a woman with breast cancer at 29 and a family of early cancers",
    "created": "2026-10-20T09:00:00.000Z",
    "updated": "2026-10-20T09:00:00.000Z",
    "sex": "female",
@@ -34,9 +34,9 @@
    "ancestryGroup": "nfe",
    "ancestry": "White British",
    "consanguinity": "no",
-   "referral": "Breast clinic: breast cancer at 29, and a strong family history of early cancers.",
-   "summary": "Woman of 33 with HER2-positive breast cancer diagnosed at 29, treated. Her brother had an osteosarcoma at 15. Meets the revised Chompret criteria for Li-Fraumeni syndrome (breast cancer before 31, and a first-degree relative with a sarcoma before 56).",
-   "familyHistory": "Mother: breast cancer at 36, died at 39 (not tested). Brother: osteosarcoma at 15, now 36, carries the variant. Sister: well at 30, not tested. Maternal aunt: leiomyosarcoma at 41, now 52, carries the variant. Maternal uncle: well at 55, does not carry it. Maternal grandfather: glioblastoma at 45, died at 46. Maternal grandmother: well at 82. Father: well at 64.",
+   "referral": "Referred by the breast clinic with breast cancer at 29 and a strong family history of early cancers.",
+   "summary": "She is 33 and was diagnosed with HER2-positive breast cancer at 29, which has been treated. Her brother had an osteosarcoma at 15. She meets the revised Chompret criteria for Li-Fraumeni syndrome, since she had breast cancer before 31 and has a first-degree relative who had a sarcoma before 56.",
+   "familyHistory": "Her mother, who was not tested, had breast cancer at 36 and died at 39. Her brother, now 36, had an osteosarcoma at 15 and carries the variant. Her sister is well at 30 and has not been tested. Her maternal aunt, now 52, had a leiomyosarcoma at 41 and carries the variant. Her maternal uncle is well at 55 and does not carry it. Her maternal grandfather had a glioblastoma at 45 and died at 46. Her maternal grandmother is well at 82, and her father is well at 64.",
    "test": {
     "type": "Gene panel",
     "panel": {
@@ -469,7 +469,7 @@
     "drawStrokes": []
    },
    "probandPerson": "p-proband",
-   "notes": "Fictional patient and family; the variant and the published evidence about it are real.",
+   "notes": "The patient and family are fictional, but the variant and the published evidence about it are real.",
    "tags": [],
    "caseId": null,
    "log": []
@@ -527,17 +527,17 @@
      "PP4_Moderate",
      "PP1"
     ],
-    "source": "ClinGen TP53 expert panel (VCEP), Evidence Repository, specifications v2.0.0; ClinVar VCV000012366 (Pathogenic, reviewed by expert panel, 2024-08-05). PP1 is from this family.",
+    "source": "ClinGen TP53 expert panel (VCEP), Evidence Repository, specifications v2.0.0; ClinVar VCV000012366 (Pathogenic, reviewed by expert panel, 2024-08-05). PP1 is based on this family’s results.",
     "notes": {
-     "PS4": "Very strong: reported in many unrelated people who meet the classic Li-Fraumeni or revised Chompret criteria, 8 phenotype points by the TP53 VCEP’s scoring.",
-     "PS2": "From the literature: a de novo occurrence with parentage confirmed, in a person with a Li-Fraumeni cancer (4 phenotype points). This patient’s variant is not de novo.",
-     "PS3": "Transactivation assays in yeast and human cells: the protein does not work, and does not suppress growth.",
+     "PS4": "Met at a very strong level, because the variant has been reported in many unrelated people who meet the classic Li-Fraumeni or revised Chompret criteria. Together they add up to 8 phenotype points by the TP53 VCEP’s scoring.",
+     "PS2": "Met from the literature. The variant has been seen de novo, with parentage confirmed, in a person with a Li-Fraumeni cancer, who scores 4 phenotype points. This patient’s variant is not de novo.",
+     "PS3": "Met, because transactivation assays in yeast and human cells show that the protein does not work and does not suppress growth.",
      "PM1": "Codon 273 is one of the mutational hotspots the TP53 VCEP lists.",
-     "PM2": "Supporting: below the VCEP’s thresholds (under 0.003% overall, and under 0.004% in any group with more than one allele, founder groups such as Ashkenazi Jewish ignored). In gnomAD v4.1 it is 1.1 in 100,000 alleles overall and 1.2 in 100,000 European alleles.",
-     "PP3": "BayesDel 0.52 and Align-GVGD class C25: above the VCEP’s thresholds.",
-     "PP4": "Moderate, by a TP53 VCEP rule: found at a variant allele fraction of 5 to 25% in at least two people.",
-     "PP1": "Supporting, from this family: both affected relatives tested carry it, and the unaffected uncle does not. The likelihood ratio is about 14, just under 4 informative meioses. The TP53 panel counts meioses (3 to 4 supporting, 5 to 6 moderate, 7 or more across more than one family strong), as the ACGS do; Tavtigian’s odds would make it moderate.",
-     "PM5": "Not met: five other missense changes at codon 273 are in ClinVar, but the VCEP had not curated them."
+     "PM2": "Met at supporting strength, because the variant’s frequency is below the VCEP’s thresholds. These are 0.003% overall and 0.004% in any group with more than one allele, leaving out founder groups such as Ashkenazi Jewish people. In gnomAD v4.1 the variant is at 1.1 in 100,000 alleles overall and 1.2 in 100,000 European alleles.",
+     "PP3": "Met, because the BayesDel score of 0.52 and the Align-GVGD class of C25 are both above the VCEP’s thresholds.",
+     "PP4": "Met at moderate strength under one of the TP53 VCEP’s rules, because the variant has been found at a variant allele fraction of 5 to 25% in at least two people.",
+     "PP1": "Met at supporting strength from this family, because both affected relatives who were tested carry the variant and the unaffected uncle does not. The likelihood ratio is about 14, the equivalent of just under 4 informative meioses. Like the ACGS, the TP53 panel counts meioses. It treats 3 to 4 as supporting, 5 to 6 as moderate, and 7 or more across more than one family as strong. By Tavtigian’s odds it would be moderate.",
+     "PM5": "Not met, because the VCEP had not curated the five other missense changes at codon 273 that are in ClinVar."
     }
    }
   }

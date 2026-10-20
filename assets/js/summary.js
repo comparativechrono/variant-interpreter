@@ -67,8 +67,8 @@ export const INHERITANCE = [
 ];
 export const inheritanceText = (k) => (INHERITANCE.find((x) => x[0] === k) || [null, 'Not known'])[1];
 export const CONTRIBUTION = [
-  ['full', 'Full: explains the phenotype'],
-  ['partial', 'Partial: explains some of it'],
+  ['full', 'Full (explains the phenotype)'],
+  ['partial', 'Partial (explains some of it)'],
   ['uncertain', 'Uncertain'],
   ['none', 'None'],
   ['', 'Not decided']

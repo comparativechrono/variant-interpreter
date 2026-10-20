@@ -6,19 +6,19 @@
  "case": {
   "id": "del22q11",
   "title": "A baby with tetralogy of Fallot and low calcium",
-  "brief": "<p><b>Referral from paediatric cardiology.</b> A girl of 3 months has tetralogy of Fallot. She had a hypocalcaemic seizure on day 4 with a low parathyroid hormone; her thymus looked small on the echocardiogram and her T cells are low. Her palate is intact.</p><p>A SNP microarray found a loss of 2.3 Mb at 22q11.21: arr[GRCh38] 22q11.21(18853135_21160634)x1. Both parents’ arrays are normal, and parentage is consistent.</p>",
+  "brief": "<p><b>Referral from paediatric cardiology.</b> A girl of 3 months has tetralogy of Fallot. She had a hypocalcaemic seizure on day 4 with a low parathyroid hormone. Her thymus looked small on the echocardiogram, and her T cells are low. Her palate is intact.</p><p>A SNP microarray found a loss of 2.3 Mb at 22q11.21: arr[GRCh38] 22q11.21(18853135_21160634)x1. Both parents’ arrays are normal and consistent with the stated parentage.</p>",
   "tasks": [
-   "Open the CNV. Which ClinGen dosage-sensitive regions and genes does it contain, and does it contain the whole of an established haploinsufficient region?",
+   "Open the CNV. Which ClinGen dosage-sensitive regions and genes does it include? Does it contain the whole of an established haploinsufficient region?",
    "Score it with the ACMG/ClinGen CNV points, section by section. How many protein-coding genes are in it?",
    "Look at the population CNVs (DGV, gnomAD) and ClinVar’s CNVs in the region. Are deletions like this one seen in healthy people?",
    "Sign the classification and write the report."
   ],
-  "source": "ClinGen dosage sensitivity region ISCA-37446 (GRCh38 chr22:18,924,718-21,111,383; haploinsufficiency 3, triplosensitivity 3); genes from HGNC and MANE v1.5. Checked October 2026. The patient and family are fictional."
+  "source": "The ClinGen dosage sensitivity region is ISCA-37446 (GRCh38 chr22:18,924,718-21,111,383), with scores of 3 for both haploinsufficiency and triplosensitivity. The genes are from HGNC and MANE v1.5, and everything was checked in October 2026. The patient and family are fictional."
  },
  "patients": [
   {
    "id": "case-22q11",
-   "ref": "Case 4: baby with tetralogy of Fallot and low calcium",
+   "ref": "Case 4: a baby with tetralogy of Fallot and low calcium",
    "created": "2026-10-20T09:00:00.000Z",
    "updated": "2026-10-20T09:00:00.000Z",
    "sex": "female",
@@ -34,9 +34,9 @@
    "ancestryGroup": "nfe",
    "ancestry": "White British",
    "consanguinity": "no",
-   "referral": "Paediatric cardiology: tetralogy of Fallot, and a hypocalcaemic seizure on day 4.",
-   "summary": "Girl of 3 months with tetralogy of Fallot (repair planned), a hypocalcaemic seizure on day 4 with a low parathyroid hormone, a small thymus on the echocardiogram and low T cells. Feeding difficulties. Palate intact.",
-   "familyHistory": "First child of unrelated, healthy parents. SNP arrays in both parents: no deletion, parentage consistent.",
+   "referral": "Referred by paediatric cardiology with tetralogy of Fallot and a hypocalcaemic seizure on day 4.",
+   "summary": "She is 3 months old and has tetralogy of Fallot, with a repair planned. She had a hypocalcaemic seizure on day 4 with a low parathyroid hormone. Her thymus looked small on the echocardiogram, and her T cells are low. She has feeding difficulties. Her palate is intact.",
+   "familyHistory": "She is the first child of unrelated, healthy parents. SNP arrays in both parents show no deletion and are consistent with the stated parentage.",
    "test": {
     "type": "Chromosomal microarray",
     "panel": null,
@@ -236,7 +236,7 @@
     "drawStrokes": []
    },
    "probandPerson": "p-proband",
-   "notes": "Fictional patient and family. The deletion’s coordinates are those of a typical A–D deletion on GRCh38; the ClinGen region and the genes in it are real.",
+   "notes": "The patient and family are fictional. The deletion’s coordinates are those of a typical A–D deletion on GRCh38, and the ClinGen region and the genes in it are real.",
    "tags": [],
    "caseId": null,
    "log": []
@@ -274,12 +274,12 @@
      "3C",
      "5A"
     ],
-    "source": "ClinGen dosage sensitivity curation ISCA-37446, 22q11.2 recurrent (DGS) region (proximal, A-B, A-C or A-D): haploinsufficiency score 3 (2025-07-19); scored with the ACMG/ClinGen CNV standards (Riggs et al. 2020).",
+    "source": "ClinGen dosage sensitivity curation ISCA-37446, 22q11.2 recurrent (DGS) region (proximal, A-B, A-C or A-D), with a haploinsufficiency score of 3 (2025-07-19). The points follow the ACMG/ClinGen CNV standards (Riggs et al. 2020).",
     "notes": {
-     "1A": "It contains protein-coding genes: 44 of them in the site’s gene table, including TBX1, CRKL and HIRA.",
-     "2A": "It contains the whole of an established haploinsufficient region: ClinGen’s 22q11.2 A–D region (GRCh38 chr22:18,924,718-21,111,383, score 3). That alone gives 1.00: pathogenic.",
-     "3C": "44 protein-coding genes: 35 or more is 0.90.",
-     "5A": "De novo (both parents’ arrays normal, parentage consistent) in a child whose features fit the region well."
+     "1A": "It contains protein-coding genes, and the site’s gene table lists 44 of them, including TBX1, CRKL and HIRA.",
+     "2A": "It contains the whole of an established haploinsufficient region, ClinGen’s 22q11.2 A–D region (GRCh38 chr22:18,924,718-21,111,383, score 3). That alone scores 1.00, which makes it pathogenic.",
+     "3C": "There are 44 protein-coding genes, and 35 or more scores 0.90.",
+     "5A": "The deletion is de novo in a child whose features fit the region well. Both parents’ arrays are normal and consistent with the stated parentage."
     }
    }
   }

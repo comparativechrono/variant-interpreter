@@ -29,10 +29,10 @@ export function render(body, { patient: pt, variants: vs }) {
     { key: 'criteria', label: 'Criteria', fmt: (x) => h('span.hgvs.small', x.criteria || '–') },
     { key: 'by', label: 'By' },
     { key: 'reason', label: 'Reason for a change', fmt: (x) => x.reason || '' }
-  ], signed, { compact: true, sortable: true, caption: 'Signed classifications' }) : h('p.muted', 'None signed yet. “Sign the classification”, beside a variant’s criteria, records one here.'));
+  ], signed, { compact: true, sortable: true, caption: 'Signed classifications' }) : h('p.muted', 'No classifications have been signed yet. Each time you use “Sign the classification” beside a variant’s criteria, it’s recorded here.'));
   body.appendChild(h('h2.tab-h', 'Changes'));
   if (!events.length) {
-    body.appendChild(empty('Nothing yet', 'Changes to the patient and their variants are listed here as they are made.'));
+    body.appendChild(empty('No changes yet', 'Changes to the patient and their variants will be listed here as you make them.'));
     return;
   }
   body.appendChild(table([
@@ -40,5 +40,5 @@ export function render(body, { patient: pt, variants: vs }) {
     { key: 'where', label: 'What changed', fmt: (x) => h('a', { href: link(x.to) }, x.where) },
     { key: 'what', label: 'Change' }
   ], events.slice(0, 500), { compact: true, sortable: true, caption: 'Changes to the record' }));
-  if (events.length > 500) body.appendChild(h('p.small.muted', `The newest 500 of ${events.length} changes.`));
+  if (events.length > 500) body.appendChild(h('p.small.muted', `Showing the newest 500 of ${events.length} changes.`));
 }

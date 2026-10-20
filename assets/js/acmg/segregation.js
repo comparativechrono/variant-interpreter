@@ -53,19 +53,19 @@ export function cosegregation({ family, conditionKey, probandId, genotypes, mode
   const m = { mode, penetrance: model.penetrance ?? 0.9, phenocopy: model.phenocopy ?? 0.001, q: model.q ?? 0.0001, mutation: 0 };
   const base = PedRead().forEngine(family, conditionKey, null, unrecorded || 'unknown');
   const byId = new Map(base.map((p) => [p.id, p]));
-  if (!probandId || !byId.has(probandId)) return { ok: false, message: 'Mark the proband in the pedigree (Pedigree Studio’s “Proband” option) first.' };
+  if (!probandId || !byId.has(probandId)) return { ok: false, message: 'First mark the proband in the pedigree, using Pedigree Studio’s “Proband” option.' };
   const pg = genotypes[probandId];
-  if (!pg || pg === 'untested' || pg === 'ref') return { ok: false, message: 'Give the proband’s genotype: the analysis starts from the proband having the variant.' };
+  if (!pg || pg === 'untested' || pg === 'ref') return { ok: false, message: 'Give the proband’s genotype first, because the analysis starts from the proband having the variant.' };
   // a variant both parents were tested for and lack arose in the proband: there is no segregation to measure
   const pb = byId.get(probandId);
   const xMale = (mode === 'XLR' || mode === 'XLD') && pb.sex === 'M';
   if (pb.mother && genotypes[pb.mother] === 'ref' && (xMale || (pb.father && genotypes[pb.father] === 'ref'))) {
-    return { ok: false, denovo: true, message: `${xMale ? 'The proband’s mother was tested and does not have it' : 'Both of the proband’s parents were tested and neither has it'}: the variant arose in the proband (de novo), or a parent is mosaic. A new variant has not been passed down the family, so co-segregation can’t be measured: weigh it as de novo evidence (PS2 or PM6) instead.` };
+    return { ok: false, denovo: true, message: `${xMale ? 'The proband’s mother was tested and does not have it' : 'Both of the proband’s parents were tested and neither has it'}, so the variant arose in the proband (de novo) or a parent is mosaic. A new variant hasn’t been passed down the family, which means co-segregation can’t be measured. Weigh it as de novo evidence (PS2 or PM6) instead.` };
   }
   const tests = {};
   for (const p of base) tests[p.id] = testOf(genotypes[p.id], mode, p.sex);
   const tested = base.filter((p) => tests[p.id] && p.id !== probandId);
-  if (!tested.length) return { ok: false, message: 'Give the genotypes of the relatives who were tested: with only the proband tested, the family can say nothing about co-segregation.' };
+  if (!tested.length) return { ok: false, message: 'Give the genotypes of the relatives who were tested. With only the proband tested, the family can’t tell you anything about co-segregation.' };
   const people = (withTests, withPheno) => base.map((p) => ({
     id: p.id, label: p.label, sex: p.sex, father: p.father, mother: p.mother, twin: p.twin,
     affected: withPheno ? p.affected : null,
@@ -80,8 +80,8 @@ export function cosegregation({ family, conditionKey, probandId, genotypes, mode
   } catch (e) {
     return { ok: false, message: e.message };
   }
-  if (!isFinite(C)) return { ok: false, message: 'These genotypes can’t all be right: they break Mendel’s laws (check the parents’ and children’s results, and the mode of inheritance). A variant new in the family, or a parent who is mosaic, can’t be analysed this way.' };
-  if (!isFinite(B)) return { ok: false, message: 'The proband’s phenotype and genotype can’t happen under this model: check the model.' };
+  if (!isFinite(C)) return { ok: false, message: 'These genotypes can’t all be right, because they break Mendel’s laws. Check the parents’ and children’s results, and the mode of inheritance. A variant that is new in the family, or a parent who is mosaic, can’t be analysed this way.' };
+  if (!isFinite(B)) return { ok: false, message: 'The proband’s phenotype and genotype aren’t possible together under this model, so check the model.' };
   const logLR = (A - B) - (C - D);
   const lr = isFinite(logLR) ? Math.exp(logLR) : 0;
   const lod = lr > 0 ? Math.log10(lr) : -Infinity;

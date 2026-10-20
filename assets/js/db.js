@@ -330,10 +330,10 @@ export async function exportData(patientIds, extra) {
 
 /** check a file before importing it: { ok, patients, variants, message } */
 export function checkImport(doc) {
-  if (!doc || typeof doc !== 'object') return { ok: false, message: 'This file is not JSON from the Variant interpreter.' };
-  if (doc.format !== FORMAT) return { ok: false, message: 'This file was not saved by the Variant interpreter (it has no "format": "variant-interpreter").' };
+  if (!doc || typeof doc !== 'object') return { ok: false, message: 'This file doesn’t contain work from the Variant interpreter.' };
+  if (doc.format !== FORMAT) return { ok: false, message: 'This file can’t be from the Variant interpreter, because it has no "format": "variant-interpreter" entry. Check that you chose the right file.' };
   if ((doc.version || 1) > FORMAT_VERSION) return { ok: false, message: 'This file was saved by a newer version of the Variant interpreter. Reload the page to get the newest version, then try again.' };
-  if (!Array.isArray(doc.patients)) return { ok: false, message: 'The file has no patients in it.' };
+  if (!Array.isArray(doc.patients)) return { ok: false, message: 'This file has no patients in it, so there’s nothing to open.' };
   return { ok: true, patients: doc.patients.length, variants: (doc.variants || []).length, caseTitle: doc.case && doc.case.title };
 }
 

@@ -18,11 +18,11 @@ export async function render(root) {
   }
   p.appendChild(pageHead({
     title: 'Patients',
-    lede: ps.length ? `${fmt(ps.length)} ${ps.length === 1 ? 'patient is' : 'patients are'} kept in this browser.` : 'No patients yet.',
+    lede: ps.length ? `${fmt(ps.length)} ${ps.length === 1 ? 'patient is' : 'patients are'} kept in this browser.` : 'You haven’t added any patients yet.',
     actions: [linkBtn('New patient', '/patient/new', { cls: 'primary', icon: 'plus' }), linkBtn('Open a case', '/data', { icon: 'import' })]
   }));
   if (!ps.length) {
-    p.appendChild(empty('Start with a patient', 'Make a new patient, or open one of the example cases or a case file from your tutor.', [linkBtn('New patient', '/patient/new', { cls: 'primary', icon: 'plus' }), linkBtn('Example cases', '/data', { icon: 'book' })]));
+    p.appendChild(empty('Start with a patient', 'Create a new patient, or open one of the example cases or a case file from your tutor.', [linkBtn('New patient', '/patient/new', { cls: 'primary', icon: 'plus' }), linkBtn('Example cases', '/data', { icon: 'book' })]));
     return;
   }
   const filter = h('input', { type: 'search', placeholder: 'Filter by number, reference, phenotype or gene', 'aria-label': 'Filter the patients', style: { maxWidth: '420px' } });

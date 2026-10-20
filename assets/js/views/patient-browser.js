@@ -24,7 +24,7 @@ export function render(body, { patient: pt, variants: vs }) {
     const mine = onBuild(asm);
     const feats = patientFeatures(mine, asm);
     list.appendChild(h('h2.pb-h', `Variants on ${asm}`));
-    if (!mine.length) list.appendChild(h('p.small.muted', 'None on this build.'));
+    if (!mine.length) list.appendChild(h('p.small.muted', 'There are no variants on this build.'));
     for (const v of mine) {
       const s = summariseVariant(v);
       const b = h('button.pb-item', { type: 'button', title: s.long },
@@ -51,9 +51,9 @@ export function render(body, { patient: pt, variants: vs }) {
     });
     body.appendChild(h('div.browser-bar', field('Genome build', sel)));
   }
-  if (!vs.length) body.appendChild(note('', h('p', 'The patient has no variants yet; the browser shows TP53 until they do. ', h('a', { href: link(`/patient/${pt.id}/variants`) }, 'Add variants'), '.')));
+  if (!vs.length) body.appendChild(note('', h('p', 'The patient doesn’t have any variants yet, so the browser shows TP53 until they do. ', h('a', { href: link(`/patient/${pt.id}/variants`) }, 'Add variants'), '.')));
   body.appendChild(wrap);
-  body.appendChild(h('p.small.muted', 'The patient’s variants are coloured by class (signed, or so far). Click one in the list to go to it; drag or type in the browser to move. ',
+  body.appendChild(h('p.small.muted', 'The patient’s variants are coloured by their signed class, or by their class so far. Click one in the list to go to it. To move around, drag the view or type a location in the browser. ',
     linkBtn('Open the full genome browser', `/browser?patient=${pt.id}&assembly=${asm}`, { cls: 'small', icon: 'genome' })));
   open();
   return () => handle && handle.destroy();

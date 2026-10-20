@@ -6,19 +6,19 @@
  "case": {
   "id": "brca1-ashkenazi",
   "title": "Triple-negative breast cancer in an Ashkenazi Jewish woman",
-  "brief": "<p><b>Referral from oncology.</b> A woman of 38, of Ashkenazi Jewish ancestry, has a grade 3 triple-negative breast cancer diagnosed at 37. Her mother had a high-grade serous ovarian cancer at 52 and died at 55; a maternal aunt had breast cancer at 45.</p><p>Panel testing found a heterozygous <i>BRCA1</i> variant, NM_007294.4:c.68_69del p.(Glu23ValfsTer17). Her aunt has since been tested and carries it.</p>",
+  "brief": "<p><b>Referral from oncology.</b> A woman of 38, of Ashkenazi Jewish ancestry, was diagnosed with a grade 3 triple-negative breast cancer at 37. Her mother had a high-grade serous ovarian cancer at 52 and died at 55. A maternal aunt had breast cancer at 45.</p><p>Panel testing found a heterozygous <i>BRCA1</i> variant, NM_007294.4:c.68_69del p.(Glu23ValfsTer17). Her aunt has since been tested and carries it.</p>",
   "tasks": [
    "Work through the PVS1 decision tree on the variant’s page. Where is the premature stop, and is nonsense-mediated decay expected?",
    "Look at the frequency by ancestry group in gnomAD. Why is the grpmax filtering allele frequency so much lower than the Ashkenazi Jewish frequency? Does BS1 or BA1 apply?",
-   "Classify and sign; compare with the ENIGMA expert panel, and note where its gene-specific rules differ from the general guidance.",
+   "Classify the variant and sign it, then compare it with the ENIGMA expert panel’s classification. Note where the panel’s gene-specific rules differ from the general guidance.",
    "Who else in the family should be offered testing?"
   ],
-  "source": "Variant: NM_007294.4(BRCA1):c.68_69del, GRCh38 17-43124027-ACT-A, ClinGen allele CA003783. ClinVar VCV000017662; ClinGen ENIGMA BRCA1/2 VCEP classification (Evidence Repository). Checked October 2026. The patient and family are fictional."
+  "source": "The variant is NM_007294.4(BRCA1):c.68_69del (GRCh38 17-43124027-ACT-A, ClinGen allele CA003783). The sources are ClinVar VCV000017662 and the ClinGen ENIGMA BRCA1/2 VCEP’s classification in the Evidence Repository, checked in October 2026. The patient and family are fictional."
  },
  "patients": [
   {
    "id": "case-brca1",
-   "ref": "Case 2: woman with triple-negative breast cancer, of Ashkenazi Jewish ancestry",
+   "ref": "Case 2: an Ashkenazi Jewish woman with triple-negative breast cancer",
    "created": "2026-10-20T09:00:00.000Z",
    "updated": "2026-10-20T09:00:00.000Z",
    "sex": "female",
@@ -34,9 +34,9 @@
    "ancestryGroup": "asj",
    "ancestry": "Ashkenazi Jewish (all four grandparents)",
    "consanguinity": "no",
-   "referral": "Oncology: triple-negative breast cancer at 37; her mother had ovarian cancer.",
-   "summary": "Woman of 38 with grade 3 triple-negative breast cancer diagnosed at 37. Her mother had high-grade serous ovarian cancer at 52.",
-   "familyHistory": "Mother: ovarian cancer at 52, died at 55 (not tested). Maternal aunt: breast cancer at 45, now 61, carries the variant. Sister: well at 35, not tested. Father: well at 69.",
+   "referral": "Referred by oncology with triple-negative breast cancer at 37. Her mother had ovarian cancer.",
+   "summary": "She is 38 and was diagnosed with grade 3 triple-negative breast cancer at 37. Her mother had high-grade serous ovarian cancer at 52.",
+   "familyHistory": "Her mother, who was not tested, had ovarian cancer at 52 and died at 55. Her maternal aunt, now 61, had breast cancer at 45 and carries the variant. Her sister is well at 35 and has not been tested. Her father is well at 69.",
    "test": {
     "type": "Gene panel",
     "panel": {
@@ -374,7 +374,7 @@
     "drawStrokes": []
    },
    "probandPerson": "p-proband",
-   "notes": "Fictional patient and family; the variant and the published evidence about it are real.",
+   "notes": "The patient and family are fictional, but the variant and the published evidence about it are real.",
    "tags": [],
    "caseId": null,
    "log": []
@@ -418,12 +418,12 @@
     ],
     "source": "ClinGen ENIGMA BRCA1 and BRCA2 expert panel (VCEP), Evidence Repository, specifications v1.0.0; ClinVar VCV000017662 (Pathogenic, reviewed by expert panel, 2024-06-11).",
     "notes": {
-     "PVS1": "A frameshift that gives a premature stop early in the protein, in an exon the panel counts as biologically relevant; NMD is expected. (VEP’s NMD plugin calls it NMD-escaping, because the stop is so close to the start of the coding sequence: the panel decided otherwise from the evidence.)",
-     "PS3": "One calibrated functional study: the protein behaves like the pathogenic controls (PMID 32546644).",
-     "PM5": "Strong, by ENIGMA’s rule for premature stop codons: the frameshift begins in exon 2 but its new stop codon (codon 39) is in exon 3, where the panel’s clinical and functional data show premature stops are pathogenic. This is not PM5’s usual meaning (another missense change at the same residue).",
-     "PM2": "Not met: present in gnomAD, mostly in Ashkenazi Jewish people (about 4 in 1,000 of their alleles), a founder effect.",
-     "BS1": "Not met. ENIGMA’s thresholds use the filtering allele frequency in gnomAD’s non-cancer subsets (v2.1 exomes, v3.1), leaving out founder populations: above 0.002% is BS1_Supporting, above 0.01% BS1, above 0.1% BA1. The Ashkenazi Jewish frequency is a founder effect, so it is left out (as it is from gnomAD’s grpmax). gnomAD v4.1 has no non-cancer subset and includes people with cancer, so its filtering allele frequency (0.0025% in European alleles) is not the one the panel’s thresholds were set for.",
-     "BA1": "Not met: far below ENIGMA’s 0.1% outside the Ashkenazi Jewish group."
+     "PVS1": "The frameshift leads to a premature stop early in the protein, in an exon that the panel counts as biologically relevant, and nonsense-mediated decay is expected. VEP’s NMD plugin calls it NMD-escaping, because the stop is so close to the start of the coding sequence, but the panel decided otherwise from the evidence.",
+     "PS3": "Met, because one calibrated functional study found that the protein behaves like the pathogenic controls (PMID 32546644).",
+     "PM5": "Met at a strong level under ENIGMA’s rule for premature stop codons. The frameshift begins in exon 2, but its new stop codon (codon 39) is in exon 3, where the panel’s clinical and functional data show that premature stops are pathogenic. PM5 usually means another missense change at the same residue, so ENIGMA is using it in a different way here.",
+     "PM2": "Not met, because the variant is present in gnomAD, mostly in Ashkenazi Jewish people. It is at about 4 in 1,000 of their alleles because of a founder effect.",
+     "BS1": "Not met by ENIGMA’s thresholds, which use the filtering allele frequency in gnomAD’s non-cancer subsets (v2.1 exomes and v3.1) and leave out founder populations. A frequency above 0.002% gives BS1_Supporting, above 0.01% gives BS1 and above 0.1% gives BA1. The Ashkenazi Jewish frequency reflects a founder effect, so it is left out, as it is from gnomAD’s grpmax. gnomAD v4.1 has no non-cancer subset and includes people with cancer, so its filtering allele frequency (0.0025% in European alleles) is not the one the panel’s thresholds were set for.",
+     "BA1": "Not met, because outside the Ashkenazi Jewish group the variant is far below ENIGMA’s threshold of 0.1%."
     }
    }
   }

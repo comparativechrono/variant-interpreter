@@ -79,8 +79,8 @@ export function suggestCNV(input) {
   const established = regions.filter((r) => (type === 'loss' ? r.hi === 3 : r.ts === 3));
 
   /* ---- section 1 ---- */
-  if (pc.length || established.length) add('1A', { pts: 0, why: pc.length ? `Contains ${pc.length} protein-coding ${pc.length === 1 ? 'gene' : 'genes'}${pc.length <= 6 ? ` (${list(pc.map((g) => g.symbol))})` : ''}.` : `Contains no protein-coding genes, but overlaps ClinGen’s ${list(established.map((r) => r.name || r.id))}.` });
-  else add('1B', { pts: -60, why: 'Contains no protein-coding genes, and overlaps no region that ClinGen has curated. Check that there are no other known functional elements (such as an enhancer of a disease gene) before using 1B.' });
+  if (pc.length || established.length) add('1A', { pts: 0, why: pc.length ? `The CNV contains ${pc.length} protein-coding ${pc.length === 1 ? 'gene' : 'genes'}${pc.length <= 6 ? ` (${list(pc.map((g) => g.symbol))})` : ''}.` : `The CNV contains no protein-coding genes, but it overlaps ClinGen’s ${list(established.map((r) => r.name || r.id))}.` });
+  else add('1B', { pts: -60, why: 'The CNV contains no protein-coding genes and overlaps no region that ClinGen has curated. Before you use 1B, check that it holds no other known functional elements, such as an enhancer of a disease gene.' });
 
   /* ---- section 2 ---- */
   if (type === 'loss') {
@@ -90,28 +90,28 @@ export function suggestCNV(input) {
       const what = [];
       if (regWhole.length) what.push(`the whole of ClinGen’s ${list(regWhole.map((r) => r.name || r.id), 3)} (haploinsufficiency 3)`);
       if (hiWhole.length) what.push(`the whole of ${hiWhole.length === 1 ? 'an established haploinsufficient gene' : hiWhole.length + ' established haploinsufficient genes'}, ${list(hiWhole.map((g) => g.symbol))}`);
-      add('2A', { pts: 100, why: `Contains ${what.join(', and ')}.` });
+      add('2A', { pts: 100, why: `This deletion contains ${what.join(', and ')}.` });
     } else {
       const regPart = regions.filter((r) => r.hi === 3 && !r.whole);
       if (regPart.length) {
         const r = regPart[0];
-        add('2B', { pts: 0, why: `Partly overlaps ClinGen’s ${r.name || r.id} (haploinsufficiency 3): ${pctTxt(r.coverOfRegion || 0)} of it. Use 2B if the region’s causative gene or critical region is not in the deletion; if it is, 2A.` });
+        add('2B', { pts: 0, why: `This deletion partly overlaps ClinGen’s ${r.name || r.id} (haploinsufficiency 3), covering ${pctTxt(r.coverOfRegion || 0)} of it. Use 2B if the region’s causative gene or critical region is not in the deletion, or 2A if it is.` });
       }
     }
     for (const g of pc.filter((x) => x.hi === 3 && !x.whole)) {
-      if (g.inside) add('2E', { look: true, why: `Both breakpoints are within ${g.symbol}, an established haploinsufficient gene: an intragenic deletion. Work out its strength with the PVS1 decision tree (are the deleted exons in frame? is NMD expected?).` });
-      else if (g.five && !g.three) add('2C-1', { pts: 90, why: `Removes the 5′ end of ${g.symbol}, an established haploinsufficient gene. Use 2C-1 if coding sequence is removed; 2C-2 if only the 5′ untranslated region is.` });
-      else if (g.three && !g.five) add('2D-4', { look: true, why: `Removes the 3′ end of ${g.symbol}, an established haploinsufficient gene. Look at which exons are lost: only the 3′ untranslated region (2D-1), only the last exon (2D-2 or 2D-3, by whether pathogenic variants are known in it), or the last exon and others, so that NMD is expected (2D-4).` });
+      if (g.inside) add('2E', { look: true, why: `Both breakpoints are within ${g.symbol}, an established haploinsufficient gene, so this is an intragenic deletion. Work out its strength with the PVS1 decision tree, which asks whether the deleted exons are in frame and whether NMD is expected.` });
+      else if (g.five && !g.three) add('2C-1', { pts: 90, why: `This deletion removes the 5′ end of ${g.symbol}, an established haploinsufficient gene. Use 2C-1 if coding sequence is removed, or 2C-2 if only the 5′ untranslated region is.` });
+      else if (g.three && !g.five) add('2D-4', { look: true, why: `This deletion removes the 3′ end of ${g.symbol}, an established haploinsufficient gene. Check which exons are lost. If only the 3′ untranslated region goes, use 2D-1. If only the last exon goes, use 2D-2 or 2D-3, depending on whether pathogenic variants are known in that exon. If the last exon and others go, so that NMD is expected, use 2D-4.` });
     }
     const benign = regions.filter((r) => r.hi === 40);
     const inBenign = benign.find((r) => r.inside);
-    if (inBenign) add('2F', { pts: -100, why: `Lies entirely within ClinGen’s established benign region ${inBenign.name || inBenign.id} (score 40).` });
-    else if (benign.length) add('2G', { pts: 0, why: `Overlaps ClinGen’s established benign region ${benign[0].name || benign[0].id}, but includes more: score the rest.` });
+    if (inBenign) add('2F', { pts: -100, why: `This deletion lies entirely within ClinGen’s established benign region ${inBenign.name || inBenign.id} (score 40).` });
+    else if (benign.length) add('2G', { pts: 0, why: `This deletion overlaps ClinGen’s established benign region ${benign[0].name || benign[0].id} but includes more, so you still need to score the rest.` });
     // ACGS 2024: not once 2A–2D-4 apply (an established HI gene or region is involved), and pLI and LOEUF,
     // from the same gnomAD data, count as one predictor
     if (!HI_GENE_ITEMS.some((k) => out[k])) {
       const pred = pc.filter((g) => hiSources(g.hiWhy) >= 2 && g.hi !== 3);
-      if (pred.length) add('2H', { pts: 15, why: `Two or more independent predictors say at least one gene is haploinsufficient: ${list(pred.map((g) => `${g.symbol} (${g.hiWhy.join('; ')})`), 3)}. Count 2H once, however many genes.` });
+      if (pred.length) add('2H', { pts: 15, why: `Two or more independent predictors say at least one gene is haploinsufficient: ${list(pred.map((g) => `${g.symbol} (${g.hiWhy.join('; ')})`), 3)}. Count 2H once, however many genes qualify.` });
     }
   } else {
     const tsWhole = pc.filter((g) => g.ts === 3 && g.whole);
@@ -120,10 +120,10 @@ export function suggestCNV(input) {
       const what = [];
       if (regWhole.length) what.push(`the whole of ClinGen’s ${list(regWhole.map((r) => r.name || r.id), 3)} (triplosensitivity 3)`);
       if (tsWhole.length) what.push(`the whole of ${tsWhole.length === 1 ? 'an established triplosensitive gene' : tsWhole.length + ' established triplosensitive genes'}, ${list(tsWhole.map((g) => g.symbol))}`);
-      add('2A', { pts: 100, why: `Contains ${what.join(', and ')}.` });
+      add('2A', { pts: 100, why: `This gain contains ${what.join(', and ')}.` });
     } else {
       const regPart = regions.filter((r) => r.ts === 3 && !r.whole);
-      if (regPart.length) add('2B', { pts: 0, why: `Partly overlaps ClinGen’s ${regPart[0].name || regPart[0].id} (triplosensitivity 3): ${pctTxt(regPart[0].coverOfRegion || 0)} of it. Use 2B if its critical region is not in the gain.` });
+      if (regPart.length) add('2B', { pts: 0, why: `This gain partly overlaps ClinGen’s ${regPart[0].name || regPart[0].id} (triplosensitivity 3), covering ${pctTxt(regPart[0].coverOfRegion || 0)} of it. Use 2B if its critical region is not in the gain.` });
     }
     // established benign gains (ClinGen triplosensitivity 40)
     const benign = regions.filter((r) => r.ts === 40);
@@ -135,19 +135,19 @@ export function suggestCNV(input) {
       const missing = [...theirs].filter((s) => !mine.has(s));
       const cutsGenes = pc.some((g) => !g.whole);
       const name = r.name || r.id;
-      if (r.whole && r.inside) add('2C', { pts: -100, why: `The same extent as ClinGen’s established benign gain ${name}.` });
-      else if (!extra.length && !missing.length && r.genes) add('2C', { pts: -100, why: `The same protein-coding genes as ClinGen’s established benign gain ${name}.` });
+      if (r.whole && r.inside) add('2C', { pts: -100, why: `This gain has the same extent as ClinGen’s established benign gain ${name}.` });
+      else if (!extra.length && !missing.length && r.genes) add('2C', { pts: -100, why: `This gain has the same protein-coding genes as ClinGen’s established benign gain ${name}.` });
       else if (r.inside) add(cutsGenes ? '2E' : '2D', cutsGenes
-        ? { pts: 0, why: `Smaller than ClinGen’s established benign gain ${name}, but a breakpoint may interrupt a protein-coding gene (${list(pc.filter((g) => !g.whole).map((g) => g.symbol), 3)}).` }
-        : { pts: -100, why: `Smaller than ClinGen’s established benign gain ${name}, and its breakpoints do not interrupt protein-coding genes.` });
-      else if (r.whole && !extra.length) add('2F', { pts: -100, why: `Larger than ClinGen’s established benign gain ${name}, but with no further protein-coding genes.` });
-      else add('2G', { pts: 0, why: `Overlaps ClinGen’s established benign gain ${name}, but includes more${extra.length ? ` (${list(extra, 4)})` : ''}: score the rest.` });
+        ? { pts: 0, why: `This gain is smaller than ClinGen’s established benign gain ${name}, but a breakpoint may interrupt a protein-coding gene (${list(pc.filter((g) => !g.whole).map((g) => g.symbol), 3)}).` }
+        : { pts: -100, why: `This gain is smaller than ClinGen’s established benign gain ${name}, and its breakpoints do not interrupt protein-coding genes.` });
+      else if (r.whole && !extra.length) add('2F', { pts: -100, why: `This gain is larger than ClinGen’s established benign gain ${name}, but it holds no further protein-coding genes.` });
+      else add('2G', { pts: 0, why: `This gain overlaps ClinGen’s established benign gain ${name} but includes more${extra.length ? ` (${list(extra, 4)})` : ''}, so you still need to score the rest.` });
     }
     const hi = pc.filter((g) => g.hi === 3);
     const hiWhole = hi.filter((g) => g.whole);
-    if (hiWhole.length) add('2H', { pts: 0, why: `Contains the whole of an established haploinsufficient gene (${list(hiWhole.map((g) => g.symbol), 4)}): a gain of it is not by itself evidence. Go on.` });
+    if (hiWhole.length) add('2H', { pts: 0, why: `This gain contains the whole of an established haploinsufficient gene (${list(hiWhole.map((g) => g.symbol), 4)}). A gain of such a gene is not evidence by itself, so continue the evaluation.` });
     const hiIn = hi.find((g) => g.inside);
-    if (hiIn) add('2I', { look: true, why: `Both breakpoints are within ${hiIn.symbol}, an established haploinsufficient gene: a duplication within it may disrupt it. Work out its strength with the PVS1 decision tree (is it in tandem? does it break the reading frame?).` });
+    if (hiIn) add('2I', { look: true, why: `Both breakpoints are within ${hiIn.symbol}, an established haploinsufficient gene, and a duplication within a gene may disrupt it. Work out its strength with the PVS1 decision tree, which asks whether the duplication is in tandem and whether it breaks the reading frame.` });
     else {
       const cut = hi.find((g) => !g.whole);
       if (cut) add('2J', { pts: 0, why: `One breakpoint is within ${cut.symbol}, an established haploinsufficient gene. Use 2K (+0.45) instead if the patient’s phenotype is highly specific and consistent with its loss.` });
@@ -158,8 +158,8 @@ export function suggestCNV(input) {
   const n = geneCount(pc);
   const band = SECTION3[type].find(([lo, hi]) => n.counted >= lo && n.counted <= hi);
   if (band) {
-    const fam = n.families.length ? ` (${n.all} in all: ${n.families.map((f) => `${f.n} ${f.name}`).join(', ')} count${n.families.length === 1 ? 's' : ''} as one)` : '';
-    add(band[2], { pts: band[3], why: `${n.counted} protein-coding ${n.counted === 1 ? 'gene' : 'genes'}${fam}.` });
+    const fam = n.families.length ? `. There are ${n.all} in all, but ${n.families.map((f) => `${f.n} ${f.name}`).join(', ')} count${n.families.length === 1 ? 's' : ''} as one` : '';
+    add(band[2], { pts: band[3], why: `Section 3 counts ${n.counted} protein-coding ${n.counted === 1 ? 'gene' : 'genes'}${fam}.` });
   }
 
   /* ---- section 4: common in the population (4O) ---- */
@@ -167,10 +167,10 @@ export function suggestCNV(input) {
   const common = same.filter((p) => p.af >= 0.01 && (p.coverOfCnv || 0) >= 0.9).sort((a, b) => b.af - a.af);
   if (common.length) {
     const c = common[0];
-    add('4O', { pts: -100, why: `${c.source} has a ${type === 'loss' ? 'deletion' : 'duplication'} covering ${pctTxt(c.coverOfCnv)} of it in ${(c.af * 100).toFixed(c.af >= 0.1 ? 0 : 1)}% of people${c.id ? ` (${c.id})` : ''}. Check that the region holds no well-known recessive gene before using 4O.` });
+    add('4O', { pts: -100, why: `${c.source} has a ${type === 'loss' ? 'deletion' : 'duplication'} covering ${pctTxt(c.coverOfCnv)} of this CNV in ${(c.af * 100).toFixed(c.af >= 0.1 ? 0 : 1)}% of people${c.id ? ` (${c.id})` : ''}. Before you use 4O, check that the region holds no well-known recessive gene.` });
   } else {
     const fairly = same.filter((p) => p.af >= 0.001 && (p.coverOfCnv || 0) >= 0.9).sort((a, b) => b.af - a.af);
-    if (fairly.length) add('4O', { look: true, why: `${fairly[0].source} has a ${type === 'loss' ? 'deletion' : 'duplication'} covering most of it in ${(fairly[0].af * 100).toFixed(2)}% of people: below 1%, so 4O deserves less than its full weight, if any.` });
+    if (fairly.length) add('4O', { look: true, why: `${fairly[0].source} has a ${type === 'loss' ? 'deletion' : 'duplication'} covering most of this CNV in ${(fairly[0].af * 100).toFixed(2)}% of people. That is below 1%, so 4O deserves less than its full weight, if any.` });
   }
 
   /* ---- section 5: the patient (only for a patient's CNV: inheritance null means none) ---- */
@@ -179,16 +179,16 @@ export function suggestCNV(input) {
     // no patient: nothing to say about section 5
   } else if (DENOVO.includes(inh)) {
     const confirmed = inh === 'denovo-confirmed';
-    add('5A', { option: confirmed ? 4 : 5, pts: confirmed ? 15 : 10, why: `De novo in the patient${confirmed ? ' (both parents tested, parentage confirmed)' : inh === 'denovo-mosaic' ? ', mosaic' : ' (parentage not confirmed)'}. The points depend on how well the patient’s phenotype fits the region: highly specific and unique to it 0.45 (0.30 if assumed), specific but not unique 0.30 (0.15), consistent but not specific 0.15 (0.10), not consistent 0. The suggestion assumes “consistent but not specific”.` });
+    add('5A', { option: confirmed ? 4 : 5, pts: confirmed ? 15 : 10, why: `The CNV is de novo in the patient${confirmed ? ', with both parents tested and parentage confirmed' : inh === 'denovo-mosaic' ? ', in mosaic form' : ', but parentage is not confirmed'}. The points depend on how well the patient’s phenotype fits the region. They are 0.45 for a phenotype that is highly specific and unique to it, 0.30 for specific but not unique, 0.15 for consistent but not specific, and 0 for not consistent. If de novo is only assumed, the first three drop to 0.30, 0.15 and 0.10. This suggestion assumes “consistent but not specific”.` });
   } else if (INHERITED.includes(inh)) {
     const who = /^maternal/.test(inh) ? 'mother' : 'father';
-    if (input.parentAffected === false) add('5C', { pts: -15, why: `Inherited from the ${who}, who is unaffected according to the pedigree. Use 5B (−0.30) instead if the patient’s phenotype is specific and there is no family history.` });
-    else if (input.parentAffected === true) add('5D', { look: true, why: `Inherited from the ${who}, who is affected according to the pedigree: count the segregations in the family (3 or 4 for 5D’s first option) and score 5D.` });
-    else add('5F', { pts: 0, why: `Inherited from the ${who}, but the pedigree does not say whether the ${who} is affected. If unaffected, 5B or 5C apply; record the ${who}’s phenotype on the Family tab.` });
+    if (input.parentAffected === false) add('5C', { pts: -15, why: `The CNV was inherited from the ${who}, who is unaffected according to the pedigree. Use 5B (−0.30) instead if the patient’s phenotype is specific and there is no family history.` });
+    else if (input.parentAffected === true) add('5D', { look: true, why: `The CNV was inherited from the ${who}, who is affected according to the pedigree. Count the segregations in the family and score 5D, whose first option needs 3 or 4.` });
+    else add('5F', { pts: 0, why: `The CNV was inherited from the ${who}, but the pedigree does not say whether the ${who} is affected. If they are unaffected, 5B or 5C apply, and you can record the ${who}’s phenotype on the Family tab.` });
   } else if (inh === 'balanced') {
-    add('5A', { look: true, why: 'The patient’s unbalanced form arose from a parent’s balanced rearrangement: the imbalance is new in the patient, so it can be scored as de novo, by how well the phenotype fits.' });
+    add('5A', { look: true, why: 'The patient’s unbalanced form arose from a parent’s balanced rearrangement. The imbalance is new in the patient, so you can score it as de novo, according to how well the phenotype fits.' });
   } else if (['unknown', 'notmaternal', 'notpaternal', ''].includes(inh)) {
-    add('5F', { pts: 0, why: inh === 'notmaternal' || inh === 'notpaternal' ? 'Only one parent was tested: the inheritance is not known.' : 'The parents were not tested: the inheritance is not known. If the phenotype is consistent with the region’s, 5G (non-specific) or 5H (highly specific) may apply.' });
+    add('5F', { pts: 0, why: inh === 'notmaternal' || inh === 'notpaternal' ? 'Only one parent was tested, so the inheritance is not known.' : 'The parents were not tested, so the inheritance is not known. If the phenotype is consistent with the region’s, 5G (non-specific) or 5H (highly specific) may apply.' });
   }
   return out;
 }

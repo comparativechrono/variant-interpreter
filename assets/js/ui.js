@@ -189,7 +189,7 @@ export function table(cols, rows, opts = {}) {
       });
     }
     if (!list.length) {
-      tbody.appendChild(h('tr', h('td', { colspan: cols.length, class: 'muted' }, opts.empty || 'Nothing to show.')));
+      tbody.appendChild(h('tr', h('td', { colspan: cols.length, class: 'muted' }, opts.empty || 'There’s nothing to show.')));
     }
     for (const r of list) {
       const row = h('tr', { class: opts.onRow ? 'clickable' : null });

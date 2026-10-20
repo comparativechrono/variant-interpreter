@@ -6,19 +6,19 @@
  "case": {
   "id": "gjb2-consanguineous",
   "title": "Profound deafness in a child whose parents are cousins",
-  "brief": "<p><b>Referral from audiology.</b> A boy of 3 has had bilateral profound sensorineural hearing loss since birth and has cochlear implants. His inner ears are normal on CT and MRI, and he is otherwise well. His parents are first cousins with normal hearing; his older sister is also profoundly deaf, and his baby brother hears normally.</p><p>A hearing-loss gene panel found <i>GJB2</i> NM_004004.6:c.35del p.(Gly12ValfsTer2), homozygous. Both parents and his brother are heterozygous; his sister is homozygous.</p>",
+  "brief": "<p><b>Referral from audiology.</b> A boy of 3 has had bilateral profound sensorineural hearing loss since birth and has cochlear implants. His inner ears are normal on CT and MRI, and he is otherwise well. His parents are first cousins, and both have normal hearing. His older sister is also profoundly deaf, and his baby brother hears normally.</p><p>A hearing-loss gene panel found that he is homozygous for <i>GJB2</i> NM_004004.6:c.35del p.(Gly12ValfsTer2). Both parents and his brother are heterozygous, and his sister is homozygous.</p>",
   "tasks": [
-   "How common is this variant in gnomAD? Use the frequency calculator for a recessive disorder: is it too common to cause profound deafness? What do BA1 and BS1 say, and why are there exceptions?",
-   "PVS1: GJB2’s protein is coded by one exon, so nonsense-mediated decay does not apply. Work through the decision tree.",
-   "Draw on the pedigree: what does the consanguinity explain? Do the siblings’ results add segregation evidence?",
-   "Classify, sign and compare with the ClinGen Hearing Loss expert panel."
+   "How common is this variant in gnomAD? Use the frequency calculator for a recessive disorder to decide whether it is too common to cause profound deafness. What do BA1 and BS1 say, and why are there exceptions?",
+   "Work through the PVS1 decision tree. GJB2’s protein is coded by a single exon, so nonsense-mediated decay does not apply.",
+   "Using the pedigree, what does the consanguinity explain? Do the siblings’ results add any segregation evidence?",
+   "Classify the variant and sign it, then compare with the ClinGen Hearing Loss expert panel."
   ],
-  "source": "Variant: NM_004004.6(GJB2):c.35del, GRCh38 13-20189546-AC-A, ClinGen allele CA127023. ClinVar VCV000017004; ClinGen Hearing Loss VCEP classification (Evidence Repository). Checked October 2026. The patient and family are fictional."
+  "source": "The variant is NM_004004.6(GJB2):c.35del (GRCh38 13-20189546-AC-A, ClinGen allele CA127023). The sources are ClinVar VCV000017004 and the ClinGen Hearing Loss VCEP’s classification in the Evidence Repository, checked in October 2026. The patient and family are fictional."
  },
  "patients": [
   {
    "id": "case-gjb2",
-   "ref": "Case 6: child with profound congenital deafness whose parents are cousins",
+   "ref": "Case 6: a child with profound congenital deafness whose parents are cousins",
    "created": "2026-10-20T09:00:00.000Z",
    "updated": "2026-10-20T09:00:00.000Z",
    "sex": "male",
@@ -34,9 +34,9 @@
    "ancestryGroup": "nfe",
    "ancestry": "Southern European",
    "consanguinity": "yes",
-   "referral": "Audiology: bilateral profound sensorineural hearing loss from birth (failed newborn hearing screen); cochlear implants at 14 months.",
-   "summary": "Boy of 3 with bilateral profound congenital sensorineural hearing loss, otherwise well. CT and MRI of the inner ears normal. No goitre, no balance problems, normal ECG.",
-   "familyHistory": "Parents are first cousins, both with normal hearing. Older sister (6) has the same profound deafness; younger brother (9 months) passed his newborn hearing screen and hears normally. Parents and siblings tested: both parents and the brother are heterozygous, the sister is homozygous.",
+   "referral": "Referred by audiology with bilateral profound sensorineural hearing loss from birth. He failed his newborn hearing screen and had cochlear implants at 14 months.",
+   "summary": "He is 3 and has bilateral profound congenital sensorineural hearing loss, but is otherwise well. CT and MRI of his inner ears are normal. He has no goitre or balance problems, and his ECG is normal.",
+   "familyHistory": "His parents are first cousins, and both have normal hearing. His older sister (6) has the same profound deafness. His younger brother (9 months) passed his newborn hearing screen and hears normally. The parents and siblings have been tested: both parents and the brother are heterozygous, and the sister is homozygous.",
    "test": {
     "type": "Gene panel",
     "panel": {
@@ -301,7 +301,7 @@
     "drawStrokes": []
    },
    "probandPerson": "p-proband",
-   "notes": "Fictional patient and family; the variant and the published evidence about it are real.",
+   "notes": "The patient and family are fictional, but the variant and the published evidence about it are real.",
    "tags": [],
    "caseId": null,
    "log": []
@@ -351,15 +351,15 @@
      "PM3_VeryStrong",
      "PP1"
     ],
-    "source": "ClinGen Hearing Loss expert panel (VCEP), Evidence Repository; ClinVar VCV000017004 (Pathogenic, reviewed by expert panel, 2018-09-20). PP1 is from this family, by the panel’s rule.",
+    "source": "ClinGen Hearing Loss expert panel (VCEP), Evidence Repository; ClinVar VCV000017004 (Pathogenic, reviewed by expert panel, 2018-09-20). PP1 is based on this family’s results, using the panel’s rule.",
     "notes": {
-     "PVS1": "GJB2 has a single coding exon and loss of function is the well-known mechanism: a frameshift at codon 12 removes almost all of the protein. The panel applied PVS1 at full strength for that reason. The decision tree, followed step by step, gives PVS1_Strong: a premature stop in the last (here the only) coding exon escapes nonsense-mediated decay, and the lost part is more than 10% of the protein. The class is pathogenic either way.",
-     "PS4": "Far commoner in people with hearing loss than in controls: about 37% of European hearing-loss alleles in a meta-analysis of 52 studies, against under 1% of gnomAD’s European alleles.",
-     "PM3": "Very strong: more than 15 people homozygous, or compound heterozygous with other pathogenic GJB2 variants, in a single published series.",
-     "BA1": "Met by the frequency (a filtering allele frequency of 0.92% when the panel curated it, 0.81% in gnomAD v4.1: above the panel’s BA1 threshold of 0.5% for recessive hearing loss) but not counted: the variant is on the panel’s list of exceptions, as GJB2 c.109G>A is on ClinGen’s general list. A pathogenic variant of a recessive disorder can be common, because carriers are well. The panel’s record lists BA1 as met but not counted; don’t tick it on this site, where BA1 makes a variant benign outright.",
-     "BS1": "Not met, for the same reason (the panel’s BS1 threshold for recessive hearing loss is 0.3%).",
-     "PM2": "Not met: common in gnomAD (about 0.8% of European alleles).",
-     "PP1": "Supporting, by the panel’s own rule (v2.0): for a recessive disorder, segregation in one affected relative is supporting, two moderate and three strong. Here the affected sister is homozygous and the hearing brother is not. The calculator gives a likelihood ratio of about 5: moderate by Tavtigian’s odds, but not met by counting meioses as the ACGS do. The panel’s own classification had no family data. It would not change the class."
+     "PVS1": "GJB2 has a single coding exon, and loss of function is the well-known disease mechanism. A frameshift at codon 12 removes almost all of the protein, and for that reason the panel applied PVS1 at full strength. If you follow the decision tree step by step, it gives PVS1_Strong. A premature stop in the last coding exon, which here is the only one, escapes nonsense-mediated decay, and the lost part is more than 10% of the protein. The class is pathogenic either way.",
+     "PS4": "Met, because the variant is far commoner in people with hearing loss than in controls. A meta-analysis of 52 studies found it in about 37% of European hearing-loss alleles, compared with under 1% of gnomAD’s European alleles.",
+     "PM3": "Met at a very strong level, because a single published series includes more than 15 people who are homozygous, or compound heterozygous with other pathogenic GJB2 variants.",
+     "BA1": "The frequency meets BA1, but the panel didn’t count it. The filtering allele frequency was 0.92% when the panel curated the variant and is 0.81% in gnomAD v4.1, both above the panel’s BA1 threshold of 0.5% for recessive hearing loss. The variant is on the panel’s list of exceptions, just as GJB2 c.109G>A is on ClinGen’s general list. A pathogenic variant of a recessive disorder can be common, because carriers are well. The panel’s record lists BA1 as met but not counted. Don’t tick it on this site, where BA1 makes a variant benign outright.",
+     "BS1": "Not met, for the same reason. The panel’s BS1 threshold for recessive hearing loss is 0.3%.",
+     "PM2": "Not met, because the variant is common in gnomAD (about 0.8% of European alleles).",
+     "PP1": "Met at supporting strength by the panel’s own rule (v2.0). For a recessive disorder, segregation in one affected relative counts as supporting, two as moderate and three as strong. Here the affected sister is homozygous and the hearing brother is not. The calculator gives a likelihood ratio of about 5, which is moderate by Tavtigian’s odds but not met if you count meioses as the ACGS do. The panel’s own classification had no family data, and adding PP1 would not change the class."
     }
    }
   }

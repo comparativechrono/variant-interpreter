@@ -33,7 +33,7 @@ async function drawGene(ctx, body) {
   }
   const g = ctx.gene;
   if (!g) {
-    body.appendChild(h('p.muted', d.gene ? `${d.gene} is not in the site’s gene table.` : 'Not in a gene.'));
+    body.appendChild(h('p.muted', d.gene ? `${d.gene} isn’t in the site’s gene table.` : 'This variant isn’t in a gene.'));
     body.appendChild(crits(ctx, ['PP2', 'BP1', 'PP4']));
     return;
   }
@@ -42,7 +42,7 @@ async function drawGene(ctx, body) {
   // constraint and dosage
   body.appendChild(kv([
     ['Loss-of-function constraint (gnomAD v4.1)', g.loeuf != null ? h('span', `LOEUF ${g.loeuf.toFixed(2)}`, g.loeufDecile != null ? h('span.muted', ` (decile ${g.loeufDecile + 1} of 10)`) : null, `, pLI ${g.pLI != null ? g.pLI.toFixed(2) : '–'}`, g.lofObs != null ? h('span.muted', `; ${g.lofObs} loss-of-function variants seen, ${g.lofExp} expected`) : null) : null],
-    ['Missense constraint', g.misZ != null ? `Z ${g.misZ.toFixed(2)}${g.misZ > THRESH.misZ ? ' (above 3.09: few missense variants tolerated)' : ''}; observed/expected ${g.misOE != null ? g.misOE.toFixed(2) : '–'}` : null],
+    ['Missense constraint', g.misZ != null ? `Z ${g.misZ.toFixed(2)}${g.misZ > THRESH.misZ ? ' (above 3.09, so few missense variants are tolerated)' : ''}; observed/expected ${g.misOE != null ? g.misOE.toFixed(2) : '–'}` : null],
     ['ClinGen dosage', `Haploinsufficiency ${g.hi != null ? g.hi + ' (' + dosageText(g.hi).toLowerCase() + ')' : 'not curated'}; triplosensitivity ${g.ts != null ? g.ts + ' (' + dosageText(g.ts).toLowerCase() + ')' : 'not curated'}`],
     ['Predicted dosage sensitivity', g.pHaplo != null ? `pHaplo ${g.pHaplo.toFixed(2)}${g.pHaplo >= THRESH.pHaplo ? ' (likely haploinsufficient)' : ''}, pTriplo ${g.pTriplo != null ? g.pTriplo.toFixed(2) : '–'} (Collins et al. 2022)` : null]
   ]));
@@ -80,7 +80,7 @@ async function drawGene(ctx, body) {
   cspec.forGene(g.symbol).then((sets) => {
     ctx.vcep = sets;
     if (!sets.length) return;
-    const box = h('div.note.ok', h('p', h('b', `ClinGen expert panel rules for ${g.symbol}: `), sets.map((s, i) => [i ? '; ' : '', ext(s.url, `${s.panel}, version ${s.version}`)]), '. They change some criteria for this gene (thresholds, strengths); the criteria’s guides show them.'));
+    const box = h('div.note.ok', h('p', h('b', `ClinGen expert panel rules apply to ${g.symbol}: `), sets.map((s, i) => [i ? '; ' : '', ext(s.url, `${s.panel}, version ${s.version}`)]), '. They change some criteria for this gene, such as thresholds and strengths, and each criterion’s guide shows the changes.'));
     live.prepend(box);
     cspec.ruleSet(sets[0].id).then((rs) => {
       ctx.vcepRules = rs;
@@ -95,7 +95,7 @@ async function drawGene(ctx, body) {
   panels.panelsOfGene(g.symbol).then((list) => {
     pa.innerHTML = '';
     if (!list.length) {
-      pa.appendChild(h('p.muted', 'Not on any PanelApp panel.'));
+      pa.appendChild(h('p.muted', 'This gene isn’t on any PanelApp panel.'));
       return;
     }
     const mine = ctx.pt && ctx.pt.test && ctx.pt.test.panel ? ctx.pt.test.panel.id : null;
@@ -105,10 +105,10 @@ async function drawGene(ctx, body) {
       { key: 'rating', label: 'Rating', fmt: (r) => h('span.tag.' + (r.rating >= 3 ? 'ok' : r.rating === 2 ? 'warn' : 'bad'), panels.RATING[Math.min(3, r.rating)].word) },
       { key: 'moi', label: 'Inheritance', fmt: (r) => String(r.moi || '').replace(/^([^,]+).*/, '$1') }
     ], sorted.slice(0, 12), { compact: true }));
-    if (sorted.length > 12) pa.appendChild(h('p.small.muted', `and ${sorted.length - 12} more panels.`));
+    if (sorted.length > 12) pa.appendChild(h('p.small.muted', `Another ${sorted.length - 12} panels aren’t shown.`));
   }).catch((e) => {
     pa.innerHTML = '';
-    pa.appendChild(h('p.small.muted', 'PanelApp did not answer: ' + e.message));
+    pa.appendChild(h('p.small.muted', 'PanelApp didn’t answer: ' + e.message));
   });
   // the HPO's diseases of the gene, and the patient's phenotype
   try {
@@ -134,14 +134,14 @@ async function drawGene(ctx, body) {
       ctx.calc.pheno = { disease: best.dz.name, rank: rank >= 0 ? rank + 1 : null, score: best.sim.score, specific: false };
       const m = best.sim.matches.slice().sort((a, b) => b.ic - a.ic);
       phenoBox.appendChild(h('div.pheno-fit',
-        h('p', `The patient’s ${obs.length} observed features fit `, h('b', best.dz.name), ` best (score ${best.sim.score.toFixed(1)}${rank >= 0 ? `; ranked ${rank + 1} of all ${fmt((await hpo.loadDiseases()).length)} diseases for this phenotype` : ''}).`),
+        h('p', `The patient’s ${obs.length} observed features fit `, h('b', best.dz.name), ` best, with a score of ${best.sim.score.toFixed(1)}${rank >= 0 ? `. It’s number ${rank + 1} of all ${fmt((await hpo.loadDiseases()).length)} diseases ranked for this phenotype` : ''}.`),
         h('ul.small', m.map((x) => h('li', h('b', hpo.name(x.patient)), x.exact ? ' – in the disease' : x.via && x.via !== 118 ? ` – shares “${hpo.name(x.via)}” with the disease` : ' – not in the disease')))));
-      phenoBox.appendChild(h('p.small.muted', 'PP4 is for a phenotype highly specific for the gene: a close fit to a recognisable disease, with other causes looked for. A non-specific phenotype (e.g. developmental delay alone) fits many genes and is not evidence.'));
+      phenoBox.appendChild(h('p.small.muted', 'PP4 is for a phenotype that’s highly specific for the gene, meaning a close fit to a recognisable disease after other causes have been looked for. A non-specific phenotype, such as developmental delay alone, fits many genes and isn’t evidence.'));
       ctx.refreshSuggestions();
     } else if (!ctx.pt) phenoBox.appendChild(h('p.small.muted', 'Open the variant from a patient to compare their phenotype with these diseases.'));
     else phenoBox.appendChild(h('p.small.muted', 'Add the patient’s phenotypes (HPO terms) to compare them with these diseases.'));
   } catch (e) {
-    phenoBox.appendChild(h('p.small.muted', 'The HPO’s annotations could not be loaded: ' + e.message));
+    phenoBox.appendChild(h('p.small.muted', 'The HPO’s annotations couldn’t be loaded: ' + e.message));
   }
   // the other patients in this browser with a variant in the gene (the same variant first), and the phenotypes they share
   try {
@@ -191,8 +191,8 @@ async function drawFamily(ctx, body) {
       ctx.refreshSuggestions();
     };
     [zyg, inh, vaf].forEach((el) => el.addEventListener('change', upd));
-    body.appendChild(h('div.fields', field('Zygosity in the patient', zyg), field('How the patient got it', inh), field('Variant allele fraction', vaf, 'From the reads, if known (mosaicism)')));
-  } else body.appendChild(note('', h('p', 'Looked up, not a patient’s variant: the calculators below work with published cases. Add the variant to a patient to use their family.')));
+    body.appendChild(h('div.fields', field('Zygosity in the patient', zyg), field('How the patient got it', inh), field('Variant allele fraction', vaf, 'From the reads, if known, to look for mosaicism')));
+  } else body.appendChild(note('', h('p', 'This variant hasn’t been added to a patient, so the calculators below can only use published cases. Add it to a patient to use their family.')));
 
   /* ---------- de novo ---------- */
   calc.denovo = calc.denovo || { cases: [] };
@@ -233,8 +233,8 @@ async function drawFamily(ctx, body) {
     calc.denovo.anyConfirmed = res.anyConfirmed;
     calc.denovo.summary = rows.map((r) => `${r.label || 'a case'}: ${r.confirmed ? 'confirmed' : 'assumed'}`).join('; ');
     const code = res.anyConfirmed ? 'PS2' : 'PM6';
-    dnBox.append(rows.length ? list : h('p.small.muted', 'No de novo occurrences. If the patient’s variant is de novo, say so above; add published de novo cases here.'), h('div.btn-row', add),
-      h('p.calc-result', `${res.points} ${res.points === 1 ? 'point' : 'points'}`, res.strength ? [': ', critChip(code, res.strength), ` (${SW[res.strength]})`] : rows.length ? ': not enough for PS2 or PM6' : ''));
+    dnBox.append(rows.length ? list : h('p.small.muted', 'No de novo occurrences have been added yet. If the patient’s variant is de novo, say so above, and add any published de novo cases here.'), h('div.btn-row', add),
+      h('p.calc-result', `${res.points} ${res.points === 1 ? 'point' : 'points'}`, res.strength ? [': ', critChip(code, res.strength), ` (${SW[res.strength]})`] : rows.length ? ', which isn’t enough for PS2 or PM6' : ''));
   };
   const commit = () => {
     const res = denovoPoints(calc.denovo.cases);
@@ -250,8 +250,8 @@ async function drawFamily(ctx, body) {
     }
   };
   drawDenovo();
-  body.appendChild(h('details.calc', { open: calc.denovo.cases.length ? true : null }, h('summary', h('span', { html: icon('calc') }), 'De novo occurrences: ClinGen’s points (PS2, PM6)'),
-    h('p.small.muted', 'Each de novo occurrence earns points by how well the person’s phenotype fits the gene, and whether parentage was confirmed (ClinGen SVI recommendation 1.1). 0.5 points is supporting, 1 moderate, 2 strong, 4 very strong. The code is PS2 if any occurrence is confirmed, PM6 if none is.'), dnBox));
+  body.appendChild(h('details.calc', { open: calc.denovo.cases.length ? true : null }, h('summary', h('span', { html: icon('calc') }), 'De novo occurrences, scored with ClinGen’s points (PS2, PM6)'),
+    h('p.small.muted', 'ClinGen’s SVI recommendation (version 1.1) gives each de novo occurrence points according to how well the person’s phenotype fits the gene and whether parentage was confirmed. Half a point counts as supporting, 1 point as moderate, 2 as strong and 4 as very strong. If any occurrence is confirmed the criterion is PS2; if none is, it is PM6.'), dnBox));
 
   /* ---------- in trans ---------- */
   calc.pm3 = calc.pm3 || { obs: [] };
@@ -263,7 +263,7 @@ async function drawFamily(ctx, body) {
   }
   const drawPm3 = () => {
     pmBox.innerHTML = '';
-    if (others.length) pmBox.appendChild(note('', h('p', `The patient has ${others.length === 1 ? 'another variant' : others.length + ' other variants'} in ${v.gene}: `, others.map((o, i) => [i ? ', ' : '', h('a', { href: link(`/patient/${pt.id}/variant/${o.id}`) }, h('span.hgvs', (o.hgvsc || '').split(':').pop() || o.input)), o.classification && o.classification.saved ? [' (', clsBadge(o.classification.saved.cls, { short: true }), ')'] : '']), '. If the parents’ results show the two are on different copies, that is “in trans”.')));
+    if (others.length) pmBox.appendChild(note('', h('p', `The patient has ${others.length === 1 ? 'another variant' : others.length + ' other variants'} in ${v.gene}: `, others.map((o, i) => [i ? ', ' : '', h('a', { href: link(`/patient/${pt.id}/variant/${o.id}`) }, h('span.hgvs', (o.hgvsc || '').split(':').pop() || o.input)), o.classification && o.classification.saved ? [' (', clsBadge(o.classification.saved.cls, { short: true }), ')'] : '']), '. If the parents’ results show that the two are on different copies, they’re “in trans”.')));
     const list = h('div.calc-rows');
     calc.pm3.obs.forEach((o, i) => {
       const k = select(PM3_ROWS.map((r) => [r.key, `${r.label} (${r.points})`]), o.key || 'P-trans', { 'aria-label': 'Observation' });
@@ -274,7 +274,7 @@ async function drawFamily(ctx, body) {
       del.addEventListener('click', () => { calc.pm3.obs.splice(i, 1); commitPm3(); drawPm3(); });
       list.appendChild(h('div.calc-row', lab, k, del));
     });
-    pmBox.appendChild(calc.pm3.obs.length ? list : h('p.small.muted', 'For recessive disorders: add each affected person in whom the variant was found with another variant.'));
+    pmBox.appendChild(calc.pm3.obs.length ? list : h('p.small.muted', 'For a recessive disorder, add each affected person who was found to have this variant together with another variant.'));
     pmBox.appendChild(h('div.btn-row', btn('Add an observation', () => {
       // the first is this patient: homozygous, or in trans with another variant; later ones are other people
       const first = !calc.pm3.obs.length;
@@ -297,21 +297,21 @@ async function drawFamily(ctx, body) {
     }
   };
   drawPm3();
-  body.appendChild(h('details.calc', { open: calc.pm3.obs.length || others.length ? true : null }, h('summary', h('span', { html: icon('calc') }), 'In trans with another variant: ClinGen’s points (PM3)'),
-    h('p.small.muted', 'For recessive disorders (ClinGen SVI recommendation 1.0). Both variants must be rare. 0.5 points is supporting, 1 moderate, 2 strong, 4 very strong.'), pmBox));
+  body.appendChild(h('details.calc', { open: calc.pm3.obs.length || others.length ? true : null }, h('summary', h('span', { html: icon('calc') }), 'In trans with another variant, scored with ClinGen’s points (PM3)'),
+    h('p.small.muted', 'This follows ClinGen’s SVI recommendation (version 1.0) for recessive disorders. Both variants must be rare. Half a point counts as supporting, 1 point as moderate, 2 as strong and 4 as very strong.'), pmBox));
 
   /* ---------- segregation ---------- */
   const segBox = h('div');
   body.appendChild(h('details.calc', { open: true }, h('summary', h('span', { html: icon('segregation') }), 'Segregation in the family (PP1, BS4)'), segBox));
-  if (!pt) segBox.appendChild(h('p.small.muted', 'Segregation needs the patient’s family: add the variant to a patient, then draw the pedigree and give relatives’ genotypes on the Family tab.'));
-  else if (!pt.pedigree || !(pt.pedigree.persons || []).length) segBox.appendChild(h('p', 'No pedigree yet. ', h('a', { href: link(`/patient/${pt.id}/family`) }, 'Draw the family'), ' and give relatives’ genotypes for this variant; the likelihood ratio appears here.'));
+  if (!pt) segBox.appendChild(h('p.small.muted', 'Segregation needs the patient’s family. Add the variant to a patient, then draw the pedigree and record the relatives’ genotypes on the Family tab.'));
+  else if (!pt.pedigree || !(pt.pedigree.persons || []).length) segBox.appendChild(h('p', 'There’s no pedigree yet. ', h('a', { href: link(`/patient/${pt.id}/family`) }, 'Draw the family'), ' and record the relatives’ genotypes for this variant. The likelihood ratio will then appear here.'));
   else {
     const seg = await import('../acmg/segregation.js');
     let fam;
     try {
       fam = seg.readDrawing(pt.pedigree);
     } catch (e) {
-      segBox.appendChild(note('bad', h('p', 'The pedigree could not be read: ' + e.message)));
+      segBox.appendChild(note('bad', h('p', 'The pedigree couldn’t be read: ' + e.message)));
     }
     if (fam) {
       const proband = (fam.people.find((p) => p.proband) || {}).id || pt.probandPerson;
@@ -330,17 +330,17 @@ async function drawFamily(ctx, body) {
         let adjusted = null;
         if (mm.phenocopy >= mm.penetrance) {
           mm.phenocopy = +(mm.penetrance / 10).toPrecision(2);
-          adjusted = `The phenocopy rate (the chance that a relative without the variant is affected) has to be below the penetrance, so it is set to ${mm.phenocopy}.`;
+          adjusted = `The phenocopy rate, which is the chance that a relative without the variant is affected, has to be below the penetrance, so it has been set to ${mm.phenocopy}.`;
         }
         pen.value = mm.penetrance; // the fields show what the calculation uses
         phc.value = mm.phenocopy;
         const af = ctx.ev && ctx.ev.gnomad && ctx.ev.gnomad.found ? ((ctx.ev.gnomad.joint || ctx.ev.gnomad.exome || ctx.ev.gnomad.genome || {}).af || 0) : 0;
         const q = Math.max(1e-6, Math.min(0.05, af || 1e-5));
-        const qText = af ? `The variant’s frequency (${fmtAF(q)}) is from gnomAD.` : `The variant is not in gnomAD, so a frequency of ${fmtAF(q)} is assumed.`;
+        const qText = af ? `The variant’s frequency (${fmtAF(q)}) comes from gnomAD.` : `The variant isn’t in gnomAD, so a frequency of ${fmtAF(q)} is assumed.`;
         res.innerHTML = '';
         if (adjusted) res.appendChild(note('warn', h('p', adjusted)));
         if (!cond) {
-          res.appendChild(note('warn', h('p', 'Shade the affected people in the pedigree (and name the condition in its key), so that the analysis knows who is affected.')));
+          res.appendChild(note('warn', h('p', 'Shade the affected people in the pedigree and name the condition in its key, so that the analysis knows who is affected.')));
           return;
         }
         const r = seg.cosegregation({ family: fam, conditionKey: cond.key, probandId: proband, genotypes: gts, model: { mode: mm.mode, penetrance: mm.penetrance, phenocopy: mm.phenocopy, q, families: mm.families }, unrecorded: 'unknown' });
@@ -355,16 +355,16 @@ async function drawFamily(ctx, body) {
         res.append(
           h('p.calc-result', `Likelihood ratio ${r.lr >= 1000 ? fmt(r.lr, 0) : r.lr >= 1 ? r.lr.toFixed(2) : r.lr.toExponential(1)}`, isFinite(r.lod) ? `, LOD ${r.lod.toFixed(2)}` : '', isFinite(r.meioses) && r.lr >= 1 ? ` (as many as ${r.meioses.toFixed(1)} informative meioses)` : ''),
           r.direction === 'for'
-            ? h('p', st.jarvik || st.bayes ? ['The family supports co-segregation: ', st.jarvik ? [critChip('PP1', st.jarvik), ' by meiosis counting (Jarvik and Browning)'] : 'not enough meioses for PP1 by counting', st.bayes ? ['; ', critChip('PP1', st.bayes === 'VS' ? 'S' : st.bayes), ' by Tavtigian’s odds'] : ''] : 'The family fits co-segregation, but too weakly for PP1.')
-            : h('p', 'The family argues against the variant causing the disease: ', st.bayes ? critChip('BS4', st.bayes === 'M' ? 'P' : st.bayes) : 'weakly', '.'),
-          h('p.small.muted', segCounts(r.counts), `${r.counts.untestedAffected ? ` ${r.counts.untestedAffected} affected relatives were not tested.` : ''} The ratio compares the chance of the relatives’ genotypes, given everyone’s phenotypes, if the variant causes the disease (with the penetrance and phenocopy rate above) and if it doesn’t, starting from the proband having it. ${qText}`));
+            ? h('p', st.jarvik || st.bayes ? ['The family supports co-segregation: ', st.jarvik ? [critChip('PP1', st.jarvik), ' by meiosis counting (Jarvik and Browning)'] : 'too few meioses for PP1 by counting', st.bayes ? [', and ', critChip('PP1', st.bayes === 'VS' ? 'S' : st.bayes), ' by Tavtigian’s odds'] : ''] : 'The family fits co-segregation, but too weakly to support PP1.')
+            : h('p', 'The family argues against the variant causing the disease: ', st.bayes ? critChip('BS4', st.bayes === 'M' ? 'P' : st.bayes) : 'too weakly for BS4', '.'),
+          h('p.small.muted', segCounts(r.counts), `${r.counts.untestedAffected ? ` ${r.counts.untestedAffected} affected relatives weren’t tested.` : ''} The ratio compares the chance of seeing the relatives’ genotypes, given everyone’s phenotypes, if the variant causes the disease with the penetrance and phenocopy rate above, against the chance if it doesn’t. Both start from the proband having the variant. ${qText}`));
         ctx.save();
         ctx.refreshSuggestions();
       };
       [mode, pen, phc].forEach((el) => el.addEventListener('change', run));
       segBox.append(
-        h('p', `${tested.length} relative${tested.length === 1 ? '' : 's'} with a genotype for this variant. `, h('a', { href: link(`/patient/${pt.id}/family`) }, 'Give genotypes on the Family tab'), '.'),
-        h('div.fields', field('Inheritance', mode), field('Penetrance', pen, 'chance a carrier is affected'), field('Phenocopy rate', phc, 'chance a non-carrier is affected')),
+        h('p', `A genotype for this variant is recorded for ${tested.length} relative${tested.length === 1 ? '' : 's'}. `, h('a', { href: link(`/patient/${pt.id}/family`) }, 'Record genotypes on the Family tab'), '.'),
+        h('div.fields', field('Inheritance', mode), field('Penetrance', pen, 'the chance that a carrier is affected'), field('Phenocopy rate', phc, 'the chance that a non-carrier is affected')),
         res);
       run();
     }
@@ -388,9 +388,9 @@ function segCounts(c) {
   const who = (k, adj, one, many) => `${n(k)} ${adj} ${n(k) === 1 ? 'relative' : 'relatives'} ${n(k) === 1 ? one : many}`;
   if (c.mode === 'AR' || c.mode === 'XLR') {
     const two = c.mode === 'AR' ? ['has both copies affected', 'have both copies affected'] : ['has the disease genotype (a man with it, or a woman with two copies)', 'have the disease genotype (a man with it, or a woman with two copies)'];
-    return `${who('affectedCarriers', 'affected', two[0], two[1])}, and ${who('unaffectedNonCarriers', 'unaffected', 'doesn’t', 'don’t')} (one copy or none: carriers are expected to be well); ${who('affectedNonCarriers', 'affected', 'lacks it', 'lack it')} and ${who('unaffectedCarriers', 'unaffected', 'has it', 'have it')}.`;
+    return `${who('affectedCarriers', 'affected', two[0], two[1])}, and ${who('unaffectedNonCarriers', 'unaffected', 'doesn’t', 'don’t')} (they have one copy or none, and carriers are expected to be well). ${who('affectedNonCarriers', 'affected', 'lacks it', 'lack it')} and ${who('unaffectedCarriers', 'unaffected', 'has it', 'have it')}.`;
   }
-  return `${who('affectedCarriers', 'affected', 'carries it', 'carry it')}, ${who('unaffectedNonCarriers', 'unaffected', 'doesn’t', 'don’t')}; ${who('affectedNonCarriers', 'affected', 'doesn’t carry it', 'don’t carry it')} and ${who('unaffectedCarriers', 'unaffected', 'does', 'do')}.`;
+  return `${who('affectedCarriers', 'affected', 'carries it', 'carry it')} and ${who('unaffectedNonCarriers', 'unaffected', 'doesn’t', 'don’t')}. ${who('affectedNonCarriers', 'affected', 'doesn’t carry it', 'don’t carry it')} and ${who('unaffectedCarriers', 'unaffected', 'does', 'do')}.`;
 }
 
 /* ================================================================
@@ -408,7 +408,7 @@ function drawFunctional(ctx, body) {
     out.innerHTML = '';
     if (!pc.value && !bc.value) {
       calc.result = null;
-      out.appendChild(h('p.small.muted', 'Give the numbers of pathogenic and benign control variants the assay was validated with, as the paper reports them.'));
+      out.appendChild(h('p.small.muted', 'Enter the numbers of pathogenic and benign control variants that the assay was validated with, as the paper reports them.'));
     } else {
       const r = oddsPath({ pathControls: +pc.value, benignControls: +bc.value, readout: readout.value });
       if (!r.odds) {
@@ -416,17 +416,17 @@ function drawFunctional(ctx, body) {
         out.appendChild(h('p', r.message));
       } else {
         calc.result = r.strength ? { code: r.strength.code, strength: r.strength.strength, odds: r.odds } : null;
-        out.append(...[h('p.calc-result', `OddsPath ${r.odds.toFixed(2)}`, r.strength ? [': ', critChip(r.strength.code, r.strength.strength), ` (${SW[r.strength.strength]})`] : ': indeterminate (between 0.48 and 2.1)'),
+        out.append(...[h('p.calc-result', `OddsPath ${r.odds.toFixed(2)}`, r.strength ? [': ', critChip(r.strength.code, r.strength.strength), ` (${SW[r.strength.strength]})`] : ', which is indeterminate (between 0.48 and 2.1)'),
           r.strength && r.strength.capped ? h('p.small', 'With 10 controls or fewer, Brnich et al. allow supporting strength at most.') : null,
-          h('p.small.muted', `From ${r.controls} controls: the chance that a variant is pathogenic before the assay (${(r.P1 * 100).toFixed(0)}% of the controls) and after this readout (${(r.P2 * 100).toFixed(0)}%), assuming one control misclassified so the odds are finite (Brnich et al. 2019).`)].filter(Boolean));
+          h('p.small.muted', `Based on ${r.controls} controls, this compares the chance that a variant is pathogenic before the assay (${(r.P1 * 100).toFixed(0)}% of the controls) with the chance after this readout (${(r.P2 * 100).toFixed(0)}%). It assumes one control was misclassified, so that the odds are finite (Brnich et al. 2019).`)].filter(Boolean));
       }
     }
     ctx.save();
     ctx.refreshSuggestions();
   };
   [assay, readout, pc, bc].forEach((el) => el.addEventListener('change', run));
-  body.appendChild(h('p', 'Functional evidence comes from the literature: an assay that tests the function the disease depends on, validated with variants already known to be pathogenic and benign. Patient-derived RNA showing aberrant splicing goes under PVS1 or PS3 for splicing (Walker et al. 2023).'));
-  body.appendChild(h('details.calc', { open: calc.path || calc.benign ? true : null }, h('summary', h('span', { html: icon('calc') }), 'How strong is the assay? The OddsPath calculator (PS3, BS3)'),
+  body.appendChild(h('p', 'Functional evidence comes from the literature. It needs an assay that tests the function the disease depends on, validated with variants already known to be pathogenic and benign. Patient-derived RNA that shows aberrant splicing goes under PVS1 or PS3 for splicing (Walker et al. 2023).'));
+  body.appendChild(h('details.calc', { open: calc.path || calc.benign ? true : null }, h('summary', h('span', { html: icon('calc') }), 'How strong is the assay? Use the OddsPath calculator (PS3, BS3)'),
     h('div.fields', field('Assay', assay, null, { span: true }), field('Readout for this variant', readout), field('Pathogenic controls', pc), field('Benign controls', bc)), out));
   run();
   body.appendChild(crits(ctx, ['PS3', 'BS3']));
@@ -448,8 +448,8 @@ async function drawConclusion(ctx, body) {
     top.innerHTML = '';
     top.append(...[
       h('div.row', clsBadge(r.cls, { big: true, band: r.band }), h('span.res-pts', `${r.points > 0 ? '+' : ''}${r.points} ${Math.abs(r.points) === 1 ? 'point' : 'points'}`), h('span.small.muted', `${fw(F).label}`)),
-      h('p', met.length ? h('span.hgvs', criteriaString(met, F)) : h('span.muted', 'No criteria met yet.')),
-      evaluated.length ? h('p.small.muted', 'Looked at and not met: ', evaluated.sort().join(', ')) : null].filter(Boolean));
+      h('p', met.length ? h('span.hgvs', criteriaString(met, F)) : h('span.muted', 'No criteria are marked as met yet.')),
+      evaluated.length ? h('p.small.muted', 'Marked as not met: ', evaluated.sort().join(', ')) : null].filter(Boolean));
   };
   drawTop();
   let seen = false;
@@ -468,9 +468,9 @@ async function drawConclusion(ctx, body) {
       { key: 'by', label: 'Who' },
       { key: 'cls', label: 'Class', fmt: (x) => h('span', clsBadge(x.cls, { short: true }), x.calculated && x.calculated !== x.cls ? h('span.small.muted', ` (calculated ${x.calculated.toUpperCase()})`) : null) },
       { key: 'criteria', label: 'Criteria', fmt: (x) => h('span.hgvs.small', x.criteria || '–') },
-      { key: 'reason', label: 'Reason for a change', fmt: (x) => x.reason || '' }
+      { key: 'reason', label: 'Reason for the change', fmt: (x) => x.reason || '' }
     ], hist, { compact: true }));
-  } else if (v.patientId) body.appendChild(h('p.small.muted', 'Not signed yet: “Sign the classification”, beside the criteria, records it with your name and the date.'));
+  } else if (v.patientId) body.appendChild(h('p.small.muted', 'You haven’t signed a classification yet. The “Sign the classification” button beside the criteria records it with your name and the date.'));
 
   // the case's answer
   const exp = v.expected;
@@ -479,7 +479,7 @@ async function drawConclusion(ctx, body) {
     body.appendChild(h('h3.vsub', 'The case’s answer'));
     body.appendChild(box);
     if (!(settings.CFG.allowCompare !== false)) box.appendChild(h('p.muted', 'Comparing with the answer is switched off on this site.'));
-    else if (!hist.length) box.appendChild(h('p.muted', 'Sign your classification first; then you can compare it with the answer the case’s author gave.'));
+    else if (!hist.length) box.appendChild(h('p.muted', 'Sign your classification first, and then you can compare it with the case author’s answer.'));
     else {
       const showBtn = btn('Compare with the case’s answer', () => {
         showBtn.remove();
@@ -505,7 +505,7 @@ async function drawConclusion(ctx, body) {
       for (const x of list) {
         const panelBox = h('div.compare');
         const metCodes = x.codes.filter((c) => c.status === 'Met').map((c) => c.label);
-        panelBox.appendChild(h('p', h('b', x.panel), `: ${x.outcome} for ${x.condition}. `, h('span.small.muted', x.guideline)));
+        panelBox.appendChild(h('p', h('b', x.panel), ` classified it as ${x.outcome} for ${x.condition}. `, h('span.small.muted', x.guideline)));
         const reveal = btn(hist.length ? 'Compare with the expert panel' : 'Show the expert panel’s criteria', async () => {
           reveal.remove();
           const why = await er.reasons(x.uuid).catch(() => ({}));
@@ -517,15 +517,15 @@ async function drawConclusion(ctx, body) {
             return e;
           });
           panelBox.appendChild(compareTable(cls, exp.map((e) => (e.strength ? `${e.code}_${{ VS: 'VeryStrong', S: 'Strong', M: 'Moderate', P: 'Supporting', SA: 'StandAlone' }[e.strength]}` : e.code)), outcomeKey(x.outcome), x.panel, why, x.codes.filter((c) => c.status !== 'Met').map((c) => er.parseCode(c.label).code)));
-          if (notCounted.length) panelBox.appendChild(h('p.small.muted', 'The panel recorded BA1 as met, but did not count it: the variant is on its list of exceptions to BA1 (common, yet pathogenic). It is left out of the comparison.'));
+          if (notCounted.length) panelBox.appendChild(h('p.small.muted', 'The panel recorded BA1 as met but didn’t count it, because the variant is on its list of exceptions to BA1 (variants that are common yet pathogenic). BA1 is left out of the comparison.'));
         }, { cls: 'small', icon: 'scale' });
-        if (!hist.length) panelBox.appendChild(h('p.small.muted', 'Try it yourself first: sign your classification, then compare.'));
+        if (!hist.length) panelBox.appendChild(h('p.small.muted', 'Try it yourself first. Sign your classification, then compare it with the panel’s.'));
         panelBox.appendChild(reveal);
         box.appendChild(panelBox);
       }
     }).catch((e) => {
       box.innerHTML = '';
-      box.appendChild(h('p.small.muted', 'ClinGen’s Evidence Repository did not answer: ' + e.message));
+      box.appendChild(h('p.small.muted', 'ClinGen’s Evidence Repository didn’t answer: ' + e.message));
     });
   }
 }
@@ -543,13 +543,13 @@ function compareTable(cls, theirs, theirCls, who, why = {}, theirNotMet = []) {
   const codes = Array.from(new Set([...T.keys(), ...mine.keys()])).sort((a, b) => Object.keys(BY_CODE).indexOf(a) - Object.keys(BY_CODE).indexOf(b));
   const rows = codes.map((c) => {
     const t = T.get(c), m = mine.get(c);
-    const status = t && m ? (t === m ? 'Agree' : 'Different strength') : t ? 'You did not apply it' : theirNotMet.includes(c) ? 'They found it not met' : 'They did not apply it';
+    const status = t && m ? (t === m ? 'Agree' : 'Different strength') : t ? 'You didn’t apply it' : theirNotMet.includes(c) ? 'They found it not met' : 'They didn’t apply it';
     return { c, t, m, status, why: why[c] || '' };
   });
   const r = cls.result();
   const agree = rows.filter((x) => x.status === 'Agree').length;
   return h('div',
-    h('p', 'Your class: ', clsBadge(r.cls, { short: true }), `. ${who}: `, theirCls ? clsBadge(theirCls, { short: true }) : 'not given', `. ${agree} of ${rows.length} criteria agree.`),
+    h('p', 'Your class is ', clsBadge(r.cls, { short: true }), `. ${who} gave it `, theirCls ? clsBadge(theirCls, { short: true }) : 'no class', `. You agree on ${agree} of ${rows.length} criteria.`),
     table([
       { key: 'c', label: 'Criterion', fmt: (x) => h('b.hgvs', x.c) },
       { key: 'm', label: 'Yours', fmt: (x) => (x.m ? critChip(x.c, x.m) : h('span.faint', '–')) },

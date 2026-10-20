@@ -13,7 +13,7 @@ export function crits(ctx, codes, title = 'Criteria from this evidence') {
 }
 export function waiting(ctx, src, text) {
   const st = ctx.ev && ctx.ev.status ? ctx.ev.status[src] : 'loading';
-  if (st === 'error') return note('bad', h('p', `${text} could not be fetched: ${ctx.ev.errors[src]}. The rest of the page still works; try “Fetch the annotation again” from the ⋯ menu in a minute.`));
+  if (st === 'error') return note('bad', h('p', `The data from ${text} couldn’t be fetched: ${ctx.ev.errors[src]}. The rest of the page still works, and you can try “Fetch the annotation again” from the ⋯ menu in a minute.`));
   if (!st || st === 'loading') return loading(`Asking ${text}…`);
   return null;
 }
@@ -57,7 +57,7 @@ export function drawSectionInto(s, ctx) {
   s.body.appendChild(box);
   const fail = (e) => {
     console.error(e);
-    if (s.token === token) box.appendChild(note('bad', h('p', 'This section could not be drawn: ' + e.message)));
+    if (s.token === token) box.appendChild(note('bad', h('p', 'This section couldn’t be shown because of an error: ' + e.message)));
   };
   const done = () => {
     if (s.token !== token) return;
@@ -76,7 +76,7 @@ export function drawSectionInto(s, ctx) {
 export function sectionNote(ctx, key) {
   const v = ctx.v;
   v.notes = v.notes || {};
-  const ta = h('textarea.sec-notes', { rows: 2, placeholder: 'Your notes on this evidence (kept with the variant)' });
+  const ta = h('textarea.sec-notes', { rows: 2, placeholder: 'Your notes on this evidence, saved with the variant' });
   ta.value = v.notes[key] || '';
   // kept as it is typed (a section drawn again when its data arrive shows it still), tidied when the box is left
   ta.addEventListener('input', () => {

@@ -6,19 +6,19 @@
  "case": {
   "id": "myh7-hcm",
   "title": "Hypertrophic cardiomyopathy with two MYH7 variants",
-  "brief": "<p><b>Referral from the inherited cardiac conditions clinic.</b> A man of 52, of South Asian ancestry, was found at 50 to have asymmetric septal hypertrophy (21 mm) after breathlessness on exertion. His father died suddenly at 58. His mother and sister have normal echocardiograms; his son has not yet been screened.</p><p>A hypertrophic cardiomyopathy panel found two heterozygous <i>MYH7</i> variants: NM_000257.4:c.3133C&gt;T p.(Arg1045Cys) and NM_000257.4:c.3036C&gt;T p.(Ala1012=).</p>",
+  "brief": "<p><b>Referral from the inherited cardiac conditions clinic.</b> A man of 52, of South Asian ancestry, was found at 50 to have asymmetric septal hypertrophy (21 mm) after he became breathless on exertion. His father died suddenly at 58. His mother and sister have normal echocardiograms, and his son has not yet been screened.</p><p>A hypertrophic cardiomyopathy panel found two heterozygous <i>MYH7</i> variants: NM_000257.4:c.3133C&gt;T p.(Arg1045Cys) and NM_000257.4:c.3036C&gt;T p.(Ala1012=).</p>",
   "tasks": [
-   "Classify c.3133C>T. If it is of uncertain significance, which band (hot, warm, tepid, cool, cold, ice cold), and what evidence could change it?",
+   "Classify c.3133C>T. If it is of uncertain significance, which band is it in (hot, warm, tepid, cool, cold or ice cold), and what evidence could change it?",
    "Classify c.3036C>T. How common is it in the patient’s ancestry group? Compare the general BA1 threshold (5%) with the Cardiomyopathy expert panel’s, and use the frequency calculator for hypertrophic cardiomyopathy.",
    "Compare both with the ClinGen Cardiomyopathy expert panel.",
    "What would you put in the report, and what would you offer his son?"
   ],
-  "source": "Variants: NM_000257.4(MYH7):c.3133C>T, GRCh38 14-23422292-G-A, CA013367, ClinVar VCV000177753; NM_000257.4(MYH7):c.3036C>T, GRCh38 14-23423610-G-A, CA013313, ClinVar VCV000042945; ClinGen Cardiomyopathy VCEP classifications (Evidence Repository). Checked October 2026. The patient and family are fictional."
+  "source": "The variants are NM_000257.4(MYH7):c.3133C>T (GRCh38 14-23422292-G-A, CA013367, ClinVar VCV000177753) and NM_000257.4(MYH7):c.3036C>T (GRCh38 14-23423610-G-A, CA013313, ClinVar VCV000042945). The classifications are the ClinGen Cardiomyopathy VCEP’s, from the Evidence Repository, checked in October 2026. The patient and family are fictional."
  },
  "patients": [
   {
    "id": "case-myh7",
-   "ref": "Case 7: man with hypertrophic cardiomyopathy and two MYH7 variants",
+   "ref": "Case 7: a man with hypertrophic cardiomyopathy and two MYH7 variants",
    "created": "2026-10-20T09:00:00.000Z",
    "updated": "2026-10-20T09:00:00.000Z",
    "sex": "male",
@@ -34,9 +34,9 @@
    "ancestryGroup": "sas",
    "ancestry": "South Asian (Gujarati)",
    "consanguinity": "no",
-   "referral": "Inherited cardiac conditions clinic: hypertrophic cardiomyopathy diagnosed at 50; his father died suddenly at 58.",
-   "summary": "Man of 52 with asymmetric septal hypertrophy (maximum wall thickness 21 mm) on echocardiography and cardiac MRI, diagnosed at 50 after breathlessness on exertion. No outflow tract obstruction at rest. Blood pressure normal; not an athlete.",
-   "familyHistory": "Father died suddenly at 58, no post-mortem. Mother (79) and sister (49) have normal echocardiograms. Son (24) not yet screened. No one else has been tested.",
+   "referral": "The inherited cardiac conditions clinic referred him with hypertrophic cardiomyopathy diagnosed at 50. His father died suddenly at 58.",
+   "summary": "He is 52 and has asymmetric septal hypertrophy on echocardiography and cardiac MRI, with a maximum wall thickness of 21 mm. It was diagnosed at 50 after he became breathless on exertion. There is no outflow tract obstruction at rest. His blood pressure is normal, and he is not an athlete.",
+   "familyHistory": "His father died suddenly at 58, and there was no post-mortem. His mother (79) and sister (49) have normal echocardiograms. His son (24) has not yet been screened. No one else has been tested.",
    "test": {
     "type": "Gene panel",
     "panel": {
@@ -344,7 +344,7 @@
     "drawStrokes": []
    },
    "probandPerson": "p-proband",
-   "notes": "Fictional patient and family; the variants and the published evidence about them are real.",
+   "notes": "The patient and family are fictional, but the variants and the published evidence about them are real.",
    "tags": [],
    "caseId": null,
    "log": []
@@ -384,12 +384,12 @@
     ],
     "source": "ClinGen Cardiomyopathy expert panel (VCEP), Evidence Repository (MYH7-associated cardiomyopathy specifications); ClinVar VCV000177753 (Uncertain significance, reviewed by expert panel, 2021-08-25).",
     "notes": {
-     "PS4": "Moderate: found in at least 12 people with hypertrophic cardiomyopathy in published series.",
-     "PM2": "Moderate in the specification the panel used in 2021: a filtering allele frequency of 0.0015% in European alleles (gnomAD v2.1.1), below its threshold of 0.004%. The panel’s current specification (v2.0) uses PM2 at supporting strength, which would make 4 points rather than 5. In gnomAD v4.1 it is about 4.5 in 100,000 European alleles.",
-     "PP3": "The computational tools, including REVEL, predict damage.",
-     "PM1": "Not met: outside the head domain, where pathogenic variants cluster.",
-     "PM5": "Not met: the other changes at codon 1045 were themselves uncertain or under review.",
-     "PP1": "Not met: no relatives have been tested. Testing affected relatives (and checking that unaffected older ones do not carry it) is how this VUS could move."
+     "PS4": "Met at moderate strength, because the variant has been found in at least 12 people with hypertrophic cardiomyopathy in published series.",
+     "PM2": "Met at moderate strength under the specification the panel used in 2021. The filtering allele frequency in European alleles was 0.0015% (gnomAD v2.1.1), below that specification’s threshold of 0.004%. The panel’s current specification (v2.0) uses PM2 at supporting strength, which would make 4 points rather than 5. In gnomAD v4.1 the variant is at about 4.5 in 100,000 European alleles.",
+     "PP3": "Met, because the computational tools, including REVEL, predict that the change is damaging.",
+     "PM1": "Not met, because the variant lies outside the head domain, where pathogenic variants cluster.",
+     "PM5": "Not met, because the other changes at codon 1045 were themselves of uncertain significance or under review.",
+     "PP1": "Not met, because no relatives have been tested. Testing affected relatives, and checking that unaffected older ones don’t carry it, is how this VUS could move."
     }
    }
   },
@@ -425,8 +425,8 @@
     ],
     "source": "ClinGen Cardiomyopathy expert panel (VCEP), Evidence Repository, specifications v2.0.0; ClinVar VCV000042945 (Benign, reviewed by expert panel, 2025-11-11).",
     "notes": {
-     "BA1": "By the panel’s gene-specific threshold (a filtering allele frequency of 0.1% or more, for MYH7): about 0.8% in South Asian alleles in gnomAD v4.1 (0.7% in ExAC when curated). The general BA1 threshold of 5% is not reached, so with general rules this is BS1 (strong) with BP7: likely benign, not benign. Gene-specific thresholds matter.",
-     "BP7": "Synonymous, with no predicted effect on splicing (SpliceAI 0)."
+     "BA1": "Met by the panel’s gene-specific threshold for MYH7, which is a filtering allele frequency of 0.1% or more. The variant is at about 0.8% in South Asian alleles in gnomAD v4.1, and it was at 0.7% in ExAC when the panel curated it. It doesn’t reach the general BA1 threshold of 5%, so under the general rules it would be BS1 (strong) with BP7, which makes it only likely benign. This is where gene-specific thresholds matter.",
+     "BP7": "Met, because the change is synonymous and has no predicted effect on splicing (SpliceAI 0)."
     }
    }
   }

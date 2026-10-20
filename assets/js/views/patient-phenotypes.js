@@ -13,7 +13,7 @@ export async function render(root, ctx) {
     await HPO.loadTerms();
   } catch (e) {
     root.innerHTML = '';
-    root.appendChild(note('bad', h('p', 'The HPO could not be loaded: ' + e.message)));
+    root.appendChild(note('bad', h('p', `The HPO couldn’t be loaded: ${e.message}. Reload the page to try again.`)));
     return;
   }
   root.innerHTML = '';
@@ -37,13 +37,13 @@ export async function render(root, ctx) {
     if (pt.phenotypes.some((x) => x.id === t.id)) {
       const ex = pt.phenotypes.find((x) => x.id === t.id);
       ex.observed = mode === 'observed';
-      toast(`${t.name} is already recorded; it is now ${mode}.`);
+      toast(`${t.name} was already recorded, and it’s now marked ${mode}.`);
     } else {
       // a term and its ancestor are both informative to the patient record only if one is excluded
       const anc = HPO.ancestors(t.id);
       const redundant = pt.phenotypes.filter((x) => x.observed !== false && mode === 'observed' && x.id !== t.id && anc.has(HPO.hpNum(x.id)));
       pt.phenotypes.push({ id: t.id, name: t.name, observed: mode === 'observed', onset: '', note: '', added: nowISO() });
-      if (redundant.length) toast(`More specific than ${redundant.map((r) => r.name).join(', ')}: you could remove the more general term.`, null, 6000);
+      if (redundant.length) toast(`This term is more specific than ${redundant.map((r) => r.name).join(', ')}, so you could remove the more general one.`, null, 6000);
     }
     q.value = '';
     hits.innerHTML = '';
@@ -53,7 +53,7 @@ export async function render(root, ctx) {
   const search = debounce(() => {
     hits.innerHTML = '';
     const ms = HPO.search(q.value, { limit: 12 });
-    if (!ms.length && q.value.trim().length >= 3) hits.appendChild(h('p.muted.small', 'No term matches. Try another word for it, or fewer words.'));
+    if (!ms.length && q.value.trim().length >= 3) hits.appendChild(h('p.muted.small', 'No term matches that. Try a different word, or fewer words.'));
     for (const m of ms) {
       const t = m.term;
       const b = h('button.hpo-hit', { type: 'button', role: 'option' },
@@ -92,7 +92,7 @@ export async function render(root, ctx) {
   const modeSeg = seg([['observed', 'Observed'], ['excluded', 'Excluded']], mode, (v) => (mode = v), 'Add terms as');
   main.appendChild(section('Add phenotypes', { icon: 'plus', tools: [btn('Find terms in a clinical note…', () => fromText(), { cls: 'small', icon: 'text' })] },
     h('div.row', { style: { alignItems: 'flex-start' } }, h('div.grow', q), h('div', h('span.small.muted', { style: { marginRight: '6px' } }, 'Add as'), modeSeg)),
-    h('p.small.muted', { style: { margin: '6px 0' } }, 'Record the most specific term that fits, and record features that were looked for and are absent as excluded: both help to match the patient with a disease.'),
+    h('p.small.muted', { style: { margin: '6px 0' } }, 'Record the most specific term that fits. Features that were looked for and found to be absent should be recorded as excluded. Both help to match the patient with a disease.'),
     hits));
 
   /* ---------- the patient's terms ---------- */
@@ -101,7 +101,7 @@ export async function render(root, ctx) {
   function drawList() {
     listBox.innerHTML = '';
     if (!pt.phenotypes.length) {
-      listBox.appendChild(empty('No phenotypes yet', 'Search above for the patient’s features.'));
+      listBox.appendChild(empty('No phenotypes yet', 'Search above to add the patient’s features.'));
       return;
     }
     const groups = new Map();
@@ -127,17 +127,17 @@ export async function render(root, ctx) {
       t.name = cur.name;
     }
     const obs = t.observed !== false;
-    const toggle = h('button.pheno-state' + (obs ? '.obs' : '.exc'), { type: 'button', title: obs ? 'Observed: click to mark it excluded (looked for, and absent)' : 'Excluded: click to mark it observed', 'aria-label': `${t.name}: ${obs ? 'observed' : 'excluded'}. Change` }, obs ? 'Observed' : 'Excluded');
+    const toggle = h('button.pheno-state' + (obs ? '.obs' : '.exc'), { type: 'button', title: obs ? 'Observed. Click to mark it as excluded (looked for and absent).' : 'Excluded. Click to mark it as observed.', 'aria-label': `${t.name}: ${obs ? 'observed' : 'excluded'}. Change` }, obs ? 'Observed' : 'Excluded');
     toggle.addEventListener('click', async () => {
       t.observed = !obs;
-      await save(`${t.name}: now ${t.observed ? 'observed' : 'excluded'}`);
+      await save(`${t.name} marked as ${t.observed ? 'observed' : 'excluded'}`);
     });
     const del = h('button.icon-btn', { type: 'button', title: 'Remove this term', 'aria-label': 'Remove ' + t.name, html: icon('x') });
     del.addEventListener('click', async () => {
       pt.phenotypes = pt.phenotypes.filter((x) => x !== t);
       await save(`Phenotype removed: ${t.name}`);
     });
-    const refine = h('button.btn.small.ghost', { type: 'button', title: 'More specific terms under this one' }, 'More specific');
+    const refine = h('button.btn.small.ghost', { type: 'button', title: 'Choose a more specific term under this one' }, 'More specific');
     refine.addEventListener('click', () => chooseChild(t));
     const noteIn = h('input.pheno-note', { type: 'text', placeholder: 'Note (e.g. onset, severity)', 'aria-label': 'Note on ' + t.name, value: t.note || '' });
     noteIn.addEventListener('change', async () => {
@@ -176,10 +176,10 @@ export async function render(root, ctx) {
       out.innerHTML = '';
       const found = findTerms(ta.value);
       if (!found.length) {
-        out.appendChild(h('p.muted', 'No HPO term names were found in the text.'));
+        out.appendChild(h('p.muted', 'No HPO term names were found in the text. Try searching for the features one at a time instead.'));
         return;
       }
-      out.appendChild(h('p.small.muted', 'Untick any that are wrong. Terms after a “no” or “not” are marked excluded: check them.'));
+      out.appendChild(h('p.small.muted', 'Untick any that are wrong. Terms that follow “no” or “not” are marked as excluded, so check those too.'));
       for (const f of found) {
         const box = h('input', { type: 'checkbox' });
         box.checked = !pt.phenotypes.some((x) => x.id === f.term.id);
@@ -224,7 +224,7 @@ export async function render(root, ctx) {
     const sec = section('Diseases that fit', { level: 'h3', icon: 'target' });
     fitBox.appendChild(sec);
     if (obs.length < 2) {
-      sec.appendChild(h('p.muted.small', 'With two or more observed terms, the diseases whose HPO annotations best explain them are listed here.'));
+      sec.appendChild(h('p.muted.small', 'Once the patient has two or more observed terms, the diseases whose HPO annotations best explain them will be listed here.'));
       return;
     }
     sec.appendChild(loading('Comparing with 12,000 diseases…'));
@@ -244,7 +244,7 @@ export async function render(root, ctx) {
         h('div.small.muted', d.id.startsWith('OMIM') ? h('a', { href: `https://omim.org/entry/${d.id.slice(5)}`, target: '_blank', rel: 'noopener' }, d.id) : d.id, d.genes.length ? ' – ' : '', d.genes.map((g, i) => [i ? ', ' : '', h('a', { href: link('/gene/' + g) }, h('i', g))]), hasVar ? h('b.fit-flag', ' (a variant in this patient)') : null)));
     }
     sec.appendChild(ol);
-    sec.appendChild(h('p.small.muted', 'From the HPO’s disease annotations, version ' + HPO.hpoVersion() + '. A list to think with, not a diagnosis: annotations are incomplete, and rare features count for more than common ones.'));
+    sec.appendChild(h('p.small.muted', 'From the HPO’s disease annotations, version ' + HPO.hpoVersion() + '. Treat it as a list to think with rather than a diagnosis. The annotations are incomplete, and rare features count for more than common ones.'));
     sec.appendChild(h('div.btn-row', h('a.btn.small', { href: link('/match?patient=' + pt.id) }, 'Genes, diseases and similar patients')));
   }
 

@@ -102,7 +102,7 @@ export class PanelPicker {
       try {
         const ps = await searchPanels(t);
         this.list.innerHTML = '';
-        if (!ps.length) this.list.appendChild(h('div.sg-h', 'No panel matches that (search by name, disease group, or a test code such as R27).'));
+        if (!ps.length) this.list.appendChild(h('div.sg-h', 'No panel matches that. You can search by name, disease group or a test code such as R27.'));
         for (const p of ps.slice(0, 12)) {
           const codes = (p.relevantDisorders || []).filter((r) => /^R\d+$/.test(r));
           const b = h('button', { type: 'button' }, h('span.sg-kind', 'Panel ' + p.id), h('span.sg-main', p.name, h('span.sg-sub', `${p.genes != null ? p.genes + ' genes, ' : ''}version ${p.version}${codes.length ? `; test ${codes.join(', ')}` : ''}`)));
@@ -127,8 +127,8 @@ export class PanelPicker {
         this.list.appendChild(own);
       } catch (e) {
         this.list.innerHTML = '';
-        this.list.appendChild(h('div.sg-h', 'PanelApp did not answer (' + e.message + '). Type the panel’s name and choose “Use … as the panel’s name”.'));
-        const own = h('button', { type: 'button' }, h('span.sg-main', `Use “${t}”`));
+        this.list.appendChild(h('div.sg-h', `PanelApp didn’t answer: ${e.message}. You can still use the name you typed.`));
+        const own = h('button', { type: 'button' }, h('span.sg-main', `Use “${t}” as the panel’s name`));
         own.addEventListener('click', () => {
           this.v = { id: null, name: t, source: 'typed' };
           this.list.hidden = true;
@@ -143,7 +143,7 @@ export class PanelPicker {
   paint() {
     this.chosen.innerHTML = '';
     if (!this.v) {
-      this.chosen.appendChild(h('span.muted', 'No panel chosen.'));
+      this.chosen.appendChild(h('span.muted', 'No panel has been chosen yet.'));
       return;
     }
     const x = h('button.btn.small.ghost', { type: 'button' }, 'Remove');

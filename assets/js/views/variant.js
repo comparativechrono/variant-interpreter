@@ -38,7 +38,7 @@ export async function render(root, params, query) {
     const v = await db.getVariant(params.vid);
     const pt = await db.getPatient(params.id);
     if (!v || !pt || v.patientId !== pt.id) {
-      root.appendChild(h('div.page.narrow', note('bad', h('p', 'There is no such variant for this patient in this browser.')), linkBtn('Back to the patient', '/patient/' + params.id)));
+      root.appendChild(h('div.page.narrow', note('bad', h('p', 'This variant isn’t saved for this patient in this browser.')), linkBtn('Back to the patient', '/patient/' + params.id)));
       return;
     }
     if (v.kind === 'cnv') return (await import('./cnv.js')).render(root, { patient: pt, variant: v, section: params.section });
@@ -53,7 +53,7 @@ export async function render(root, params, query) {
   p.appendChild(crumbs([['Home', '/'], ['Variant']]));
   p.appendChild(h('h1', h('span.hgvs', q)));
   const box = h('div', loading(`Finding ${q} on ${asm}…`));
-  if (readQuery(q).ref === 'protein') box.appendChild(h('p.small.muted', 'A protein change is looked up by Ensembl’s variant recoder, which can take a minute.'));
+  if (readQuery(q).ref === 'protein') box.appendChild(h('p.small.muted', 'Ensembl’s variant recoder is looking up this protein change, which can take a minute.'));
   p.appendChild(box);
   const res = await resolveInput(q, asm);
   box.innerHTML = '';
@@ -135,7 +135,7 @@ async function variantPage(root, { v, pt, section, q }) {
   });
 
   /* ---------- the heading ---------- */
-  const stateEl = h('span.small.muted', { 'aria-live': 'polite' }, saved ? '' : 'Not saved: add it to a patient to keep it');
+  const stateEl = h('span.small.muted', { 'aria-live': 'polite' }, saved ? '' : 'Not saved until you add it to a patient');
   const head = h('div.vhead');
   const crumbItems = pt ? [['Patients', '/patients'], [`Patient ${pt.id}`, `/patient/${pt.id}`], ['Variants', `/patient/${pt.id}/variants`], ['Variant']] : [['Home', '/'], ['Variant']];
   p.appendChild(crumbs(crumbItems));
@@ -188,13 +188,13 @@ async function variantPage(root, { v, pt, section, q }) {
     const r = cls.result();
     const s = v.classification.saved;
     if (!v.patientId) {
-      saveBox.appendChild(h('p.small.muted', 'Looked up, not yet a patient’s variant.'));
+      saveBox.appendChild(h('p.small.muted', 'You’ve looked this variant up, but it isn’t saved to a patient yet.'));
       saveBox.appendChild(btn('Add to a patient…', () => addToPatient(v, cls), { cls: 'primary', icon: 'plus' }));
       return;
     }
-    if (s) saveBox.appendChild(h('p.small', 'Last signed: ', clsBadge(s.cls, { short: true }), ` by ${s.by || 'you'}, ${dateStr(s.at, true)}`, s.cls !== r.cls ? h('span.res-differ', ' (changed since)') : null));
-    saveBox.appendChild(btn(s ? 'Sign the classification again' : 'Sign the classification', () => signOff(ctx, r), { cls: 'primary', icon: 'badgeCheck', title: 'Record this classification, with your name, the date and the criteria, in the variant’s history' }));
-    saveBox.appendChild(h('p.small.muted', { style: { marginTop: '6px' } }, 'Your work is saved as you go; signing records a classification in its history and on the report.'));
+    if (s) saveBox.appendChild(h('p.small', 'Last signed as ', clsBadge(s.cls, { short: true }), ` by ${s.by || 'you'} on ${dateStr(s.at, true)}`, s.cls !== r.cls ? h('span.res-differ', ' (it has changed since)') : null));
+    saveBox.appendChild(btn(s ? 'Sign the classification again' : 'Sign the classification', () => signOff(ctx, r), { cls: 'primary', icon: 'badgeCheck', title: 'Record this classification in the variant’s history, with your name, the date and the criteria' }));
+    saveBox.appendChild(h('p.small.muted', { style: { marginTop: '6px' } }, 'Your work is saved as you go. Signing adds the classification to the variant’s history and to the report.'));
   };
   drawSaveBox();
   ctx.drawSaveBox = drawSaveBox;
@@ -205,7 +205,7 @@ async function variantPage(root, { v, pt, section, q }) {
     head.innerHTML = '';
     const g = d && d.gene;
     const title = h('h1.vtitle',
-      g ? h('a.gene', { href: link('/gene/' + g + (pt ? '?patient=' + pt.id : '')), title: pt ? `The gene, compared with Patient ${pt.id}` : 'The gene' }, g) : null,
+      g ? h('a.gene', { href: link('/gene/' + g + (pt ? '?patient=' + pt.id : '')), title: pt ? `Open the gene’s page, compared with Patient ${pt.id}` : 'Open the gene’s page' }, g) : null,
       h('span.hgvs', d && d.hgvsc ? d.hgvsc.split(':')[1] : `${v.chrom}-${v.pos}-${v.ref}-${v.alt || '-'}`),
       d && d.hgvsp ? h('span.hgvs.vp', d.hgvsp.replace(/^p\.\(?/, 'p.(').replace(/\)?$/, ')')) : null);
     const facts = factList([
@@ -222,12 +222,12 @@ async function variantPage(root, { v, pt, section, q }) {
         h('div.vhead-cls', clsBadge(r.cls, { big: true, band: r.band }), h('span.small.muted', criteriaShort(cls))),
         h('div.btn-row',
           btn('Transcript', (e) => chooseTx(e.currentTarget), { cls: 'small', icon: 'list', title: 'Describe the variant on another transcript' }),
-          btn('', (e) => moreMenu(e.currentTarget), { cls: 'small icon-only', icon: 'dots', aria: 'More' })),
+          btn('', (e) => moreMenu(e.currentTarget), { cls: 'small icon-only', icon: 'dots', aria: 'More actions' })),
         stateEl));
   };
   const criteriaShort = (c) => {
     const s = c.criteriaString();
-    return s ? s : 'No criteria applied';
+    return s ? s : 'No criteria applied yet';
   };
   // another set of guidelines (or the VUS bands switched): the class is worked out again everywhere it is shown
   const offSettings = bus.on('settings', (e) => {
@@ -243,7 +243,7 @@ async function variantPage(root, { v, pt, section, q }) {
   });
   const chooseTx = (anchor) => {
     const rows = transcriptRows(ctx.ev && ctx.ev.vep);
-    if (!rows.length) return toast('The transcripts arrive with VEP’s answer.');
+    if (!rows.length) return toast('The transcripts will be listed once VEP has answered. Try again in a moment.');
     const items = rows.slice(0, 30).map((t) => ['dna', `${t.refseq ? t.refseq + ' / ' : ''}${t.id}${t.mane ? ' (' + t.mane + ')' : t.canonical ? ' (canonical)' : ''}: ${t.hgvsc || t.consequence}`, () => {
       v.transcript = t.id;
       ctx.ev.t = chooseTranscript(ctx.ev.vep, t.id);
@@ -257,15 +257,15 @@ async function variantPage(root, { v, pt, section, q }) {
     popmenu(anchor, items);
   };
   const moreMenu = (anchor) => popmenu(anchor, [
-    ['copy', 'Copy the variant’s HGVS', () => copyText(ctx.ev && ctx.ev.d ? `${ctx.ev.d.hgvsc}${ctx.ev.d.hgvsp ? ' ' + ctx.ev.d.hgvsp : ''}` : `${v.chrom}-${v.pos}-${v.ref}-${v.alt}`).then(() => toast('Copied.'))],
+    ['copy', 'Copy the variant’s HGVS', () => copyText(ctx.ev && ctx.ev.d ? `${ctx.ev.d.hgvsc}${ctx.ev.d.hgvsp ? ' ' + ctx.ev.d.hgvsp : ''}` : `${v.chrom}-${v.pos}-${v.ref}-${v.alt}`).then(() => toast('Copied to the clipboard.'))],
     ['refresh', 'Fetch the annotation again', () => start(true)],
     ['genome', 'Show in the genome browser', () => go(`/browser?locus=chr${v.chrom}:${Math.max(1, v.pos - 40)}-${v.pos + 40}&assembly=${asm}${pt ? '&patient=' + pt.id : ''}`)],
-    v.patientId ? ['report', 'The patient’s report', () => go(`/patient/${v.patientId}/report`)] : null,
+    v.patientId ? ['report', 'Open the patient’s report', () => go(`/patient/${v.patientId}/report`)] : null,
     v.patientId ? null : ['plus', 'Add to a patient…', () => addToPatient(v, cls)],
     v.patientId ? ['trash', 'Remove this variant from the patient…', async () => {
-      if (await confirmBox('Remove this variant?', 'Its classification and notes go too. It can’t be undone.', { yes: 'Remove', danger: true })) {
+      if (await confirmBox('Remove this variant?', 'Its classification and notes will be removed too, and you can’t undo this.', { yes: 'Remove', danger: true })) {
         await db.deleteVariant(v.id);
-        toast('Removed.', 'ok');
+        toast('Variant removed.', 'ok');
         go(`/patient/${v.patientId}/variants`);
       }
     }] : null
@@ -336,24 +336,24 @@ function signOff(ctx, r) {
   const { v, cls } = ctx;
   const name = settings.get('name');
   const nameIn = h('input', { type: 'text', value: name || '', placeholder: 'Your name' });
-  const finalSel = select([['', `As calculated: ${{ p: 'Pathogenic', lp: 'Likely pathogenic', vus: 'Uncertain significance', lb: 'Likely benign', b: 'Benign' }[r.cls]}`], ['p', 'Pathogenic'], ['lp', 'Likely pathogenic'], ['vus', 'Uncertain significance'], ['lb', 'Likely benign'], ['b', 'Benign']], '');
-  const reason = h('textarea', { rows: 2, placeholder: 'Why the classification differs from the calculated one (required if it does)' });
-  const summary = h('textarea', { rows: 4, placeholder: 'A summary of the evidence, as it would go on a report' });
+  const finalSel = select([['', `${{ p: 'Pathogenic', lp: 'Likely pathogenic', vus: 'Uncertain significance', lb: 'Likely benign', b: 'Benign' }[r.cls]} (as calculated)`], ['p', 'Pathogenic'], ['lp', 'Likely pathogenic'], ['vus', 'Uncertain significance'], ['lb', 'Likely benign'], ['b', 'Benign']], '');
+  const reason = h('textarea', { rows: 2, placeholder: 'Required if you choose a different class from the calculated one' });
+  const summary = h('textarea', { rows: 4, placeholder: 'Summarise the evidence as you would on a report' });
   summary.value = (v.classification.saved && v.classification.saved.summary) || autoSummary(ctx, r);
   const contrib = select([['', 'Not decided'], ['full', 'Full: explains the phenotype'], ['partial', 'Partial'], ['uncertain', 'Uncertain'], ['none', 'None']], v.contribution || '');
   const body = h('div.stack',
-    h('p', 'Calculated: ', clsBadge(r.cls, { band: r.band }), ` ${r.points > 0 ? '+' : ''}${r.points} points, `, h('span.hgvs', cls.criteriaString() || 'no criteria')),
+    h('p', 'The calculated class is ', clsBadge(r.cls, { band: r.band }), ` (${r.points > 0 ? '+' : ''}${r.points} points), with `, h('span.hgvs', cls.criteriaString() || 'no criteria applied')),
     field('Classifier', nameIn),
-    field('Classification', finalSel, 'Overriding the calculated class is allowed, with a reason (as ClinGen’s curation interface asks)'),
+    field('Classification', finalSel, 'You can choose a different class from the calculated one if you give a reason, as ClinGen’s curation interface asks'),
     field('Reason for the change', reason),
-    field('Evidence summary', summary, 'Written as for a report: the key evidence, in a few sentences'),
+    field('Evidence summary', summary, 'The key evidence in a few sentences, written as you would for a report'),
     v.patientId ? field('Contribution to the patient’s phenotype', contrib) : null);
   modal('Sign the classification', body, {
     wide: true,
     actions: [['Cancel', null, 'ghost'], ['Sign', async () => {
       const chosen = finalSel.value || r.cls;
       if (chosen !== r.cls && !reason.value.trim()) {
-        toast('Give the reason for changing the calculated classification.', 'error');
+        toast('You need to give a reason for changing the calculated classification.', 'error');
         reason.focus();
         return true;
       }
@@ -367,7 +367,7 @@ function signOff(ctx, r) {
       v.classification.history = [rec].concat(v.classification.history || []).slice(0, 50);
       v.contribution = contrib.value;
       await ctx.save(`Classification signed: ${chosen.toUpperCase()} (${rec.criteria || 'no criteria'}) by ${rec.by}`);
-      toast('Signed and saved to the variant’s history.', 'ok');
+      toast('Signed. The classification is now in the variant’s history.', 'ok');
       // the same page: draw again what the signature changes (the panel's footer and the conclusion)
       if (ctx.drawSaveBox) ctx.drawSaveBox();
       if (ctx.redraw) ctx.redraw(['conclusion']);

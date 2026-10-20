@@ -18,25 +18,25 @@ export const PREDICTORS = {
     label: 'REVEL', key: 'revel', range: [0, 1],
     pp3: { P: 0.644, M: 0.773, S: 0.932 },
     bp4: { P: 0.290, M: 0.183, S: 0.016 },
-    about: 'A meta-predictor of missense pathogenicity (Ioannidis et al. 2016), combining 13 tools. ClinGen’s calibration takes it to PP3_Strong and BP4_Strong (Pejaver et al. 2022 recommend no more than strong either way); the ACGS 2024 guidelines use it, at supporting strength, with REVEL ≥ 0.7 and < 0.4.'
+    about: 'A meta-predictor of missense pathogenicity that combines 13 tools (Ioannidis et al. 2016). ClinGen’s calibration (Pejaver et al. 2022) takes it up to PP3_Strong and BP4_Strong, and recommends no more than strong either way. The ACGS 2024 guidelines use it at supporting strength, with REVEL ≥ 0.7 for PP3 and < 0.4 for BP4.'
   },
   BayesDel: {
     label: 'BayesDel (no AF)', key: 'bayesdel', range: [-1.3, 0.8],
     pp3: { P: 0.13, M: 0.27, S: 0.50 },
     bp4: { P: -0.18, M: -0.36 },
-    about: 'A Bayesian meta-predictor (Feng 2017). The version without allele frequency, so that frequency is not counted twice (with PM2 or BS1).'
+    about: 'A Bayesian meta-predictor (Feng 2017). The site uses the version without allele frequency, so that frequency isn’t counted twice alongside PM2 or BS1.'
   },
   AlphaMissense: {
     label: 'AlphaMissense', key: 'alphamissense', range: [0, 1],
     pp3: { P: 0.792, M: 0.906, S: 0.990 },
     bp4: { P: 0.169, M: 0.099 },
-    about: 'A deep-learning predictor from Google DeepMind (Cheng et al. 2023), calibrated by Bergquist et al. (2025). Its developers’ own cut-off (0.564) does not reach even supporting strength.'
+    about: 'A deep-learning predictor from Google DeepMind (Cheng et al. 2023), calibrated by Bergquist et al. (2025). Its developers’ own cut-off (0.564) doesn’t even reach supporting strength.'
   },
   CADD: {
     label: 'CADD (phred)', key: 'cadd', range: [0, 50],
     pp3: { P: 25.3, M: 28.1 },
     bp4: { P: 22.7, M: 17.3, S: 0.15 },
-    about: 'Combined Annotation Dependent Depletion (Rentzsch et al. 2019): a score for any variant, not only missense. The common cut-off of 20 does not reach supporting strength.'
+    about: 'Combined Annotation Dependent Depletion (Rentzsch et al. 2019) gives a score for any variant, so it isn’t limited to missense changes. The common cut-off of 20 doesn’t reach supporting strength.'
   },
   PrimateAI: {
     label: 'PrimateAI', key: 'primateai', range: [0, 1],
@@ -48,7 +48,7 @@ export const PREDICTORS = {
     label: 'phyloP (100 vertebrates)', key: 'phylop', range: [-20, 12],
     pp3: { P: 7.367, M: 9.741 },
     bp4: { P: 1.879, M: 0.021 },
-    about: 'Conservation of the nucleotide across 100 vertebrates: how much slower it has changed than expected.'
+    about: 'Conservation of the nucleotide across 100 vertebrates, which shows how much more slowly it has changed than expected.'
   }
 };
 

@@ -55,7 +55,7 @@ export function classCell(s) {
   if (!s.final && s.assessed === false) return h('span.muted.small', 'Not assessed yet');
   return h('div.cls-cell',
     h('span.row', { style: { gap: '4px', display: 'inline-flex', flexWrap: 'wrap' } }, clsBadge(s.cls, { short: false, band: s.final ? (s.signed && s.signed.band) : s.band })),
-    h('span.small' + (s.final ? '' : '.muted'), s.final ? `Signed${s.signed && s.signed.by ? ' by ' + s.signed.by : ''}` : `So far: ${s.pointsText} ${s.kind !== 'cnv' && Math.abs(s.points) === 1 ? 'point' : 'points'}`));
+    h('span.small' + (s.final ? '' : '.muted'), s.final ? `Signed${s.signed && s.signed.by ? ' by ' + s.signed.by : ''}` : `${s.pointsText} ${s.kind !== 'cnv' && Math.abs(s.points) === 1 ? 'point' : 'points'} so far`));
 }
 
 /**
@@ -75,15 +75,15 @@ export function variantTable(pt, vs, opts = {}) {
   if (!opts.compact) {
     cols.push({ key: 'updated', label: 'Changed', fmt: (r) => h('span.small.muted', dateStr(r.v.updated)), sort: (r) => r.v.updated || '' });
     cols.push({ key: 'menu', label: '', sort: false, fmt: (r) => {
-      const b = h('button.icon-btn', { type: 'button', 'aria-label': `More for ${r.short}`, html: icon('dots') });
+      const b = h('button.icon-btn', { type: 'button', 'aria-label': `More actions for ${r.short}`, html: icon('dots') });
       b.addEventListener('click', (e) => popmenu(e.currentTarget, [
         ['eye', 'Open', () => go(variantPath(pt, r.v))],
         ['genome', 'Show in the genome browser', () => go(`/browser?patient=${pt.id}&assembly=${r.v.assembly || 'GRCh38'}&locus=${encodeURIComponent(browserLocus(r.v))}`)],
         null,
         ['trash', 'Remove…', async () => {
-          if (!(await confirmBox('Remove this variant?', `${r.long}: its classification, notes and relatives’ genotypes go too. It can’t be undone.`, { yes: 'Remove', danger: true }))) return;
+          if (!(await confirmBox('Remove this variant?', `This removes ${r.long}, along with its classification, notes and relatives’ genotypes. It can’t be undone.`, { yes: 'Remove', danger: true }))) return;
           await db.deleteVariant(r.v.id);
-          toast('Removed.', 'ok');
+          toast('Variant removed.', 'ok');
           if (opts.onChanged) opts.onChanged();
         }]
       ]));
@@ -94,7 +94,7 @@ export function variantTable(pt, vs, opts = {}) {
     sortable: !opts.compact,
     compact: !!opts.compact,
     caption: `Patient ${pt.id}’s variants`,
-    empty: 'No variants yet.',
+    empty: 'No variants have been added yet.',
     onRow: (r) => go(variantPath(pt, r.v))
   });
   // on a phone each row becomes a card, its cells labelled by their columns
