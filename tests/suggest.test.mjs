@@ -69,6 +69,8 @@ let r = classify({ criteria: { PM1: { met: true, strength: 'M' }, PP3: { met: tr
 ok(r.points === 5 && r.cls === 'vus', `PM1 + PP3_Strong + PM2_Supporting: 5 points, a VUS (got ${r.points}, ${r.cls})`);
 r = classify({ criteria: { PM1: { met: true, strength: 'M' }, PP3: { met: true, strength: 'M' }, PM2: { met: true, strength: 'P' } } }, { framework: 'clingen' });
 ok(r.points === 5, 'PM1 + PP3_Moderate: no cap needed');
+r = classify({ criteria: { PM1: { met: true, strength: 'S' }, PP3: { met: true, strength: 'P' }, PM2: { met: true, strength: 'M' } } }, { framework: 'acgs2024' });
+ok(r.points === 7, 'ACGS: no cap on PM1_str with PP3');
 
 /* ---------- ACGS: two criteria, but BS1_Strong may stand alone ---------- */
 r = classify({ criteria: { BS1: { met: true, strength: 'S' } } }, { framework: 'acgs2024' });

@@ -151,12 +151,13 @@ export function classify(state, opts = {}) {
   const met = metList(state);
   const notes = [];
   let pts = pointsOf(met);
-  // PM1 and PP3 together count at most 4 points (Pejaver et al. 2022): the overlap between a hotspot and the predictors
+  // ClinGen: PM1 and PP3 together count at most 4 points (Pejaver et al. 2022), for the overlap between a hotspot and
+  // the predictors. The ACGS 2024 guidelines (PP3 at supporting only) set no such cap.
   const pm1 = met.find((m) => m.code === 'PM1'), pp3 = met.find((m) => m.code === 'PP3');
-  if (f.key !== 'acmg2015' && pm1 && pp3 && (POINTS[pm1.strength] || 0) + (POINTS[pp3.strength] || 0) > 4) {
+  if (f.key === 'clingen' && pm1 && pp3 && (POINTS[pm1.strength] || 0) + (POINTS[pp3.strength] || 0) > 4) {
     const over = (POINTS[pm1.strength] || 0) + (POINTS[pp3.strength] || 0) - 4;
     pts -= over;
-    notes.push(`PM1 and PP3 together count at most 4 points (Pejaver et al. 2022): ${over} ${over === 1 ? 'point' : 'points'} of PM1 ${over === 1 ? 'does' : 'do'} not count.`);
+    notes.push(`ClinGen counts PM1 and PP3 together as at most 4 points (Pejaver et al. 2022): ${over} ${over === 1 ? 'point' : 'points'} of PM1 ${over === 1 ? 'does' : 'do'} not count.`);
   }
   const hasBA1 = met.some((m) => m.code === 'BA1' && m.strength === 'SA');
   const byPoints = { cls: classOfPoints(pts, hasBA1), points: pts, posterior: hasBA1 ? 0 : posterior(pts) };

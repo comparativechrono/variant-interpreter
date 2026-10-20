@@ -92,7 +92,7 @@ export const CRITERIA = [
       'For missense and in-frame changes. Look at the gene’s protein view: are pathogenic missense variants clustered here, and are benign ones absent from the region?',
       'Many ClinGen expert panels define the gene’s hotspots or critical residues (the CSpec registry, shown in the Gene section). The ACGS 2024 guidelines allow PM1_Strong for some (e.g. FBN1’s calcium-binding EGF cysteines, glycines of a collagen triple helix) and PM1_Supporting for others; not for truncating or splicing variants.',
       'Don’t reuse the same evidence for PM5 or PP2.',
-      'ClinGen (Pejaver et al. 2022) limits PM1 and PP3 together to 4 points (strong): with PP3_Moderate, PM1 adds at most moderate; with PP3_Strong, PM1 adds nothing. The points on this site are capped that way.'
+      'ClinGen (Pejaver et al. 2022) limits PM1 and PP3 together to 4 points (strong): with PP3_Moderate, PM1 adds at most moderate; with PP3_Strong, PM1 adds nothing. The site caps the points that way when it follows ClinGen; the ACGS 2024 guidelines, with PP3 at supporting only, set no cap.'
     ],
     refs: ['richards2015', 'pejaver2022', 'acgs2024']
   },
@@ -317,7 +317,6 @@ export const CRITERIA = [
 
 export const BY_CODE = Object.fromEntries(CRITERIA.map((c) => [c.code, c]));
 
-/* ClinGen's BA1 exceptions (July 2018): common, yet pathogenic. Gene and coding change */
 /* ClinGen's exceptions to BA1 (Ghosh et al. 2018): [gene, change on the MANE Select transcript, ClinGen allele id,
    change as the paper wrote it]. BTD's MANE transcript (NM_001370658.1) numbers its exception c.1270G>C p.(Asp424His);
    the paper, on NM_000060, wrote c.1330G>C p.(Asp444His). Matched by allele id where gnomAD gives one. */
