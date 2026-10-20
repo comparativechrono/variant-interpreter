@@ -130,7 +130,7 @@ export function proteinPlot(opts) {
     }
     fig.appendChild(root);
     if (state.regions && regions.length) fig.appendChild(regionStrip(regions, L, W, padL, padR, x));
-    cap.textContent = `${opts.gene || ''} ${L} residues. ${nP} pathogenic or likely pathogenic and ${nB} benign or likely benign ClinVar variants shown (one star or more)${state.vus ? `, and ${nV} of uncertain or conflicting significance on the line` : ''}. Squares mark mostly truncating variants. Point at a pin to see the variants.`;
+    cap.textContent = `The ${opts.gene || ''} protein has ${L} residues. The plot shows ${nP} pathogenic or likely pathogenic and ${nB} benign or likely benign ClinVar variants with one star or more${state.vus ? `, and ${nV} of uncertain or conflicting significance on the line` : ''}. A square marks a pin where most of the variants are truncating. Point at a pin to see its variants.`;
   };
   const seenKey = new Set();
   for (const f of doms) {
@@ -158,7 +158,7 @@ function regionStrip(regions, L, W, padL, padR, x) {
   });
   const laneH = 9, H = lanes.length * laneH + 18;
   const root = svg('svg', { viewBox: `0 0 ${W} ${H}`, class: 'pplot-svg', role: 'img', 'aria-label': `${regions.length} other regions from UniProt` });
-  root.appendChild(svg('text', { x: padL, y: 11, 'font-size': 11, fill: 'var(--muted)', 'font-weight': 700 }, 'Other regions (UniProt): point at one for its name'));
+  root.appendChild(svg('text', { x: padL, y: 11, 'font-size': 11, fill: 'var(--muted)', 'font-weight': 700 }, 'Other regions from UniProt. Point at one to see its name.'));
   for (const { f, lane } of placed) {
     const x1 = x(f.start), x2 = x(f.end);
     const dis = /disorder/i.test(f.description);
