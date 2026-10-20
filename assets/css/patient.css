@@ -50,6 +50,7 @@
 .add-cand { padding: 6px 8px; border: 1px solid var(--line-2); border-radius: var(--r); }
 .add-cand:has(input:checked) { border-color: var(--accent-edge); background: var(--accent-soft); }
 .vcf-filters { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.vcf-rare select { width: auto; min-height: 30px; padding: 2px 6px; font-size: 0.88rem; }
 .vcf-list { max-height: 46vh; overflow: auto; }
 .stack { display: flex; flex-direction: column; gap: 12px; }
 .qp-checks { display: flex; flex-wrap: wrap; gap: 6px 18px; }
@@ -142,4 +143,10 @@
   .vtable table.data td::before { content: attr(data-label); font-size: 0.76rem; color: var(--muted); font-weight: 600; padding-top: 2px; }
   .vtable table.data td[data-label=''] { grid-template-columns: 1fr; }
   .vtable table.data td[data-label='']::before { display: none; }
+}
+@media (max-width: 700px) {
+  .report .rp-table { display: block; overflow-x: auto; max-width: 100%; }
+  .report .rp-table th, .report .rp-table td { padding: 4px 6px; }
+  .rp-facts { grid-template-columns: minmax(0, 1fr); gap: 0 0; }
+  .rp-facts dd { margin-bottom: 6px; }
 }

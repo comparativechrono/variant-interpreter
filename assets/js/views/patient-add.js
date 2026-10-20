@@ -255,7 +255,8 @@ export async function importVcfDialog(pt, existing = [], onDone) {
   }
   const asm = select(ASSEMBLIES, parsed.assembly || settings.get('assembly'));
   const sample = select(parsed.samples.length ? parsed.samples.map((s, i) => [String(i), s]) : [['0', 'The only sample']], '0');
-  const fRare = checkbox('Rare: under 1% in gnomAD (or not in it)', true);
+  // how rare: 1% suits most triage; a recessive disorder's common alleles (e.g. CFTR F508del, 1.2% in gnomAD's exomes) need more
+  const fRare = select([['', 'Any frequency'], ['0.001', 'Under 0.1% in gnomAD'], ['0.01', 'Under 1% in gnomAD'], ['0.05', 'Under 5% in gnomAD']], '0.01', { 'aria-label': 'Frequency in gnomAD' });
   const fProt = checkbox('Protein-altering or at a splice site', true);
   const panelGenes = new Set();
   const fPanel = checkbox('In the genes of the patient’s panel', false);
@@ -288,7 +289,7 @@ export async function importVcfDialog(pt, existing = [], onDone) {
     });
     rows = rows.filter((x) => {
       if (fCall.box.checked && (x.zyg === 'reference' || x.zyg === 'unknown')) return false;
-      if (ann && fRare.box.checked && x.af != null && x.af >= 0.01) return false;
+      if (ann && fRare.value && x.af != null && x.af >= +fRare.value) return false;
       if (ann && fProt.box.checked && !(x.a && (x.a.transcript_consequences || []).some((t) => (t.consequence_terms || []).some((c) => PROTEIN_ALTERING.has(c))))) return false;
       if (fPanel.box.checked && panelGenes.size && !panelGenes.has(x.gene)) return false;
       return true;
@@ -341,12 +342,12 @@ export async function importVcfDialog(pt, existing = [], onDone) {
       annotateBtn.disabled = false;
     }
   }, { cls: 'primary', icon: 'sparkle', title: 'Genes, consequences and gnomAD frequencies, for up to 2,000 variants (sent to Ensembl in batches of 100)' });
-  [fRare.box, fProt.box, fPanel.box, fCall.box, sample].forEach((el) => el.addEventListener('change', view));
+  [fRare, fProt.box, fPanel.box, fCall.box, sample].forEach((el) => el.addEventListener('change', view));
   const body = h('div.stack',
     h('p', `${file.name}: ${fmt(parsed.recs.length)} variants${parsed.samples.length ? `, ${parsed.samples.length} ${parsed.samples.length === 1 ? 'sample' : 'samples'}` : ''}${parsed.assembly ? `, ${parsed.assembly} by its header` : ''}.`),
     h('div.fields', field('Genome build', asm), field('Sample (the patient)', sample)),
-    h('div.vcf-filters', annotateBtn, fCall.el, fRare.el, fProt.el, fPanel.el),
-    h('p.small.muted', 'Annotating sends the variants’ positions to Ensembl, nothing else. The filters for frequency and consequence work once the variants are annotated. A real exome has tens of thousands of variants: these are the first steps of triage, not all of it.'),
+    h('div.vcf-filters', annotateBtn, fCall.el, h('label.vcf-rare', h('span.visually-hidden', 'Frequency'), fRare), fProt.el, fPanel.el),
+    h('p.small.muted', 'Annotating sends the variants’ positions to Ensembl, nothing else. The filters for frequency and consequence work once the variants are annotated. A real exome has tens of thousands of variants: these are the first steps of triage, not all of it. The frequency is the higher of gnomAD’s exome and genome frequencies, all groups together: a variant common in one group can still pass.'),
     status, listBox);
   view();
   modal(`Variants from a VCF for Patient ${pt.id}`, body, {
