@@ -1,14 +1,14 @@
 # Variant interpreter
 
-A web site for learning clinical variant interpretation. Students record a
+A website for learning clinical variant interpretation. Students record a
 patient's phenotype and family, add the variants from their genetic test,
 look at the evidence for each variant in the public databases, and classify
-it with the ACMG/AMP criteria – as UK laboratories do under the ACGS 2024
-guidelines, as ClinGen's expert panels do, or by the original 2015 rules.
-Copy-number variants are scored with the ACMG/ClinGen points (Riggs et al.
-2020). Everything runs in the student's browser: there is nothing to
-install, no account, and no server-side code, and the patients a student
-enters stay on their own computer.
+it with the ACMG/AMP criteria. They can follow the ACGS 2024 guidelines, as
+UK laboratories do, ClinGen's guidance, as its expert panels do, or the
+original 2015 rules. Copy-number variants are scored with the ACMG/ClinGen
+points (Riggs et al. 2020). Everything runs in the student's browser, so
+there is nothing to install, no account to make and no server-side code,
+and the patients a student enters stay on their own computer.
 
 The site is modelled on the workflow of the platforms used in clinical
 genomics, such as DECIPHER, so that students can carry on interpreting
@@ -16,9 +16,10 @@ variants after a workshop's access to such a platform ends. It has no
 affiliation with DECIPHER, VarSome, Franklin or any other platform, and
 uses none of their branding.
 
-**It is for teaching, not for clinical use.** Annotations come from public
-services as they answer on the day, some rules are simplified, and nothing
-has been validated for diagnosis. Keep real patients' details out of it.
+**It is for teaching, not for clinical use.** The annotations come from
+public services as they stand on the day, some rules are simplified, and
+nothing has been validated for diagnosis. Please keep real patients'
+details out of it.
 
 ## Contents
 
@@ -36,11 +37,12 @@ has been validated for diagnosis. Keep real patients' details out of it.
 
 ## What is in it
 
-One page, `index.html`, whose parts are addressed after the `#`:
+The whole site is one page, `index.html`, and each part of it has an
+address after the `#`:
 
 | Page | Address | What it is for |
 |---|---|---|
-| **Home** | `#/` | Where to start, the patients in this browser, and the cases to practise on. |
+| **Home** | `#/` | The logo and name, where to start, the patients in this browser, and the cases to practise on. |
 | **Patients** | `#/patients`, `#/patient/1001` | A patient's record, in tabs: *Overview*; *Phenotypes* (HPO terms, observed or excluded, found by search or in a clinical note, with the diseases that fit them best); *Variants* (sequence variants and CNVs, with zygosity, inheritance, class and contribution to the phenotype; added one at a time or from a VCF file); *Family and pedigree* (Pedigree Studio, with each relative's genotype for each variant); *Genome browser*; *Report* (laid out as a laboratory's report, to print or save as a PDF); *History*. |
 | **A variant** | `#/variant/NM_000546.6:c.818G>A`, or a patient's variant | The evidence, section by section – population (gnomAD v4.1), variant type and the PVS1 decision tree, predictions, splicing (SpliceAI), the protein (domains, ClinVar's variants along it, AlphaFold's model in 3D), ClinVar and the literature, the gene and its diseases, the patient and family, functional data – beside the classification panel: each criterion met or not met at a chosen strength, the evidence scale, and the class as it stands. |
 | **A CNV** | `#/cnv/del 22:18900000-21500000` | The genes and ClinGen dosage-sensitive regions in a gain or loss, overlapping CNVs in ClinVar and in the population, and the Riggs et al. (2020) points, item by item. |
@@ -51,25 +53,29 @@ One page, `index.html`, whose parts are addressed after the `#`:
 | **Cases and data** | `#/data` | Opening cases and files, downloading work, and removing it. |
 | **Settings, About** | `#/settings`, `#/about` | The user's name, guidelines and display choices; the site's sources, licences and privacy. |
 
-What it does as the clinical platforms do: a patient record with HPO
-terms present or absent; a table of the patient's variants with
-inheritance, genotype, pathogenicity and contribution; an evidence
-interface that takes the criteria one by one, with suggestions from the
-data that are never applied automatically; CNV scoring; a genome browser
-with ClinVar, ClinGen dosage and DGV tracks; gene pages; phenotype
-matching.
+Like the clinical platforms, it has a patient record with HPO terms
+marked present or absent, a table of the patient's variants with their
+inheritance, genotype, pathogenicity and contribution, and an evidence
+interface that takes the criteria one by one. Its suggestions from the data
+are never applied automatically. It also scores CNVs, and has a genome
+browser with ClinVar, ClinGen dosage and DGV tracks, gene pages and
+phenotype matching.
 
-What it adds for students: no account and no real patients; a pedigree
-editor with relatives' genotypes and an exact co-segregation likelihood
-ratio for PP1 and BS4; calculators for ClinGen's de novo (PS2, PM6) and
-in-trans (PM3) points, for OddsPath (PS3, BS3) and for the highest credible
-allele frequency (BS1); the ACGS 2024 points with the bands of uncertain
-significance (hot to ice cold, as NHS England's GeNotes names them), beside
-the 2015 rules and the Bayesian
-probability of pathogenicity; comparison, once a classification is
-signed, with a case's answer and with ClinGen expert panels' classifications
-from their Evidence Repository; signed classifications with their history;
-and a printable report.
+On top of that, it adds things that help students learn:
+
+- no accounts and no real patients;
+- a pedigree editor that records relatives' genotypes and works out an
+  exact co-segregation likelihood ratio for PP1 and BS4;
+- calculators for ClinGen's de novo (PS2, PM6) and in-trans (PM3) points,
+  for OddsPath (PS3, BS3) and for the highest credible allele frequency
+  (BS1);
+- the ACGS 2024 points with the bands of uncertain significance (hot to ice
+  cold, as NHS England's GeNotes names them), shown beside the 2015 rules
+  and the Bayesian probability of pathogenicity;
+- once a classification is signed, a comparison with the case's answer and
+  with ClinGen expert panels' classifications from their Evidence
+  Repository;
+- signed classifications with their history, and a printable report.
 
 The three sets of guidelines (`assets/js/acmg/frameworks.js`):
 
@@ -97,16 +103,16 @@ The three sets of guidelines (`assets/js/acmg/frameworks.js`):
    takes all of these (press `/` to reach it).
 5. **Evidence and criteria**: on each variant's page, work down the
    sections and mark each criterion met or not met, with a note of the
-   evidence. Suggestions, if the course allows them, are shown only when
-   asked for, and are never applied for the student.
+   evidence. If the course allows suggestions, they appear only when the
+   student asks for them, and they are never applied automatically.
 6. **Sign** the classification (with a reason if it differs from the
    calculated class), then compare it with the case's answer or an expert
    panel's.
 7. **Report**: print the patient's report, or save it as a PDF.
 8. **Download** the work at the end of the session (*Cases and data*,
-   *Download all patients*): shared computers often clear the browser's
-   storage when a student logs out. The file opens again on any computer,
-   and is how work is handed in.
+   *Download all patients*), because shared computers often clear the
+   browser's storage when a student logs out. The file opens again on any
+   computer, and it is also how work is handed in.
 
 The guide (`#/learn`) explains each step and each criterion.
 
@@ -140,10 +146,10 @@ To make one:
      "tags": ["TP53", "Segregation (PP1)"], "file": "data/cases/tp53-lfs.json" }
    ```
 
-A tutor can also hand out a case file directly: students open it with
+A tutor can also hand out a case file directly, and students open it with
 *Cases and data*, *Choose a file…*. The answers are in the file, so a
-determined student can read them: for assessed work, give out the answers
-later, or set `allowCompare` to `false`.
+determined student could read them. For assessed work, give out the
+answers later, or set `allowCompare` to `false`.
 
 ## Put it on GitHub Pages
 
@@ -195,7 +201,7 @@ build) are kept by their browser and changed on the Settings page.
 
 ## The data
 
-Two kinds:
+The site uses two kinds of data.
 
 - **Copies in the site** (`data/`), made by the scripts in `build/`: the
   Human Phenotype Ontology and its disease annotations (`data/hpo/`), and a
@@ -273,16 +279,17 @@ serve.py                   a small web server for trying it locally
 
 ## Credits and licences
 
-The Variant interpreter is the Hearn lab's, for its clinical genomics
-teaching, and one of the sites of [genomics.tel](https://www.genomics.tel/).
-Its code is under the MIT licence ([LICENSE](LICENSE)). It is built on the
+The Variant interpreter is © 2026 Chronomic Medicine Group. It was made for
+the Hearn lab's clinical genomics teaching and is one of the sites of
+[genomics.tel](https://www.genomics.tel/). Its code is under the MIT licence
+([LICENSE](LICENSE)). It is built on the
 lab's other workbenches: Pedigree Studio and PedRisk come from the
 [Pedigree workbench](https://github.com/comparativechrono/pedigree-workbench),
 igv.js from the
 [Bioinformatics workbench](https://github.com/comparativechrono/bioinformatics-workbench),
 and the fonts from genomics.tel. The components and data it includes or
-loads keep their own licences: **[THIRD_PARTY.md](THIRD_PARTY.md)** lists
-them. The criteria are described in the site's own words, from the
+loads keep their own licences, which **[THIRD_PARTY.md](THIRD_PARTY.md)**
+lists. The criteria are described in the site's own words, drawing on the
 published guidelines and ClinGen's recommendations, which are cited where
-they are used; nothing here is endorsed by the ACMG, the AMP, ClinGen or
+they are used. Nothing here is endorsed by the ACMG, the AMP, ClinGen or
 the ACGS.
