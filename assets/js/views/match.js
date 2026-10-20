@@ -27,7 +27,7 @@ export async function render(root, params, query) {
   p.appendChild(crumbs([['Home', '/'], ['Phenotype match']]));
   p.appendChild(pageHead({
     title: 'Phenotype match',
-    lede: 'Rank the diseases and genes whose features (in the HPO’s annotations) best explain a patient’s, and find the patients in this browser who look alike. The page shows why each ranks where it does.'
+    lede: 'Rank the diseases and genes whose features in the HPO’s annotations best explain a patient’s, and find the patients in this browser who look alike. The page shows why each one ranks where it does.'
   }));
   const ps = await db.listPatients();
   const withTerms = ps.filter((x) => (x.phenotypes || []).some((t) => t.observed !== false));
@@ -38,7 +38,7 @@ export async function render(root, params, query) {
     adhoc: { obs: splitIds(query.terms), exc: splitIds(query.not) },
     token: 0
   };
-  if (query.patient && !asked) p.appendChild(note('warn', h('p', `There is no Patient ${query.patient} in this browser${ps.length ? ': choose another below' : ''}.`)));
+  if (query.patient && !asked) p.appendChild(note('warn', h('p', `There’s no Patient ${query.patient} in this browser${ps.length ? ', so choose another below' : ''}.`)));
   const srcBox = h('div.match-src');
   const termsBox = h('div.match-terms');
   const resBox = h('div.match-res');
@@ -50,7 +50,7 @@ export async function render(root, params, query) {
     await H.loadTerms();
   } catch (e) {
     termsBox.innerHTML = '';
-    termsBox.appendChild(note('bad', h('p', 'The HPO could not be loaded: ' + e.message)));
+    termsBox.appendChild(note('bad', h('p', 'The HPO couldn’t be loaded. Try reloading the page. The error was: ' + e.message)));
     return;
   }
   // ids from the address that the HPO doesn't know (or knows by a newer id)
@@ -76,7 +76,7 @@ export async function render(root, params, query) {
     srcBox.appendChild(h('div.row', modeSeg));
     if (st.mode === 'patient') {
       if (!ps.length) {
-        srcBox.appendChild(h('p.small.muted', 'There are no patients in this browser yet: type features instead, or make a patient first.'));
+        srcBox.appendChild(h('p.small.muted', 'There are no patients in this browser yet, so type features instead, or make a patient first.'));
         return;
       }
       const sel = select(ps.map((x) => {
@@ -186,7 +186,7 @@ export async function render(root, params, query) {
     const edit = st.mode === 'adhoc';
     if (edit) termsBox.appendChild(picker);
     if (!obs.length && !exc.length) {
-      termsBox.appendChild(h('p.muted', edit ? 'Add two or more of the features you see (and any you looked for and found absent).' : pt ? `Patient ${pt.id} has no features recorded yet. ` : 'Choose a patient.', pt ? h('a', { href: link(`/patient/${pt.id}/phenotypes`) }, 'Record their features') : null));
+      termsBox.appendChild(h('p.muted', edit ? 'Add two or more of the features you see, and any you looked for and found absent.' : pt ? `Patient ${pt.id} has no features recorded yet. ` : 'Choose a patient.', pt ? h('a', { href: link(`/patient/${pt.id}/phenotypes`) }, 'Record their features') : null));
       return;
     }
     termsBox.appendChild(h('div.mchips',
@@ -260,12 +260,12 @@ export async function render(root, params, query) {
         const ctx = await H.scoreContext(obs, ranked[0].score, 200);
         if (token !== st.token || !ctx) return;
         const box = dzSec.querySelector('.match-context');
-        if (box) box.textContent = `For comparison: ${obs.length} ${obs.length === 1 ? 'feature' : 'features'} drawn at random score ${fmt(ctx.median, 2)} against a random disease (the median of 200 tries); the best fit here, ${fmt(ranked[0].score, 2)}, is higher than ${ctx.p < 0.01 ? 'more than 99%' : Math.round((1 - ctx.p) * 100) + '%'} of those tries.`;
+        if (box) box.textContent = `For comparison, ${obs.length} ${obs.length === 1 ? 'feature' : 'features'} drawn at random score ${fmt(ctx.median, 2)} against a random disease (the median of 200 tries). The best fit here, ${fmt(ranked[0].score, 2)}, is higher than ${ctx.p < 0.01 ? 'more than 99%' : Math.round((1 - ctx.p) * 100) + '%'} of those tries.`;
       }
     } catch (e) {
       if (token !== st.token) return;
       resBox.innerHTML = '';
-      resBox.appendChild(note('bad', h('p', 'The match could not be made: ' + e.message)));
+      resBox.appendChild(note('bad', h('p', 'The match couldn’t be made. Try reloading the page. The error was: ' + e.message)));
     }
   };
   // the features changed: match again, once the typing or clicking has paused
@@ -282,10 +282,10 @@ function howItWorks() {
   return h('details.match-how',
     h('summary', 'How the ranking works'),
     h('div.small',
-      h('p', 'Every HPO term has an information content (IC): the rarer a feature is among the annotated diseases, the higher. Each of the features is matched with the disease feature it shares the most specific term with in the ontology (the same feature, a more specific or more general form of it, or a related one), and scores that shared term’s IC. A disease’s score is the average over the features, as in the Phenomizer: it is highest when the disease has every feature, especially the rare ones.'),
-      h('p', 'Excluded features (looked for, and absent) count against a disease that has them, more so if they are frequent in it. Genes are scored by their best-fitting disease. Patients are compared both ways round (how well each one’s features explain the other’s), and averaged.'),
-      h('p', 'That fit is often the same for many diseases, because each has all the features. They are then ordered by the score both ways round: the same average taken over the disease’s own features as well, which favours a disease the features account for more of. Only diseases equal on both share a rank (=1). More specific features, and features ruled out, separate them better still.'),
-      h('p', 'The annotations are incomplete and uneven (some diseases have hundreds of features, some a handful), so this is a list to think with, not a diagnosis.')));
+      h('p', 'Every HPO term has an information content (IC), which is higher the rarer a feature is among the annotated diseases. Each of the features is matched with the disease feature it shares the most specific term with in the ontology, and it scores that shared term’s IC. The match might be the same feature, a more specific or more general form of it, or a related one. A disease’s score is the average over the features, as in the Phenomizer, so it’s highest when the disease has every feature, especially the rare ones.'),
+      h('p', 'Excluded features, which were looked for and found absent, count against a disease that has them, and more so if they’re frequent in it. Genes are scored by their best-fitting disease. Patients are compared both ways round, by how well each one’s features explain the other’s, and the two scores are averaged.'),
+      h('p', 'That fit is often the same for many diseases, because each has all the features. They’re then ordered by the score both ways round, which also takes the same average over the disease’s own features. This favours a disease that the features account for more of. Only diseases equal on both scores share a rank (=1). More specific features, and features ruled out, separate them better still.'),
+      h('p', 'The annotations are incomplete and uneven. Some diseases have hundreds of features and others only a handful, so treat this as a list to think with rather than a diagnosis.')));
 }
 
 /* ---------- the diseases ---------- */
@@ -322,10 +322,10 @@ function drawDiseases(sec, ranked, obs, exc, myGenes, pt, nAll) {
   sec.append(ol, more);
   add(20);
   const tiedFit = list.filter((r) => Math.abs(r.score - list[0].score) <= EPS).length;
-  if (tiedFit > 1) sec.insertBefore(h('p.small.muted', `${tiedFit >= list.length ? 'All' : fmt(tiedFit)} of these diseases fit the features equally well (each has them all, or near enough), so they are ordered by the score both ways round: how much of each disease the features account for.`), ol);
+  if (tiedFit > 1) sec.insertBefore(h('p.small.muted', `${tiedFit >= list.length ? 'All' : fmt(tiedFit)} of these diseases fit the features equally well, because each has them all or near enough. So they’re ordered by the score both ways round, which shows how much of each disease the features account for.`), ol);
   if (pt && myGenes.size) {
     const placed = Array.from(myGenes.keys()).map((g) => ({ g, i: list.findIndex((r) => r.disease.genes.includes(g)) })).filter((x) => x.i >= 0);
-    if (placed.length) sec.appendChild(note('', h('p', `Patient ${pt.id}’s variant genes among these diseases: `, placed.map((x, k) => [k ? '; ' : '', h('i', x.g), ` (its best disease is number ${ranks[x.i].label} here)`]), '. The genes, below, place every gene.')));
+    if (placed.length) sec.appendChild(note('', h('p', `Patient ${pt.id}’s variant genes among these diseases: `, placed.map((x, k) => [k ? '; ' : '', h('i', x.g), ` (its best disease is number ${ranks[x.i].label} here)`]), '. The Genes section below places every gene.')));
   }
 }
 
@@ -341,21 +341,21 @@ function diseaseItem(r, rk, bw, obs, exc, myGenes) {
     h('summary', 'Why it ranks here'),
     table([
       { key: 'p', label: 'Feature', fmt: (x) => h('a', { href: link('/phenotype/' + H.hpId(x.patient)) }, H.name(x.patient)) },
-      { key: 't', label: 'In the disease', fmt: (x) => (x.target != null && x.kind !== 'none' ? h('span', x.kind === 'exact' ? h('span.muted', 'the same') : h('a', { href: link('/phenotype/' + H.hpId(x.target)) }, H.name(x.target)), x.kind !== 'exact' ? h('span.small.muted', ` (${KIND_TEXT[x.kind]}${x.kind === 'related' ? ': both are ' + H.name(x.via) : ''})`) : null, freqOf(d, x.target)) : h('span.faint', 'not explained')) },
+      { key: 't', label: 'In the disease', fmt: (x) => (x.target != null && x.kind !== 'none' ? h('span', x.kind === 'exact' ? h('span.muted', 'the same') : h('a', { href: link('/phenotype/' + H.hpId(x.target)) }, H.name(x.target)), x.kind !== 'exact' ? h('span.small.muted', ` (${KIND_TEXT[x.kind]}${x.kind === 'related' ? ', as both are ' + H.name(x.via) : ''})`) : null, freqOf(d, x.target)) : h('span.faint', 'not explained')) },
       { key: 'ic', label: 'Counts for', num: true, fmt: (x) => h('span.ic-cell', h('span.ic-bar', { style: { width: Math.min(60, x.ic * 7) + 'px' } }), fmt(x.ic, 2)) }
     ], rows, { compact: true, caption: `How ${d.name} explains the features` }),
-    h('p.small.muted', `The fit, ${fmt(r.score, 2)}, is the average of the right-hand column${ex.length ? ', less a penalty for the excluded features it has' : ''}. Both ways round, ${fmt(bw, 2)}: the same average taken over the disease’s ${dcov.total} features as well.`),
-    ex.length ? h('p.small', h('b', 'Ruled out, but in the disease: '), ex.map((x, i) => [i ? '; ' : '', H.name(x.term), x.diseaseTerm !== x.term ? ` (as ${H.name(x.diseaseTerm)})` : '', ` – ${freqWord(x.freq)}`]), '. These count against it.') : null,
-    unseen.length ? h('p.small', h('b', 'Common in the disease, not recorded: '), unseen.map((x, i) => [i ? '; ' : '', h('a', { href: link('/phenotype/' + H.hpId(x.term)) }, H.name(x.term)), h('span.muted', `, ${freqWord(x.freq)}`)]), '. Look for them, or record them as excluded.') : null);
+    h('p.small.muted', `The fit, ${fmt(r.score, 2)}, is the average of the right-hand column${ex.length ? ', less a penalty for the excluded features it has' : ''}. Both ways round, the score is ${fmt(bw, 2)}, which takes the same average over the disease’s ${dcov.total} features as well.`),
+    ex.length ? h('p.small', h('b', 'Ruled out but in the disease: '), ex.map((x, i) => [i ? '; ' : '', H.name(x.term), x.diseaseTerm !== x.term ? ` (as ${H.name(x.diseaseTerm)})` : '', ` – ${freqWord(x.freq)}`]), '. These count against it.') : null,
+    unseen.length ? h('p.small', h('b', 'Common in the disease but not recorded: '), unseen.map((x, i) => [i ? '; ' : '', h('a', { href: link('/phenotype/' + H.hpId(x.term)) }, H.name(x.term)), h('span.muted', `, ${freqWord(x.freq)}`)]), '. Look for them, or record them as excluded.') : null);
   return h('li.match-item' + (flagged.length ? '.hasvar' : ''),
     h('div.match-h',
       h('span.match-rank', { title: rk.tied ? 'Shares this rank with others of the same scores' : null }, rk.label),
       h('span.match-name', diseaseLink(d), ' ', h('span.hpo-id', d.id)),
-      h('span.match-score', h('span', { title: 'Fit: how well the disease explains the features (average information content of their best matches)' }, fmt(r.score, 2)), h('span.match-both', { title: 'Both ways round: also how well the features account for the disease’s own' }, `${fmt(bw, 2)} both ways`))),
+      h('span.match-score', h('span', { title: 'The fit shows how well the disease explains the features, as the average information content of their best matches' }, fmt(r.score, 2)), h('span.match-both', { title: 'Both ways round also counts how well the features account for the disease’s own' }, `${fmt(bw, 2)} both ways`))),
     h('div.small.muted.match-meta',
       d.inh.length ? inhWords(d.inh, H) + '. ' : '',
       d.genes.length ? [d.genes.length === 1 ? 'Gene ' : 'Genes ', d.genes.slice(0, 6).map((g, i) => [i ? ', ' : '', h('a', { href: link('/gene/' + g) }, h('i', g)), myGenes.has(g) ? h('b.fit-flag', ' (a variant in this patient)') : null]), d.genes.length > 6 ? ` and ${d.genes.length - 6} more` : '', '.'] : 'No gene known.'),
-    h('div.small.match-meta', `Explains ${cov.explained} of the ${cov.total} features${cov.related ? ` (${cov.related} more loosely)` : ''}; ${dcov.seen} of its own ${dcov.total} features are matched.`),
+    h('div.small.match-meta', `It explains ${cov.explained} of the ${cov.total} features${cov.related ? ` (${cov.related} more loosely)` : ''}, and ${dcov.seen} of its own ${dcov.total} features are matched.`),
     why);
 }
 function freqOf(d, n) {
@@ -388,10 +388,10 @@ function drawGenes(sec, genes, obs, myGenes, pt) {
       const r = list.find((x) => x.gene === g);
       const v = vs.map((x, i) => [i ? ', ' : '', clsBadge(x.s.cls, { short: true, empty: 'not classified' }), ' ', h('span.hgvs', x.s.short)]);
       if (!r) return h('li', h('a', { href: link('/gene/' + g) }, h('i', g)), ': ', v, h('span.muted', '. No disease of this gene in the HPO’s annotations shares a feature with these, so it can’t be placed.'));
-      return h('li', h('a', { href: link('/gene/' + g) }, h('i', g)), ': ', v, `. Number ${placeOf(r)} of ${fmt(list.length)} (fit ${fmt(r.score, 2)}, through ${r.disease.name}).`);
+      return h('li', h('a', { href: link('/gene/' + g) }, h('i', g)), ': ', v, `. It’s number ${placeOf(r)} of ${fmt(list.length)}, with a fit of ${fmt(r.score, 2)} through ${r.disease.name}.`);
     });
     sec.appendChild(h('div.note', h('p', h('b', `Patient ${pt.id}’s variant genes`)), h('ul.small', items),
-      h('p.small.muted', 'A gene near the top fits the phenotype; one far down may still be the cause (the annotations are incomplete), or may not explain it. This is the sort of evidence PP4 weighs, when the phenotype is specific.')));
+      h('p.small.muted', 'A gene near the top fits the phenotype. One far down may still be the cause, because the annotations are incomplete, or it may not explain the phenotype at all. This is the sort of evidence PP4 weighs when the phenotype is specific.')));
   }
   const rows = list.slice(0, 25).map((r, i) => Object.assign({ rk: ranks[i] }, r));
   sec.appendChild(table([
@@ -423,10 +423,10 @@ function drawSimilar(sec, ps, obs, pt, varsOf, myGenes) {
     return { x, score: both.score, strong: matched.filter((m) => m.ic >= 1.5), weak: matched.filter((m) => m.ic < 1.5).length, genes, shared: genes.filter((g) => myGenes.has(g)) };
   }).filter((r) => r.score > 0).sort((a, b) => b.score - a.score || b.shared.length - a.shared.length).slice(0, 10);
   if (!rows.length) {
-    sec.appendChild(h('p.small.muted', 'None shares an informative feature.'));
+    sec.appendChild(h('p.small.muted', 'None of them shares an informative feature.'));
     return;
   }
-  sec.appendChild(h('p.small.muted', 'Compared both ways round (how well each one’s features explain the other’s), with the features that match best. Shared genes are marked.'));
+  sec.appendChild(h('p.small.muted', 'Patients are compared both ways round, by how well each one’s features explain the other’s, and the features that match best are listed. Shared genes are marked.'));
   const top = rows[0].score || 1;
   const ol = h('ol.match-list');
   for (const r of rows) {
@@ -438,7 +438,7 @@ function drawSimilar(sec, ps, obs, pt, varsOf, myGenes) {
       h('div.fit-bar', h('span', { style: { width: Math.max(3, (r.score / top) * 100) + '%' } })),
       r.strong.length
         ? h('div.small', 'In common: ', r.strong.slice(0, 5).map((m, i) => [i ? '; ' : '', h('b', H.name(m.patient)), m.kind === 'exact' ? h('span.muted', ' (the same)') : m.kind === 'related' ? h('span.muted', ` and ${H.name(m.target)} (both are ${H.name(m.via)})`) : h('span.muted', ` as ${H.name(m.target)} (${PATIENT_KIND(m.kind, who)})`)]), r.weak ? h('span.muted', `; and ${r.weak} looser ${r.weak === 1 ? 'link' : 'links'}`) : null)
-        : h('div.small.muted', 'Only very general features in common.'),
+        : h('div.small.muted', 'They have only very general features in common.'),
       r.genes.length ? h('div.small.muted', 'Variants in: ', r.genes.map((g, i) => [i ? ', ' : '', h('a', { href: link('/gene/' + g) }, h('i', g)), r.shared.includes(g) ? h('b.fit-flag', ' (a gene of this patient’s too)') : null])) : h('div.small.faint', 'No variants yet.')));
   }
   sec.appendChild(ol);
@@ -447,7 +447,7 @@ function drawSimilar(sec, ps, obs, pt, varsOf, myGenes) {
 /** put typed features into a patient's phenotype */
 function saveToPatient(ps, adhoc) {
   const sel = select(ps.map((x) => [x.id, `Patient ${x.id}${x.ref ? ' – ' + x.ref : ''}`]), ps[0].id);
-  modal('Save the features to a patient', h('div.stack', field('Patient', sel), h('p.small.muted', `${adhoc.obs.length} observed and ${adhoc.exc.length} excluded features are added to the patient’s; any the patient already has take the state given here.`)), {
+  modal('Save the features to a patient', h('div.stack', field('Patient', sel), h('p.small.muted', `${adhoc.obs.length} observed and ${adhoc.exc.length} excluded features will be added to the patient’s. Any that the patient already has will take the state given here.`)), {
     actions: [['Cancel', null, 'ghost'], ['Save', async () => {
       const pt = await db.getPatient(sel.value);
       if (!pt) return;

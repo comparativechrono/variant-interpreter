@@ -138,14 +138,16 @@ export function suggest({ ev, gene, clinvarGene, variant, calc = {}, settings = 
     const score = p ? pred[p.key] : null;
     let r = predictorStrength(chosen, score, F);
     const spm = ev.d && ev.d.spliceai ? ev.d.spliceai.max : null;
+    let held = false; // BP4 held back because splicing isn't ruled out
     if (r && r.code === 'BP4' && spm != null && (fw(F).splice.bp4Strict ? spm >= fw(F).splice.bp4 : spm > fw(F).splice.bp4)) {
-      out._predNote = `${p.label} ${score.toFixed(3)} predicts no effect on the protein, but SpliceAI (${spm.toFixed(2)}) doesn’t rule out an effect on splicing, and BP4 needs both.`;
+      held = true;
+      out._bp4Note = `${p.label} ${score.toFixed(3)} predicts no effect on the protein, but SpliceAI (${spm.toFixed(2)}) doesn’t rule out an effect on splicing, and BP4 needs both.`;
       r = null;
     }
     if (r) add(r.code, r.strength, F === 'acgs2024'
       ? `${p.label} scores it ${score.toFixed(3)} (${r.threshold}), which meets ${r.code} at supporting strength, the only strength the ACGS 2024 guidelines use for it.`
       : `${p.label} scores it ${score.toFixed(3)} (${r.threshold}), which reaches ClinGen’s calibrated threshold for ${r.code}_${word(r.strength)} (Pejaver et al. 2022).`);
-    else if (score != null) out._predNote = `${p.label} scores it ${score.toFixed(3)}, which lies between the thresholds for PP3 and BP4, so there’s no computational evidence either way.`;
+    else if (score != null && !held) out._predNote = `${p.label} scores it ${score.toFixed(3)}, which lies between the thresholds for PP3 and BP4, so there’s no computational evidence either way.`;
   }
   const sp = ev.d && ev.d.spliceai;
   const synonymousOrIntronic = is(['synonymous_variant', 'intron_variant']) && !is(SPLICE_CANON) && !is(MISSENSE);

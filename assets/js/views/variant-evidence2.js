@@ -357,7 +357,7 @@ async function drawFamily(ctx, body) {
           r.direction === 'for'
             ? h('p', st.jarvik || st.bayes ? ['The family supports co-segregation: ', st.jarvik ? [critChip('PP1', st.jarvik), ' by meiosis counting (Jarvik and Browning)'] : 'too few meioses for PP1 by counting', st.bayes ? [', and ', critChip('PP1', st.bayes === 'VS' ? 'S' : st.bayes), ' by Tavtigian’s odds'] : ''] : 'The family fits co-segregation, but too weakly to support PP1.')
             : h('p', 'The family argues against the variant causing the disease: ', st.bayes ? critChip('BS4', st.bayes === 'M' ? 'P' : st.bayes) : 'too weakly for BS4', '.'),
-          h('p.small.muted', segCounts(r.counts), `${r.counts.untestedAffected ? ` ${r.counts.untestedAffected} affected relatives weren’t tested.` : ''} The ratio compares the chance of seeing the relatives’ genotypes, given everyone’s phenotypes, if the variant causes the disease with the penetrance and phenocopy rate above, against the chance if it doesn’t. Both start from the proband having the variant. ${qText}`));
+          h('p.small.muted', segCounts(r.counts), `${r.counts.untestedAffected ? ` ${r.counts.untestedAffected} affected ${r.counts.untestedAffected === 1 ? 'relative wasn’t' : 'relatives weren’t'} tested.` : ''} The ratio compares the chance of seeing the relatives’ genotypes, given everyone’s phenotypes, if the variant causes the disease with the penetrance and phenocopy rate above, against the chance if it doesn’t. Both start from the proband having the variant. ${qText}`));
         ctx.save();
         ctx.refreshSuggestions();
       };

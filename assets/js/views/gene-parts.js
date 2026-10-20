@@ -41,7 +41,7 @@ export function scoreGauges(g) {
     gaugeRow({
       label: 'LOEUF', value: g.loeuf, min: 0, max: 2, zone: [0, THRESH.loeuf - 1e-9], zoneText: `below ${THRESH.loeuf}: constrained`,
       verdict: ['constrained', 'not constrained'],
-      extra: g.loeuf != null ? `Decile ${g.loeufDecile != null ? g.loeufDecile + 1 : '–'} of 10 (1 is the most constrained). ${g.lofObs != null ? `${fmt(g.lofObs)} loss-of-function variants seen in gnomAD, ${fmt(g.lofExp, 1)} expected.` : ''}` : 'gnomAD gives no constraint for this gene (often a gene on the X or Y chromosome, or with too few expected variants).'
+      extra: g.loeuf != null ? `It’s in decile ${g.loeufDecile != null ? g.loeufDecile + 1 : '–'} of 10, where 1 is the most constrained. ${g.lofObs != null ? `gnomAD sees ${fmt(g.lofObs)} loss-of-function variants, against ${fmt(g.lofExp, 1)} expected.` : ''}` : 'gnomAD gives no constraint for this gene. That’s often because it’s on the X or Y chromosome, or has too few expected variants.'
     }),
     gaugeRow({ label: 'pLI', value: g.pLI, min: 0, max: 1, zone: [THRESH.pLI, 1], zoneText: `${THRESH.pLI} or more: intolerant`, verdict: ['intolerant of loss of function', 'not intolerant'] }),
     gaugeRow({
@@ -53,11 +53,11 @@ export function scoreGauges(g) {
     h('details.gauge-help',
       h('summary', 'What these scores mean'),
       h('dl.small',
-        h('dt', 'LOEUF'), h('dd', 'How many loss-of-function variants gnomAD’s people carry in the gene, against how many would be expected by chance: the upper end of the 90% confidence interval of observed/expected. Low means people rarely carry one, so losing a copy is likely harmful. gnomAD v4 suggests below 0.6 as constrained.'),
-        h('dt', 'pLI'), h('dd', 'The probability that the gene is intolerant of losing one copy, from the same counts. 0.9 or more is intolerant. LOEUF is the better measure, because it is continuous.'),
-        h('dt', 'Missense Z'), h('dd', 'How much fewer missense variants gnomAD sees than expected, as a Z score. Above 3.09 the gene tolerates few missense changes: one of the conditions for PP2.'),
-        h('dt', 'pHaplo and pTriplo'), h('dd', 'Collins et al. (2022): the probability that losing a copy (pHaplo) or gaining one (pTriplo) causes disease, from large studies of CNVs. At 0.86 and 0.94 the odds are as high as for genes ClinGen has curated as dosage-sensitive. They help with CNVs (section 2H of the CNV guidelines).')),
-      h('p.small.muted', 'None of these is a criterion by itself: they say how a gene usually behaves, which is a reason to look for, or doubt, a mechanism.')));
+        h('dt', 'LOEUF'), h('dd', 'This compares how many loss-of-function variants the people in gnomAD carry in the gene with how many would be expected by chance. It’s the upper end of the 90% confidence interval of observed/expected. A low value means people rarely carry one, so losing a copy is likely to be harmful. gnomAD v4 suggests below 0.6 as constrained.'),
+        h('dt', 'pLI'), h('dd', 'This is the probability that the gene is intolerant of losing one copy, worked out from the same counts. A value of 0.9 or more counts as intolerant. LOEUF is the better measure, because it’s continuous.'),
+        h('dt', 'Missense Z'), h('dd', 'This measures how many fewer missense variants gnomAD sees than expected, as a Z score. Above 3.09 the gene tolerates few missense changes, which is one of the conditions for PP2.'),
+        h('dt', 'pHaplo and pTriplo'), h('dd', 'These are Collins et al.’s (2022) estimates of the probability that losing a copy (pHaplo) or gaining one (pTriplo) causes disease, based on large studies of CNVs. At 0.86 and 0.94 the odds are as high as for genes ClinGen has curated as dosage-sensitive. They’re useful for CNVs, for example for 2H in the CNV guidelines.')),
+      h('p.small.muted', 'None of these is a criterion by itself. They tell you how a gene usually behaves, which gives you a reason to look for a mechanism, or to doubt one.')));
   return box;
 }
 

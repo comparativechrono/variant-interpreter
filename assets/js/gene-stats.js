@@ -88,25 +88,25 @@ export function geneNotes(summary) {
       codes: ['PVS1'],
       text: `${n(lof.plp)} of the ${n(lofCls)} truncating variants classified either way are pathogenic or likely pathogenic (${share}%). ` +
         (share >= 80 ? 'Loss of function looks like a mechanism of disease for this gene, which PVS1 needs.'
-          : share <= 30 ? 'Truncating variants are often benign here: loss of function may not cause disease, so PVS1 may not apply.'
-            : 'The picture is mixed: check the gene’s curations for its mechanism before using PVS1.')
+          : share <= 30 ? 'Truncating variants are often benign here, so loss of function may not cause disease and PVS1 may not apply.'
+            : 'The picture is mixed, so check the gene’s curations for its mechanism before using PVS1.')
     });
-  } else if (lof.total) out.push({ about: 'lof', codes: ['PVS1'], text: `Only ${n(lofCls)} truncating ${lofCls === 1 ? 'variant is' : 'variants are'} classified either way: too few to say whether loss of function causes disease. The gene’s curations (ClinGen, Gene2Phenotype) say more.` });
+  } else if (lof.total) out.push({ about: 'lof', codes: ['PVS1'], text: `Only ${n(lofCls)} truncating ${lofCls === 1 ? 'variant is' : 'variants are'} classified either way, which is too few to say whether loss of function causes disease. The gene’s curations in ClinGen and Gene2Phenotype say more.` });
   if (misCls >= 5) {
     const share = pc(mis.plp, misCls);
     let text = `${n(mis.plp)} of the ${n(misCls)} missense and in-frame variants classified either way are pathogenic or likely pathogenic (${share}%), and ${n(mis.blb)} are benign or likely benign.`;
     const codes = [];
     if (share >= 70 && mis.plp >= 10) {
-      text += ' Pathogenic missense variants are common here and benign ones few: the kind of gene PP2 is for (with low missense variation in the population: see the missense Z score).';
+      text += ' Pathogenic missense variants are common here and benign ones are few, which is the kind of gene PP2 is for. PP2 also needs low missense variation in the population, so check the missense Z score.';
       codes.push('PP2');
     } else if (mis.plp <= 2 && lof.plp >= 10) {
-      text += ' Almost all the pathogenic variants truncate the protein: the kind of gene BP1 (missense variants in a gene where only truncating ones cause disease) is for.';
+      text += ' Almost all the pathogenic variants truncate the protein, which is the kind of gene BP1 is for. BP1 covers missense variants in a gene where only truncating ones cause disease.';
       codes.push('BP1');
     }
     out.push({ about: 'missense', codes, text });
   }
   const syn = m.synonymous;
-  if (syn.total >= 10 && syn.plp === 0) out.push({ about: 'synonymous', codes: ['BP7'], text: `None of the ${n(syn.total)} synonymous variants in ClinVar is classified pathogenic: as expected unless one changes splicing.` });
+  if (syn.total >= 10 && syn.plp === 0) out.push({ about: 'synonymous', codes: ['BP7'], text: `None of the ${n(syn.total)} synonymous variants in ClinVar is classified pathogenic, which is what you’d expect unless one changes splicing.` });
   return out;
 }
 

@@ -73,6 +73,9 @@ export class Classification {
   }
 }
 
+/** why a criterion wasn't suggested, when the evidence came close: the note suggest() leaves for it */
+const NOTE_FOR = { PVS1: '_pvs1Note', PP3: '_predNote', BP4: '_bp4Note', BP7: '_bp7Note', PP1: '_pp1Note', BA1: '_ba1Note', BS1: '_bs1Note', BS2: '_bs2Note' };
+
 /** the strength suggested for a criterion, limited to what the framework allows */
 function fitStrength(c, s) {
   const allowed = strengthsFor(c, framework());
@@ -131,6 +134,8 @@ export function criterionRow(cls, code, opts = {}) {
       const take = h('button.btn.small', { type: 'button', disabled: cls.readOnly || applied || null }, applied ? 'Applied' : `Apply ${labelFor(code, sStr, F)}`);
       take.addEventListener('click', () => cls.set(code, { met: true, evaluated: true, strength: sStr, note: st.note || sug.why }));
       row.appendChild(h('div.crow-sug', h('span.sug-mark', { 'aria-hidden': 'true', html: icon('lightbulb') }), h('span.sug-text', h('b', `Suggested: ${labelFor(code, sStr, F)}. `), sug.why), take));
+    } else if (cls.showSuggestions && typeof cls.notes[NOTE_FOR[code]] === 'string') {
+      row.appendChild(h('div.crow-sug.against', h('span.sug-mark', { 'aria-hidden': 'true', html: icon('info') }), h('span.sug-text', h('b', 'Not suggested. '), cls.notes[NOTE_FOR[code]])));
     }
     if (st.met || st.evaluated || st.note) {
       const note = h('input', { type: 'text', placeholder: st.met ? 'The evidence that meets it (goes on the report)' : 'Why it is not met', 'aria-label': `Evidence for ${code}`, disabled: cls.readOnly || null });

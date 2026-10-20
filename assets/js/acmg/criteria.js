@@ -29,7 +29,7 @@ export const CRITERIA = [
     name: 'Null variant where loss of function causes disease',
     short: 'A nonsense, frameshift, canonical ±1 or 2 splice site or start-loss variant, or a deletion of one or more exons, in a gene where loss of function is a known cause of the disease.',
     guide: [
-      'Use it only when the gene–disease relationship is strong or definitive, as the decision tree assumes (Abou Tayoun et al. 2018), and loss of function (LoF) is an established cause of the disease. Their Table 1 also allows a moderate relationship, with PVS1 one or two levels lower, and the ACGS 2024 guidelines accept moderate. As evidence that LoF causes the disease, look for several pathogenic LoF variants in ClinVar, a ClinGen haploinsufficiency score of 3, or Gene2Phenotype’s “loss of function” mechanism. Constraint (pLI, LOEUF) shows that the gene is intolerant of LoF, which doesn’t prove that LoF causes this disease. Never use it when the disease is caused by gain of function.',
+      'Use it only when the gene–disease relationship is strong or definitive, as the decision tree assumes (Abou Tayoun et al. 2018), and loss of function (LoF) is an established cause of the disease. The paper’s Table 1 also allows a moderate relationship, with PVS1 one or two levels lower, and the ACGS 2024 guidelines accept moderate. As evidence that LoF causes the disease, look for several pathogenic LoF variants in ClinVar, a ClinGen haploinsufficiency score of 3, or Gene2Phenotype’s “loss of function” mechanism. Constraint (pLI, LOEUF) shows that the gene is intolerant of LoF, which doesn’t prove that LoF causes this disease. Never use it when the disease is caused by gain of function.',
       'Work out the strength with ClinGen’s decision tree (Abou Tayoun et al. 2018), which is built into the Variant type and PVS1 section of the variant’s page. A premature stop that triggers nonsense-mediated decay (NMD) usually stays very strong. One that escapes NMD, because it is in the last exon or within 50 bases of the end of the penultimate one, is strong if it removes a critical region or more than 10% of the protein, and moderate otherwise.',
       'Check the transcript. A variant in an exon that is skipped in the transcripts expressed in the relevant tissue may not cause LoF.',
       'Don’t use it with PM4, or with PP3 for the same effect. The ACGS 2024 guidelines never use it with PM1, PM4, PP2 or PP3, and don’t use PS3 with it when PVS1 is very strong. For a variant that escapes NMD, functional evidence may raise PVS1 instead. With PM2_Supporting, PVS1 makes a variant likely pathogenic (ClinGen 2020).',
@@ -42,7 +42,7 @@ export const CRITERIA = [
     name: 'Same amino acid change as an established pathogenic variant',
     short: 'A different nucleotide change that gives the same amino acid change as a variant already established as pathogenic.',
     guide: [
-      'For example, c.34G>C and c.34G>T both give p.Gly12Arg, so if c.34G>C is pathogenic, c.34G>T may meet PS1.',
+      'For example, if codon 12 is GTG (valine), c.34G>C and c.34G>T both give p.Val12Leu, so if c.34G>C is pathogenic, c.34G>T may meet PS1. This is the example Richards et al. (2015) and the ACGS give.',
       'First rule out a different effect on splicing. If SpliceAI predicts that the established variant or this one changes splicing, the two may not act alike.',
       'The established variant should be pathogenic by a reliable classification, for example from a ClinVar expert panel or several submitters who agree. If it is likely pathogenic, use PS1_Moderate (ACGS 2024 and ClinGen).',
       'ClinGen (Walker et al. 2023) also uses PS1 for splicing. A variant predicted to cause the same splicing change as a pathogenic splice variant, at least as strongly, meets PS1 if it is at the same nucleotide, or PS1_Moderate if it is in the same splice motif.'
@@ -78,7 +78,7 @@ export const CRITERIA = [
     short: 'The variant is significantly more frequent in affected people than in controls (a case-control odds ratio over 5, with a confidence interval that does not include 1), or it has been seen in several unrelated patients with the same phenotype.',
     guide: [
       'In a case-control study, you need an odds ratio above 5 whose 95% confidence interval excludes 1.',
-      'For rare variants, you count unrelated affected people instead. The ACGS 2024 guidelines give moderate for two or more unrelated people with a rare, specific phenotype when the variant is absent from gnomAD, and supporting for one. ClinGen’s expert panels set their own counts for their genes, and some, such as the TP53 panel, allow PS4 up to very strong when many probands meet their criteria.',
+      'For rare variants, you count unrelated affected people instead. The ACGS 2024 guidelines give it moderate strength for two or more unrelated people with a rare, specific phenotype when the variant is absent from gnomAD, and supporting strength for one. ClinGen’s expert panels set their own counts for their genes, and some, such as the TP53 panel, allow PS4 up to very strong when many probands meet their criteria.',
       'For recessive disorders, use PM3 instead of PS4. A case counts towards either PS4 or PP4, but not both.',
       'Don’t count relatives as separate probands, because they belong to segregation (PP1).'
     ],
@@ -148,7 +148,7 @@ export const CRITERIA = [
     name: 'Assumed de novo (parentage not confirmed)',
     short: 'The parents’ tests show that the variant is de novo, but maternity and paternity haven’t been confirmed.',
     guide: [
-      'ClinGen gives an assumed de novo occurrence half the points of a confirmed one, which scores 1 point with a consistent phenotype. The de novo calculator in the Patient and family section adds confirmed and assumed occurrences together. Use PS2 or PM6 for the result, whichever describes the occurrences, at the strength the points reach.'
+      'ClinGen gives an assumed de novo occurrence half the points of a confirmed one. With a phenotype that is consistent with the gene but not highly specific, for example, a confirmed occurrence scores 1 point and an assumed one 0.5 (see PS2 for the full scale). The de novo calculator in the Patient and family section adds confirmed and assumed occurrences together, and writes the result as PS2_x if any occurrence is confirmed, or PM6_x if none is.'
     ],
     refs: ['svi_denovo', 'richards2015']
   },

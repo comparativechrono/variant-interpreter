@@ -33,7 +33,7 @@ export async function render(root, params, query) {
   root.appendChild(p);
   p.appendChild(pageHead({
     title: 'Genome browser',
-    lede: 'Any region, with ClinVar, ClinGen’s dosage curations, population CNVs and genes. Type a gene, a position or a region in the browser’s own box, or show a patient’s variants.'
+    lede: 'Look at any region with ClinVar, ClinGen’s dosage curations, population CNVs and genes. Type a gene, a position or a region in the browser’s own box, or show a patient’s variants.'
   }));
   const asmSel = select([['GRCh38', 'GRCh38 (hg38)'], ['GRCh37', 'GRCh37 (hg19)']], asm);
   const ptSel = select([['', 'None']].concat(ps.map((x) => [x.id, `Patient ${x.id}${x.ref ? ' – ' + x.ref : ''}`])), pid);
@@ -77,7 +77,7 @@ export async function render(root, params, query) {
     if (!handle) return;
     const b = await handle.ready.catch(() => null);
     if (!b) return;
-    if (on) handle.addTrack(trackConfig(k, asmSel.value)).catch((e) => toast(`${TRACKS[k].name} could not be read: ${e.message}`, 'error'));
+    if (on) handle.addTrack(trackConfig(k, asmSel.value)).catch((e) => toast(`The track “${TRACKS[k].name}” couldn’t be read: ${e.message}`, 'error'));
     else b.removeTrackByName(TRACKS[k].name);
   });
   p.appendChild(h('div.browser-bar', field('Genome build', asmSel), field('Show a patient’s variants', ptSel), picker));
@@ -104,6 +104,6 @@ export async function render(root, params, query) {
     if (r.kind === 'region' || r.kind === 'cnv') locus = `chr${r.chrom}:${r.start}-${r.end}`;
   }
   handle = genomeBrowser(holder, { assembly: asmSel.value, locus: locus || (asmSel.value === 'GRCh37' ? 'chr17:7565097-7590856' : 'chr17:7661779-7687538'), tracks: chosen, extra });
-  p.appendChild(h('p.small.muted', 'Point at, or click, a feature for its details. The tracks are read from UCSC’s copy of its files on Amazon: ClinVar (NCBI), ClinGen’s dosage sensitivity and gene–disease validity curations, the Database of Genomic Variants’ gold standard set, and NCBI’s RefSeq Select genes. ', h('a', { href: link('/about') }, 'Sources and licences'), '.'));
+  p.appendChild(h('p.small.muted', 'Point at or click a feature to see its details. The tracks come from UCSC’s copy of its files on Amazon, and they include ClinVar (NCBI), ClinGen’s dosage sensitivity and gene–disease validity curations, the Database of Genomic Variants’ gold standard set and NCBI’s RefSeq Select genes. You can read about the ', h('a', { href: link('/about') }, 'sources and licences'), '.'));
   return () => handle && handle.destroy();
 }

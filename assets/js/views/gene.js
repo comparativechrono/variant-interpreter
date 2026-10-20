@@ -139,13 +139,13 @@ function drawHead(st) {
     extra: h('div',
       also.length ? h('p.small.muted.gene-also', also.join('; ') + '.') : null,
       h('div.row.gene-tags', moi ? h('span.tag.accent', { title: 'From the gene’s ClinGen and Gene2Phenotype curations' }, 'Inheritance: ' + moiWords(moi)) : null,
-        g.hi === 3 ? h('span.tag.bad', { title: 'ClinGen: sufficient evidence for haploinsufficiency' }, 'Haploinsufficient (ClinGen 3)') : null,
-        g.ts === 3 ? h('span.tag.bad', { title: 'ClinGen: sufficient evidence for triplosensitivity' }, 'Triplosensitive (ClinGen 3)') : null,
-        g.loeuf != null && g.loeuf < THRESH.loeuf ? h('span.tag', { title: 'gnomAD v4.1: LOEUF below 0.6' }, 'Constrained for loss of function') : null),
+        g.hi === 3 ? h('span.tag.bad', { title: 'ClinGen has found sufficient evidence for haploinsufficiency' }, 'Haploinsufficient (ClinGen 3)') : null,
+        g.ts === 3 ? h('span.tag.bad', { title: 'ClinGen has found sufficient evidence for triplosensitivity' }, 'Triplosensitive (ClinGen 3)') : null,
+        g.loeuf != null && g.loeuf < THRESH.loeuf ? h('span.tag', { title: 'LOEUF is below 0.6 in gnomAD v4.1' }, 'Constrained for loss of function') : null),
       st.summary, st.protein),
     actions: [lookBox]
   }));
-  if (st.query.from) p.appendChild(note('', h('p', `${st.query.from} is ${(g.prev || []).map((x) => x.toUpperCase()).includes(String(st.query.from).toUpperCase()) ? 'a previous symbol' : 'another name'} of `, h('i', g.symbol), ', HGNC’s approved symbol, so this is its page.')));
+  if (st.query.from) p.appendChild(note('', h('p', `${st.query.from} is ${(g.prev || []).map((x) => x.toUpperCase()).includes(String(st.query.from).toUpperCase()) ? 'a previous symbol' : 'another name'} for `, h('i', g.symbol), ', HGNC’s approved symbol, so this is its page.')));
   st.nav = h('div');
   p.appendChild(st.nav);
   st.body = h('div.tab-body.gene-body');
@@ -234,7 +234,7 @@ async function showTab(tab) {
     }
   } catch (e) {
     console.error(e);
-    box.appendChild(note('bad', h('p', 'This part of the page could not be shown: ' + e.message)));
+    box.appendChild(note('bad', h('p', 'This part of the page couldn’t be shown. Try reloading the page. The error was: ' + e.message)));
   }
 }
 
@@ -256,7 +256,7 @@ async function drawOverview(st, box) {
     { key: 'classification', label: 'Classification', fmt: (r) => validityTag(r.classification) },
     { key: 'date', label: 'Curated', fmt: (r) => r.date || '' },
     { key: 'gcep', label: 'Expert panel', fmt: (r) => h('span.small', (r.gcep || '').replace(/ Gene Curation Expert Panel$/, ' panel')) }
-  ], g.validity, { compact: true, caption: `ClinGen gene–disease validity for ${g.symbol}` }) : h('p.muted.small', `ClinGen has not curated ${g.symbol}’s link to a disease (or not yet).`));
+  ], g.validity, { compact: true, caption: `ClinGen gene–disease validity for ${g.symbol}` }) : h('p.muted.small', `ClinGen hasn’t curated a link between ${g.symbol} and a disease, at least not yet.`));
   // Gene2Phenotype
   left.appendChild(h('h3.vsub', 'Gene2Phenotype'));
   left.appendChild(g.g2p.length ? table([
@@ -265,7 +265,7 @@ async function drawOverview(st, box) {
     { key: 'mechanism', label: 'Mechanism', fmt: (r) => h('span', r.mechanism || '', r.consequence ? h('span.small.muted', h('br'), r.consequence) : null) },
     { key: 'confidence', label: 'Confidence', fmt: (r) => validityTag(r.confidence) },
     { key: 'panels', label: 'Panels', fmt: (r) => h('span.small', r.panels || '') }
-  ], g.g2p, { compact: true, caption: `Gene2Phenotype entries for ${g.symbol}` }) : h('p.muted.small', `${g.symbol} is not on Gene2Phenotype’s panels.`));
+  ], g.g2p, { compact: true, caption: `Gene2Phenotype entries for ${g.symbol}` }) : h('p.muted.small', `${g.symbol} isn’t on any of Gene2Phenotype’s panels.`));
   // dosage sensitivity, in words
   left.appendChild(h('h3.vsub', 'Dosage sensitivity (ClinGen)'));
   left.appendChild(h('table.kv', h('tbody',
@@ -280,7 +280,7 @@ async function drawOverview(st, box) {
       const hit = (rs || []).filter((r) => (r.hi != null && r.hi !== 0) || (r.ts != null && r.ts !== 0));
       if (!hit.length || !regBox.isConnected) return;
       regBox.append(h('p.small', { style: { margin: '8px 0 4px' } }, `${g.symbol} lies in ${hit.length === 1 ? 'a region' : hit.length + ' regions'} that ClinGen has curated for copy-number changes:`),
-        h('ul.small.gene-regions', hit.map((r) => h('li', ext(r.url, r.name || r.id), ` (${r.id}${r.cytoband ? ', ' + r.cytoband : ''}): haploinsufficiency ${dosageWords(r.hi)}; triplosensitivity ${dosageWords(r.ts)}.`))));
+        h('ul.small.gene-regions', hit.map((r) => h('li', ext(r.url, r.name || r.id), ` (${r.id}${r.cytoband ? ', ' + r.cytoband : ''}): ${dosageWords(r.hi)} for haploinsufficiency, and ${dosageWords(r.ts)} for triplosensitivity.`))));
     }).catch(() => null);
   }
   // the diseases of the gene (the HPO's annotations: OMIM and Orphanet)
@@ -296,14 +296,14 @@ async function drawOverview(st, box) {
   /* ---- right: scores and links ---- */
   right.appendChild(h('h2.gene-h', 'Gene predictive scores'));
   right.appendChild(scoreGauges(g));
-  right.appendChild(h('p.small.muted', 'gnomAD v4.1 constraint (its MANE Select transcript) and Collins et al. (2022) for pHaplo and pTriplo, as of the site’s gene table (', (genesMeta() || {}).made || 'date not recorded', ').'));
+  right.appendChild(h('p.small.muted', 'The constraint scores come from gnomAD v4.1 (for the gene’s MANE Select transcript), and pHaplo and pTriplo from Collins et al. (2022), as recorded in the site’s gene table (', (genesMeta() || {}).made || 'date not recorded', ').'));
   right.appendChild(h('h2.gene-h', 'Search databases'));
   right.appendChild(h('div.ext-links', geneLinks(g).map(([t, u]) => ext(u, t))));
 
   // the expert panel's rules for the gene, if ClinGen has any
   import('../api/cspec.js').then((cs) => cs.forGene(g.symbol)).then((sets) => {
     if (!sets.length || !vcep.isConnected) return;
-    vcep.appendChild(note('ok', h('p', h('b', `ClinGen has expert-panel rules for classifying ${g.symbol}’s variants: `), sets.map((s, i) => [i ? '; ' : '', ext(s.url, `${s.panel}, version ${s.version}`)]), '. They change how some criteria apply to this gene (thresholds and strengths). The variant pages show them beside each criterion.')));
+    vcep.appendChild(note('ok', h('p', h('b', `ClinGen has expert-panel rules for classifying ${g.symbol}’s variants: `), sets.map((s, i) => [i ? '; ' : '', ext(s.url, `${s.panel}, version ${s.version}`)]), '. They change how some criteria apply to this gene, such as their thresholds and strengths, and the variant pages show them beside each criterion.')));
   }).catch(() => null);
 
   // diseases
@@ -322,17 +322,17 @@ async function drawOverview(st, box) {
       { key: 'n', label: 'Features', num: true, fmt: (r) => featuresButton(r.d, H, freqWord), sort: (r) => r.d.pheno.size }
     ], rows, { compact: true, sortable: true, caption: `Diseases of ${g.symbol}` });
     dzBox.appendChild(tbl);
-    dzBox.appendChild(h('p.small.muted', `From the HPO’s annotations (version ${H.diseaseVersion() || H.hpoVersion()}). Press a number to see the disease’s features. `, h('a', { href: link(`/gene/${g.symbol}/phenotypes`) }, 'All the features, beside your patients’'), '.'));
+    dzBox.appendChild(h('p.small.muted', `These come from the HPO’s annotations (version ${H.diseaseVersion() || H.hpoVersion()}). Press a number to see the disease’s features, or see `, h('a', { href: link(`/gene/${g.symbol}/phenotypes`) }, 'all the features beside your patients’'), '.'));
   }).catch((e) => {
     dzBox.innerHTML = '';
-    dzBox.appendChild(h('p.small.muted', 'The HPO’s annotations could not be loaded: ' + e.message));
+    dzBox.appendChild(h('p.small.muted', 'The HPO’s annotations couldn’t be loaded. Try reloading the page. The error was: ' + e.message));
   });
 
   // PanelApp
   import('../panels.js').then((P) => P.panelsOfGene(g.symbol).then((list) => {
     paBox.innerHTML = '';
     if (!list.length) {
-      paBox.appendChild(h('p.muted.small', `${g.symbol} is not on any of PanelApp’s panels.`));
+      paBox.appendChild(h('p.muted.small', `${g.symbol} isn’t on any of PanelApp’s panels.`));
       return;
     }
     const rows = list.slice().sort((a, b) => b.rating - a.rating || a.panel.localeCompare(b.panel));
@@ -344,12 +344,12 @@ async function drawOverview(st, box) {
         { key: 'moi', label: 'Inheritance', fmt: (r) => h('span.small', String(r.moi || '').replace(/^([^,]+),.*/, '$1').toLowerCase()) }
       ], all ? rows : rows.slice(0, 8), { compact: true, caption: `PanelApp panels with ${g.symbol}` }));
       if (!all && rows.length > 8) paBox.appendChild(h('div.btn-row', { style: { marginTop: '6px' } }, btn(`Show all ${rows.length} panels`, () => show(true), { cls: 'small' })));
-      paBox.appendChild(h('p.small.muted', 'Green: diagnostic grade; amber: moderate evidence; red: not enough evidence for diagnostic use.'));
+      paBox.appendChild(h('p.small.muted', 'Green means diagnostic grade, amber means moderate evidence, and red means there isn’t enough evidence for diagnostic use.'));
     };
     show(false);
   })).catch((e) => {
     paBox.innerHTML = '';
-    paBox.appendChild(h('p.small.muted', 'PanelApp did not answer: ' + e.message));
+    paBox.appendChild(h('p.small.muted', 'PanelApp didn’t answer. Try again in a minute. The error was: ' + e.message));
   });
 }
 
@@ -376,7 +376,7 @@ function featuresButton(d, H, freqWord) {
     const rows = Array.from(d.pheno).map(([n, f]) => ({ n, f, name: H.name(n), branch: (H.branch(n) || {}).name || 'Other' }))
       .sort((a, b) => (b.f == null ? -1 : b.f) - (a.f == null ? -1 : a.f) || a.name.localeCompare(b.name));
     modal(d.name, h('div',
-      h('p.small.muted', `${d.id}. ${d.inh.length ? 'Inheritance: ' + d.inh.map((n) => H.name(n)).join(', ') + '. ' : ''}${rows.length} features in the HPO’s annotations, the commonest first.`),
+      h('p.small.muted', `${d.id}. ${d.inh.length ? 'Inheritance: ' + d.inh.map((n) => H.name(n)).join(', ') + '. ' : ''}The HPO’s annotations list ${rows.length} features, and the commonest come first.`),
       table([
         { key: 'name', label: 'Feature', fmt: (r) => h('span', h('a', { href: link('/phenotype/' + H.hpId(r.n)) }, r.name), ' ', h('span.hpo-id', H.hpId(r.n))) },
         { key: 'f', label: 'How often', fmt: (r) => freqWord(r.f) },

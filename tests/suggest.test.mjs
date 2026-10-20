@@ -61,6 +61,9 @@ s = suggest({ ev: ev({ revel: 0.10, spliceai: 0.60 }), gene: geneOf('AD'), setti
 ok(!s.BP4 && s.PP3, 'REVEL 0.10 with SpliceAI 0.60: PP3, not BP4');
 s = suggest({ ev: ev({ revel: 0.10, spliceai: 0.10 }), gene: geneOf('AD'), settings: { framework: 'acgs2024' } });
 ok(!s.BP4, 'ACGS: SpliceAI must be below 0.1 for BP4');
+ok(/SpliceAI/.test(s._bp4Note || '') && !s._predNote, 'BP4 held back for splicing: the note says why and is not overwritten');
+s = suggest({ ev: ev({ revel: 0.55 }), gene: geneOf('AD'), settings: { framework: 'acgs2024' } });
+ok(!s.PP3 && !s.BP4 && /between the thresholds/.test(s._predNote || ''), 'REVEL 0.55: neither PP3 nor BP4, and a note says so');
 s = suggest({ ev: ev({ revel: 0.10, spliceai: 0.02 }), gene: geneOf('AD'), settings: { framework: 'acgs2024' } });
 ok(s.BP4 && s.BP4.strength === 'P', 'ACGS: BP4 at supporting');
 

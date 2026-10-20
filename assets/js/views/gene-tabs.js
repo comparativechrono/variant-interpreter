@@ -55,12 +55,12 @@ async function drawPhenotypes(st, box) {
     [ds, rows] = await Promise.all([st.diseases(), st.patients()]);
   } catch (e) {
     box.innerHTML = '';
-    box.appendChild(note('bad', h('p', 'The HPO could not be loaded: ' + e.message)));
+    box.appendChild(note('bad', h('p', 'The HPO couldn’t be loaded. Try reloading the page. The error was: ' + e.message)));
     return;
   }
   box.innerHTML = '';
   if (!ds.length) {
-    box.appendChild(empty(`No diseases of ${st.symbol} in the HPO’s annotations`, 'So there are no features to show. The gene’s curations (Overview) may still link it to a disease.'));
+    box.appendChild(empty(`No diseases of ${st.symbol} in the HPO’s annotations`, 'So there are no features to show, but the gene’s curations on the Overview tab may still link it to a disease.'));
     return;
   }
   // the features of the gene's diseases: for each, the highest frequency in any of them, and which diseases have it
@@ -87,8 +87,8 @@ async function drawPhenotypes(st, box) {
   const ctxBox = h('div.gene-ctx');
   const listBox = h('div');
   const side = h('aside.gene-side');
-  box.append(h('p.lede', `The features of ${st.symbol}’s ${ds.length} ${ds.length === 1 ? 'disease' : 'diseases'} in the HPO’s annotations (${feats.size} features), by body system. A feature your patients have (or a more specific form of it) is in bold, with who has it; one they have only in a more general form is noted under it.`), ctxBox, h('div.cols', listBox, side));
-  const pick = await contextPicker(st, rows, (pt) => paint(pt), 'Shared: the patient has the feature, or a more specific form of it');
+  box.append(h('p.lede', `These are the features of ${st.symbol}’s ${ds.length} ${ds.length === 1 ? 'disease' : 'diseases'} in the HPO’s annotations (${feats.size} features), grouped by body system. A feature your patients have, or a more specific form of it, is in bold, with the patients who have it. If they have it only in a more general form, that’s noted under it.`), ctxBox, h('div.cols', listBox, side));
+  const pick = await contextPicker(st, rows, (pt) => paint(pt), 'A feature is shared when the patient has it, or a more specific form of it');
   ctxBox.appendChild(pick.el);
 
   const paint = (ctxPatient) => {
@@ -130,7 +130,7 @@ async function drawPhenotypes(st, box) {
       const label = `${gname.replace(/^Abnormality of (the )?/, (m) => m)} (${xs.length}${shared ? `, ${shared} shared` : ''})`;
       listBox.appendChild(h('details.feat-group', { open: shared || xs.length <= 12 || order.length <= 3 ? true : null }, h('summary', label), ul));
     }
-    listBox.prepend(h('p.small.muted', { 'aria-live': 'polite' }, who.length ? `${sharedN} of the ${feats.size} features are shared with ${ctxPatient ? 'Patient ' + ctxPatient.id : `your ${who.length === 1 ? 'patient' : who.length + ' patients'} with a variant in ${st.symbol}`}.` : `No patient in this browser has a variant in ${st.symbol}: choose one above to compare their features.`));
+    listBox.prepend(h('p.small.muted', { 'aria-live': 'polite' }, who.length ? `${sharedN} of the ${feats.size} features are shared with ${ctxPatient ? 'Patient ' + ctxPatient.id : `your ${who.length === 1 ? 'patient' : who.length + ' patients'} with a variant in ${st.symbol}`}.` : `No patient in this browser has a variant in ${st.symbol}, but you can choose one above to compare their features.`));
     // the side: the patients, their features, and those several share
     side.appendChild(h('h3.vsub', ctxPatient ? `Patient ${ctxPatient.id}` : `Your patients with a variant in ${st.symbol}`));
     if (!who.length) side.appendChild(h('p.small.muted', 'None yet.'));
@@ -148,7 +148,7 @@ async function drawPhenotypes(st, box) {
     if (!ctxPatient && people.length >= 2) {
       const common = X.sharedFeatures(people.map((p) => ({ id: p.id, terms: p.terms })), 2);
       side.appendChild(h('h3.vsub', 'Features several of them share'));
-      side.appendChild(common.length ? h('ul.small.person-feats', common.slice(0, 15).map((c) => sharedItem(c, people.length, H))) : h('p.small.muted', 'None: they share no feature beyond the most general ones.'));
+      side.appendChild(common.length ? h('ul.small.person-feats', common.slice(0, 15).map((c) => sharedItem(c, people.length, H))) : h('p.small.muted', 'They share no feature beyond the most general ones.'));
     }
     side.appendChild(h('p.small', h('a', { href: link('/match' + (ctxPatient ? '?patient=' + ctxPatient.id : '')) }, 'Rank diseases and genes by a patient’s features'), '.'));
   };
@@ -159,19 +159,19 @@ async function drawPhenotypes(st, box) {
    ClinVar's variants in the gene (gnomAD's copy of ClinVar)
    ================================================================ */
 async function drawVariants(st, box) {
-  box.appendChild(loading(`Fetching ClinVar’s variants in ${st.symbol} (gnomAD’s copy of ClinVar)…`));
+  box.appendChild(loading(`Fetching ClinVar’s variants in ${st.symbol} from gnomAD’s copy of ClinVar…`));
   let gn;
   try {
     gn = await st.gnomad();
   } catch (e) {
     box.innerHTML = '';
-    box.appendChild(note('bad', h('p', `ClinVar’s variants in ${st.symbol} could not be fetched from gnomAD: ${e.message}. `, ext(`https://www.ncbi.nlm.nih.gov/clinvar/?term=${encodeURIComponent(st.symbol)}%5Bgene%5D`, 'Search ClinVar itself'), '.')));
+    box.appendChild(note('bad', h('p', `ClinVar’s variants in ${st.symbol} couldn’t be fetched from gnomAD (${e.message}). You can `, ext(`https://www.ncbi.nlm.nih.gov/clinvar/?term=${encodeURIComponent(st.symbol)}%5Bgene%5D`, 'search ClinVar itself'), ' instead.')));
     return;
   }
   box.innerHTML = '';
   const list = (gn && gn.clinvar_variants) || [];
   if (!list.length) {
-    box.appendChild(empty(`No ClinVar variants in ${st.symbol}`, gn ? 'gnomAD’s copy of ClinVar has none in this gene.' : 'gnomAD does not know this gene on GRCh38.'));
+    box.appendChild(empty(`No ClinVar variants in ${st.symbol}`, gn ? 'gnomAD’s copy of ClinVar has none in this gene.' : 'gnomAD doesn’t have this gene on GRCh38.'));
     return;
   }
   const f = { cls: '', group: '', stars: 0, text: '', order: 'pos', shown: 100 };
@@ -210,7 +210,7 @@ async function drawVariants(st, box) {
     if (ns.length) {
       notesBox.appendChild(h('h3.vsub', 'What the counts suggest'));
       notesBox.appendChild(h('ul.gene-notes', ns.map((x) => h('li', x.codes.length ? h('span.crit-list', x.codes.map((c) => h('span.tag', c))) : null, ' ', x.text))));
-      notesBox.appendChild(h('p.small.muted', 'Counts of other laboratories’ classifications, not proof: some genes have few classified variants, and ClinVar holds submissions of varied quality (the stars say how well each is reviewed).'));
+      notesBox.appendChild(h('p.small.muted', 'These counts come from other laboratories’ classifications, so treat them as pointers rather than proof. Some genes have few classified variants, and ClinVar’s submissions vary in quality. The stars show how well each one has been reviewed.'));
     }
   };
 
@@ -248,7 +248,7 @@ async function drawVariants(st, box) {
     else if (f.order === 'stars') xs.sort((a, b) => starCount(b) - starCount(a) || along(a, b));
     else xs.sort(along);
     const page = xs.slice(0, f.shown);
-    count.textContent = xs.length ? `${xs.length > page.length ? `The first ${fmt(page.length)} of ` : ''}${fmt(xs.length)} ${xs.length === 1 ? 'variant' : 'variants'}.` : 'No variants match.';
+    count.textContent = xs.length ? `${xs.length > page.length ? `The first ${fmt(page.length)} of ` : ''}${fmt(xs.length)} ${xs.length === 1 ? 'variant' : 'variants'}.` : 'No variants match these filters.';
     tblBox.innerHTML = '';
     if (!xs.length) return;
     tblBox.appendChild(table([
@@ -264,7 +264,7 @@ async function drawVariants(st, box) {
   };
   drawSummary();
   drawList();
-  listBox.appendChild(h('p.small.muted', 'From gnomAD’s copy of ClinVar, which gnomAD updates each month. Positions are on GRCh38; the HGVS is on the gene’s main transcript. Open a variant to see all of its evidence and to classify it yourself.'));
+  listBox.appendChild(h('p.small.muted', 'These come from gnomAD’s copy of ClinVar, which gnomAD updates each month. Positions are on GRCh38, and the HGVS is on the gene’s main transcript. Open a variant to see all of its evidence and classify it yourself.'));
 }
 
 /** ClinVar's classes as one bar, with the counts written beside it (the colours are never the only label) */
@@ -285,7 +285,7 @@ function classBar(s) {
 async function drawProtein(st, box) {
   const { g } = st;
   if (!g.uniprot) {
-    box.appendChild(empty('No protein', `${g.symbol} has no reviewed UniProt entry in the site’s gene table: it may not code for a protein.`));
+    box.appendChild(empty('No protein', `${g.symbol} has no reviewed UniProt entry in the site’s gene table, so it may not code for a protein.`));
     return;
   }
   box.appendChild(loading(`Fetching ${g.uniprot} from UniProt and the gene’s ClinVar variants from gnomAD…`));
@@ -293,12 +293,12 @@ async function drawProtein(st, box) {
   box.innerHTML = '';
   const up = upR.ok || null;
   const cv = (gnR.ok && gnR.ok.clinvar_variants) || [];
-  const errs = [upR.err ? 'UniProt: ' + upR.err.message : null, gnR.err ? 'gnomAD (ClinVar variants): ' + gnR.err.message : null].filter(Boolean);
+  const errs = [upR.err ? 'UniProt didn’t answer: ' + upR.err.message : null, gnR.err ? 'gnomAD didn’t return the ClinVar variants: ' + gnR.err.message : null].filter(Boolean);
   if (errs.length) box.appendChild(note('warn', h('p', errs.join('. ') + '.')));
   if (!up) return;
   box.appendChild(h('h2.gene-h', `${up.name || g.symbol} (${up.length} residues)`));
   box.appendChild(plot.proteinPlot({ length: up.length, features: up.features, clinvar: cv, gene: g.symbol }));
-  box.appendChild(h('p.small.muted', `UniProt ${up.accession}: `, ext(`https://www.uniprot.org/uniprotkb/${up.accession}/entry`, 'its entry'), '. ClinVar variants from gnomAD’s copy of ClinVar, one star or more; the positions are on the main transcript’s protein, which is usually UniProt’s.'));
+  box.appendChild(h('p.small.muted', `The protein and its domains come from UniProt ${up.accession} (`, ext(`https://www.uniprot.org/uniprotkb/${up.accession}/entry`, 'see its entry'), '). The ClinVar variants come from gnomAD’s copy of ClinVar and have one star or more. Their positions are on the main transcript’s protein, which is usually UniProt’s.'));
   const cols = h('div.gene-grid');
   box.appendChild(cols);
   // the residues where pathogenic missense variants gather
@@ -325,7 +325,7 @@ async function drawProtein(st, box) {
       viewer = await m.showStructure(holder3d, { accession: up.accession, residue, label: `${aa || 'residue '}${residue}`, gene: g.symbol, clinvar: cv, what: 'The marked residue' });
     } catch (e) {
       holder3d.innerHTML = '';
-      holder3d.appendChild(note('bad', h('p', 'The 3D model could not be shown: ' + e.message)));
+      holder3d.appendChild(note('bad', h('p', 'The 3D model couldn’t be shown: ' + e.message)));
     }
   };
   left.appendChild(h('h3.vsub', 'Where pathogenic missense variants gather'));
@@ -338,7 +338,7 @@ async function drawProtein(st, box) {
       { key: 'dom', label: 'Domain', fmt: (x) => h('span.small', domOf(x.residue) || h('span.faint', 'none')) },
       { key: 'go', label: '', fmt: (x) => btn('3D', () => show3d(x.residue), { cls: 'small', icon: 'cube', title: `Mark residue ${x.residue} on AlphaFold’s model` }) }
     ], hs, { compact: true, caption: 'Residues with the most pathogenic missense variants' }));
-    left.appendChild(h('p.small.muted', 'Missense variants with one star or more, counted at each residue: pathogenic or likely pathogenic (P/LP) and benign or likely benign (B/LB). A residue or region where pathogenic changes gather and benign ones don’t is the kind of hotspot PM1 is for.'));
+    left.appendChild(h('p.small.muted', 'The table counts missense variants with one star or more at each residue, as pathogenic or likely pathogenic (P/LP) and benign or likely benign (B/LB). A residue or region where pathogenic changes gather and benign ones don’t is the kind of hotspot PM1 is for.'));
   } else left.appendChild(h('p.small.muted', 'ClinVar has no pathogenic missense variant with a star in this gene.'));
   // AlphaFold
   right.appendChild(h('h3.vsub', 'AlphaFold’s model'));
@@ -346,7 +346,7 @@ async function drawProtein(st, box) {
   resIn.addEventListener('keydown', (e) => e.key === 'Enter' && show3d(+resIn.value));
   right.appendChild(h('div.row', h('label', { for: 'res3d' }, 'Residue'), resIn, btn('Show it in 3D', () => show3d(+resIn.value), { cls: 'small primary', icon: 'cube' })));
   resIn.id = 'res3d';
-  right.appendChild(h('p.small.muted', 'The residue is drawn dark and large, with ClinVar’s pathogenic missense residues in red around it. The model is AlphaFold’s prediction, loaded from AlphaFold DB, with Mol* (from jsDelivr) the first time.'));
+  right.appendChild(h('p.small.muted', 'The residue is drawn dark and large, with ClinVar’s pathogenic missense residues in red around it. The model is AlphaFold’s prediction, loaded from AlphaFold DB, and the Mol* viewer is loaded from jsDelivr the first time you use it.'));
   box.appendChild(holder3d);
   // the domains and other features
   const feats = up.features.filter((x) => ['domain', 'topo', 'region', 'site'].includes(x.kind)).sort((a, b) => a.start - b.start);
@@ -376,7 +376,7 @@ const KIND_WORDS = { lof: 'Truncating', missense: 'Missense or in-frame', splice
 async function drawPatients(st, box) {
   const rows = await st.patients();
   if (!rows.length) {
-    box.appendChild(empty(`No patients with a variant in ${st.symbol}`, `Variants in ${st.symbol} that you add to patients in this browser (and copy-number changes on GRCh38 that cover it) appear here, with their classes and the patients’ features.`, [linkBtn('Your patients', '/patients', { icon: 'users' }), linkBtn('Open a case', '/data', { icon: 'import' })]));
+    box.appendChild(empty(`No patients with a variant in ${st.symbol}`, `Variants in ${st.symbol} that you add to patients in this browser will appear here, with their classes and the patients’ features. So will copy-number changes on GRCh38 that cover the gene.`, [linkBtn('Your patients', '/patients', { icon: 'users' }), linkBtn('Open a case', '/data', { icon: 'import' })]));
     return;
   }
   const H = await import('../hpo.js');
@@ -400,11 +400,11 @@ async function drawPatients(st, box) {
   const tblBox = h('div');
   const shareBox = h('div');
   box.append(
-    h('p.lede', `Patients in this browser with a variant in ${st.symbol}${rows.some((r) => r.v.kind === 'cnv') ? ', and copy-number changes that cover it' : ''}. Filter them as you would a database’s matching patients.`),
+    h('p.lede', `These are the patients in this browser with a variant in ${st.symbol}${rows.some((r) => r.v.kind === 'cnv') ? ', or with a copy-number change that covers it' : ''}. You can filter them as you would a database’s matching patients.`),
     h('div.fields.cv-filters', field('Sex', sexSel), field('Kind of variant', kindSel), field('Class', clsSel), field('Contribution', conSel), field('Inheritance', inhSel), field('Zygosity', zygSel), field('Phenotype', txt)),
     ctxBox, count, tblBox, shareBox);
   let ctxPatient = null;
-  const pick = await contextPicker(st, rows, (pt) => { ctxPatient = pt; paint(); }, 'Their features shared with this patient are in bold: the same feature, or a more specific or more general form of it');
+  const pick = await contextPicker(st, rows, (pt) => { ctxPatient = pt; paint(); }, 'Features they share with this patient are in bold, whether it’s the same feature or a more specific or more general form of it');
   ctxPatient = pick.chosen;
   ctxBox.appendChild(pick.el);
   const paint = () => {
@@ -486,7 +486,7 @@ async function drawBrowser(st, box) {
   const extra = feats.length ? [G.variantTrack('Your patients’ variants', feats)] : [];
   const pad = Math.max(2000, Math.round((g.end - g.start) * 0.08));
   const holder = h('div.igv-holder');
-  box.append(h('p.small.muted', `${g.symbol} on GRCh38, with ClinVar, ClinGen’s dosage curations and genes${feats.length ? ', and the variants of your patients' : ''}. Search for another gene or region in the browser’s own box. `, h('a', { href: link(`/browser?locus=${encodeURIComponent(`chr${g.chrom}:${g.start - pad}-${g.end + pad}`)}&assembly=GRCh38`) }, 'Open the full genome browser'), '.'), holder);
+  box.append(h('p.small.muted', `This shows ${g.symbol} on GRCh38 with ClinVar, ClinGen’s dosage curations and genes${feats.length ? ', and your patients’ variants' : ''}. You can search for another gene or region in the browser’s own box, or `, h('a', { href: link(`/browser?locus=${encodeURIComponent(`chr${g.chrom}:${g.start - pad}-${g.end + pad}`)}&assembly=GRCh38`) }, 'open the full genome browser'), '.'), holder);
   const handle = G.genomeBrowser(holder, { assembly: 'GRCh38', locus: `chr${g.chrom}:${Math.max(1, g.start - pad)}-${g.end + pad}`, tracks: G.DEFAULT_TRACKS, extra });
   handle.ready.catch(() => null);
   return () => handle.destroy();

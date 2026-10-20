@@ -13,7 +13,7 @@ import { resolveInput, annotate, describe, chooseTranscript, transcriptRows, nic
 import { loadGenes, gene as geneInfo, validity, g2p } from '../genes.js';
 import { Classification, acmgPanel, framework } from '../widgets/acmg-panel.js';
 import { suggest } from '../acmg/suggest.js';
-import { ZYGOSITY, INHERITANCE, inheritanceText, variantLong, patientFacts } from '../summary.js';
+import { ZYGOSITY, INHERITANCE, CONTRIBUTION, inheritanceText, variantLong, patientFacts } from '../summary.js';
 import { readQuery, vcfKey } from '../parse.js';
 import { SECTIONS } from './variant-evidence.js';
 import { drawSectionInto } from './evidence-common.js';
@@ -340,7 +340,7 @@ function signOff(ctx, r) {
   const reason = h('textarea', { rows: 2, placeholder: 'Required if you choose a different class from the calculated one' });
   const summary = h('textarea', { rows: 4, placeholder: 'Summarise the evidence as you would on a report' });
   summary.value = (v.classification.saved && v.classification.saved.summary) || autoSummary(ctx, r);
-  const contrib = select([['', 'Not decided'], ['full', 'Full: explains the phenotype'], ['partial', 'Partial'], ['uncertain', 'Uncertain'], ['none', 'None']], v.contribution || '');
+  const contrib = select([['', 'Not decided']].concat(CONTRIBUTION.filter(([k]) => k)), v.contribution || ''); // the same words as the lists and the report
   const body = h('div.stack',
     h('p', 'The calculated class is ', clsBadge(r.cls, { band: r.band }), ` (${r.points > 0 ? '+' : ''}${r.points} points), with `, h('span.hgvs', cls.criteriaString() || 'no criteria applied')),
     field('Classifier', nameIn),
@@ -380,7 +380,8 @@ function autoSummary(ctx, r) {
   const { cls, ev } = ctx;
   const d = ev && ev.d;
   const parts = [];
-  if (d) parts.push(`${d.gene ? d.gene + ' ' : ''}${d.hgvsc ? d.hgvsc.split(':')[1] : ''}${d.hgvsp ? ' ' + d.hgvsp : ''} is a ${niceConsequence(d.consequence)} variant.`);
+  const cons = d ? niceConsequence(d.consequence) : '';
+  if (d) parts.push(`${d.gene ? d.gene + ' ' : ''}${d.hgvsc ? d.hgvsc.split(':')[1] : ''}${d.hgvsp ? ' ' + d.hgvsp : ''} is ${/^[aeiou]/i.test(cons) ? 'an' : 'a'} ${cons} variant.`);
   for (const m of r.met) {
     const n = cls.get(m.code).note;
     if (n) parts.push(n.replace(/\.?$/, '.'));

@@ -539,6 +539,7 @@ table.kv td { padding: 4px 0; vertical-align: top; }
 .crow-sug .sug-mark { color: #9c6b12; }
 .crow-sug span:nth-child(2) { flex: 1 1 200px; }
 .crow-sug.against { background: var(--sunk); border-color: var(--line); color: var(--muted); }
+.crow-sug.against .sug-mark { color: var(--muted); }
 .crow-note input { min-height: 28px !important; padding: 2px 7px !important; font-size: 0.84rem !important; }
 .crow-dep { color: var(--faint); }
 .crit-guide ul { padding-left: 20px; }

@@ -364,7 +364,7 @@ function drawSplicing(ctx, body) {
     body.appendChild(h('p.small.muted', 'Each score, from 0 to 1, is the change in the probability that a base within 500 bases of the variant is used as an acceptor or donor. Positions are relative to the variant. These are masked scores, so gains of sites that are already used and losses of sites that aren’t used are left out. ', ext(lookup, 'Open in SpliceAI-lookup'), ' to see the transcripts, the raw scores and Pangolin’s scores.'));
   }
   const dist = /c\.[*-]?\d+([+-])(\d+)/.exec(d.hgvsc || '');
-  if (dist) body.appendChild(h('p', `This variant is intronic, ${dist[2]} bases into the intron from its ${dist[1] === '+' ? '5′ end (the donor side)' : '3′ end (the acceptor side)'}. ${+dist[2] <= 2 ? 'It’s at a canonical ±1 or 2 position, so the PVS1 tree applies.' : (dist[1] === '+' && +dist[2] <= 6) || (dist[1] === '-' && +dist[2] <= 20) ? 'It’s within the splice region, where BP7 doesn’t apply.' : 'It’s outside the splice region.'}`));
+  if (dist) body.appendChild(h('p', `This variant is intronic, ${dist[2]} ${+dist[2] === 1 ? 'base' : 'bases'} into the intron from its ${dist[1] === '+' ? '5′ end (the donor side)' : '3′ end (the acceptor side)'}. ${+dist[2] <= 2 ? 'It’s at a canonical ±1 or 2 position, so the PVS1 tree applies.' : (dist[1] === '+' && +dist[2] <= 6) || (dist[1] === '-' && +dist[2] <= 20) ? 'It’s within the splice region, where BP7 doesn’t apply.' : 'It’s outside the splice region.'}`));
   body.appendChild(crits(ctx, ['PP3', 'BP4', 'BP7']));
   body.appendChild(sectionNote(ctx, 'splicing'));
 }
@@ -480,7 +480,7 @@ function drawClinvar(ctx, body) {
   body.appendChild(h('h3.vsub', 'Look further'));
   body.appendChild(h('div.ext-links', links.map(([t, u]) => ext(u, t))));
   if (d.pubmed && d.pubmed.length) {
-    body.appendChild(h('details', h('summary', `${d.pubmed.length} papers cite this variant’s rsID (dbSNP, by way of VEP)`),
+    body.appendChild(h('details', h('summary', `${d.pubmed.length} ${d.pubmed.length === 1 ? 'paper cites' : 'papers cite'} this variant’s rsID (dbSNP, by way of VEP)`),
       h('p.small', d.pubmed.slice(0, 60).map((id, i) => [i ? ', ' : '', ext(`https://pubmed.ncbi.nlm.nih.gov/${id}/`, String(id))]))));
   }
   // papers that name the variant, from Europe PMC, when asked for (the search sends only the gene and the variant's names)

@@ -48,9 +48,9 @@ export async function render(root, params) {
   p.appendChild(pageHead({
     title: t.name,
     facts,
-    actions: [add, linkBtn('Find matching diseases', `/match?terms=${t.id}`, { icon: 'target', title: 'Rank diseases and genes by this feature (and others you add)' })]
+    actions: [add, linkBtn('Find matching diseases', `/match?terms=${t.id}`, { icon: 'target', title: 'Rank diseases and genes by this feature and any others you add' })]
   }));
-  if (askedFor !== t.id) p.appendChild(note('', h('p', `${askedFor} is an old id of this term: the HPO now calls it ${t.id}.`)));
+  if (askedFor !== t.id) p.appendChild(note('', h('p', `${askedFor} is an old id for this term, which the HPO now calls ${t.id}.`)));
 
   const main = h('div');
   const side = h('aside');
@@ -67,9 +67,9 @@ export async function render(root, params) {
     path.length > 1 ? h('nav.hpo-path', { 'aria-label': 'From the top of the ontology to this term' }, path.map((n, i) => [i ? h('span.sep', { 'aria-hidden': 'true' }, '›') : null, n === t.n ? h('span', { 'aria-current': 'page' }, H.name(n)) : h('a', { href: link('/phenotype/' + H.hpId(n)) }, H.name(n))])) : null,
     h('div.grid2',
       h('div', h('h3.vsub', parents.length === 1 ? 'More general term' : `More general terms (${parents.length})`),
-        parents.length ? h('ul.term-list', parents.map((x) => h('li', h('a', { href: link('/phenotype/' + x.id) }, x.name), ' ', h('span.hpo-id', x.id)))) : h('p.small.muted', 'None: this is a top term.')),
+        parents.length ? h('ul.term-list', parents.map((x) => h('li', h('a', { href: link('/phenotype/' + x.id) }, x.name), ' ', h('span.hpo-id', x.id)))) : h('p.small.muted', 'This is a top term, so there are none.')),
       h('div', h('h3.vsub', `More specific terms (${children.length})`),
-        children.length ? termList(children) : h('p.small.muted', 'None: this is as specific as the HPO goes.')))));
+        children.length ? termList(children) : h('p.small.muted', 'This is as specific as the HPO goes, so there are none.')))));
 
   /* ---- the diseases and genes with it ---- */
   const dzBox = h('div', loading('Loading the HPO’s disease annotations…'));
@@ -86,7 +86,7 @@ export async function render(root, params) {
     h('div.ext-links', ext(`https://hpo.jax.org/browse/term/${t.id}`, 'HPO browser'), ext(`https://monarchinitiative.org/${t.id}`, 'Monarch'), ext(`https://www.ebi.ac.uk/ols4/ontologies/hp/classes?obo_id=${t.id}`, 'OLS'))));
 
   // your patients (the terms are enough: no need to wait for the diseases)
-  db.listPatients().then((ps) => drawPatients(ptBox, ps, t)).catch((e) => ptBox.appendChild(h('p.small.muted', 'The patients could not be read: ' + e.message)));
+  db.listPatients().then((ps) => drawPatients(ptBox, ps, t)).catch((e) => ptBox.appendChild(h('p.small.muted', 'Your patients couldn’t be read: ' + e.message)));
 
   // the annotations
   let D;
@@ -94,19 +94,19 @@ export async function render(root, params) {
     D = await H.loadDiseases();
   } catch (e) {
     dzBox.innerHTML = '';
-    dzBox.appendChild(note('bad', h('p', 'The HPO’s disease annotations could not be loaded: ' + e.message)));
+    dzBox.appendChild(note('bad', h('p', 'The HPO’s disease annotations couldn’t be loaded. Try reloading the page. The error was: ' + e.message)));
     countBox.innerHTML = '';
     return;
   }
   if (!dzBox.isConnected) return;
   icBox.textContent = fmt(H.ic(t.n), 2);
-  icBox.title = 'Higher for rarer features: −log of the share of the annotated diseases with this term or a more specific one';
+  icBox.title = 'The −log of the share of annotated diseases that have this term or a more specific one, so it’s higher for rarer features';
   const rows = diseasesWithTerm(D, t.id);
   const genes = genesOf(rows);
   countBox.innerHTML = '';
   countBox.append(
     h('p', h('b', fmt(rows.length)), ` of the ${fmt(D.length)} diseases have it${nDesc ? ' or a more specific form of it' : ''} (${rows.length ? Math.max(0.1, (100 * rows.length) / D.length).toFixed(1) : 0}%), linked to `, h('b', fmt(genes.length)), ` ${genes.length === 1 ? 'gene' : 'genes'}.`),
-    h('p.small.muted', `The information content, ${fmt(H.ic(t.n), 2)}, says how much the feature narrows the diagnosis: the rarer among diseases, the higher. Matching gives rare features more weight than common ones.`),
+    h('p.small.muted', `The information content, ${fmt(H.ic(t.n), 2)}, says how much the feature narrows the diagnosis. The rarer the feature is among diseases, the higher it is, and matching gives rare features more weight than common ones.`),
     h('p.small.muted', `HPO version ${H.diseaseVersion() || H.hpoVersion()}.`));
   drawDiseases(dzBox, rows, t);
   drawGenes(geneBox, genes, rows.length);
@@ -148,7 +148,7 @@ function drawDiseases(box, rows, t) {
   let shown = 25;
   const tblBox = h('div');
   const more = h('div.btn-row', { style: { marginTop: '8px' } });
-  box.append(h('p.small.muted', 'The diseases where it is most often seen first (the HPO gives frequencies for some diseases only; the others follow).'), tblBox, more);
+  box.append(h('p.small.muted', 'The diseases where it’s seen most often come first. The HPO gives frequencies for only some diseases, and the others follow.'), tblBox, more);
   const paint = () => {
     tblBox.innerHTML = '';
     more.innerHTML = '';
@@ -173,7 +173,7 @@ function drawGenes(box, genes, nDiseases) {
   let shown = 30;
   const tblBox = h('div');
   const more = h('div.btn-row', { style: { marginTop: '8px' } });
-  box.append(h('p.small.muted', `The genes of the ${fmt(nDiseases)} diseases, those with the most such diseases first. A feature shared by many genes’ diseases says little about which gene is involved.`), tblBox, more);
+  box.append(h('p.small.muted', `These are the genes of the ${fmt(nDiseases)} diseases, with the genes that have the most such diseases first. A feature shared by many genes’ diseases says little about which gene is involved.`), tblBox, more);
   const paint = () => {
     tblBox.innerHTML = '';
     more.innerHTML = '';
@@ -191,7 +191,7 @@ function drawPatients(box, ps, t) {
   box.innerHTML = '';
   const w = patientsWithTerm(ps, t.id);
   if (!w.observed.length && !w.excluded.length) {
-    box.appendChild(h('p.small.muted', ps.length ? 'None of your patients has it recorded, or ruled out.' : 'No patients in this browser yet.'));
+    box.appendChild(h('p.small.muted', ps.length ? 'None of your patients has it recorded or ruled out.' : 'There are no patients in this browser yet.'));
     return;
   }
   const item = (r, how) => h('li',
@@ -212,14 +212,14 @@ function drawPatients(box, ps, t) {
 async function addToPatient(t) {
   const ps = await db.listPatients();
   if (!ps.length) {
-    toast('There are no patients in this browser yet: make one first.', 'error');
+    toast('There are no patients in this browser yet, so make one first.', 'error');
     return;
   }
   const pick = select(ps.map((x) => [x.id, `Patient ${x.id}${x.ref ? ' – ' + x.ref : ''}`]), ps[0].id);
   let mode = 'observed';
   const how = seg([['observed', 'Observed'], ['excluded', 'Excluded']], mode, (v) => (mode = v), 'Add it as');
   modal(`Add “${t.name}” to a patient`, h('div.stack', field('Patient', pick), h('div', h('span.small.muted', { style: { marginRight: '8px' } }, 'Add it as'), how),
-    h('p.small.muted', 'Excluded means looked for, and absent: it counts against diseases that usually have it.')), {
+    h('p.small.muted', 'Excluded means the feature was looked for and is absent, so it counts against diseases that usually have it.')), {
     actions: [['Cancel', null, 'ghost'], ['Add', async () => {
       const pt = await db.getPatient(pick.value);
       if (!pt) return;
@@ -237,7 +237,7 @@ async function addToPatient(t) {
 function notFound(p, want) {
   p.appendChild(h('h1', `No HPO term “${want}”`));
   const hits = H.search(want.replace(/^HP[:_]?/i, ''), { limit: 10 });
-  p.appendChild(note('warn', h('p', 'The HPO has no current term with that id or name. Terms are written HP: and seven digits, e.g. HP:0001250 (Seizure).')));
+  p.appendChild(note('warn', h('p', 'The HPO has no current term with that id or name. Terms are written as HP: followed by seven digits, for example HP:0001250 (Seizure).')));
   if (hits.length) {
     p.appendChild(h('h2', { style: { margin: '14px 0 8px' } }, 'Terms with those words'));
     p.appendChild(h('ul.term-list', hits.map((m) => h('li', h('a', { href: link('/phenotype/' + m.term.id) }, m.term.name), ' ', h('span.hpo-id', m.term.id)))));
