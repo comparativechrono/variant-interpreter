@@ -140,6 +140,13 @@ export function strengthKind(code, strength) {
  *   cols: [{ key, label, num, fmt(row) → Node|string, sort(row) → value, cls }]
  *   opts: { onRow(row), empty, sortable, caption, compact }
  */
+/** the short name of whoever gave a case's answer, from its citation ("ClinGen TP53 expert panel (VCEP), Evidence
+    Repository; …" → "ClinGen TP53 expert panel (VCEP)") */
+export function answerBy(source) {
+  const first = String(source || '').split(/[;,]/)[0].trim();
+  return first && first.length <= 80 ? first : 'The case’s author';
+}
+
 export function table(cols, rows, opts = {}) {
   let sortKey = opts.sortKey || null;
   let dir = opts.sortDir || 1;
@@ -205,6 +212,12 @@ export function table(cols, rows, opts = {}) {
         });
       }
       tbody.appendChild(row);
+      // a line of text under the row, across the whole table (opts.detail), so long text needn't squeeze a column
+      const more = opts.detail ? opts.detail(r) : null;
+      if (more != null && more !== '') {
+        row.classList.add('has-detail');
+        tbody.appendChild(h('tr.detail-row', h('td', { colspan: cols.length }, more)));
+      }
     }
   };
   tbl.append(thead, tbody);

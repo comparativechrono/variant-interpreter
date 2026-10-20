@@ -190,6 +190,7 @@ async function variantPage(root, { v, pt, section, q }) {
     saveBox.appendChild(h('p.small.muted', { style: { marginTop: '6px' } }, 'Your work is saved as you go; signing records a classification in its history and on the report.'));
   };
   drawSaveBox();
+  ctx.drawSaveBox = drawSaveBox;
 
   /* ---------- the heading, drawn again when VEP has answered ---------- */
   const drawHead = () => {
@@ -353,7 +354,9 @@ function signOff(ctx, r) {
       v.contribution = contrib.value;
       await ctx.save(`Classification signed: ${chosen.toUpperCase()} (${rec.criteria || 'no criteria'}) by ${rec.by}`);
       toast('Signed and saved to the variant’s history.', 'ok');
-      go(location.hash.slice(1), true);
+      // the same page: draw again what the signature changes (the panel's footer and the conclusion)
+      if (ctx.drawSaveBox) ctx.drawSaveBox();
+      if (ctx.redraw) ctx.redraw(['conclusion']);
     }, 'primary']]
   });
 }

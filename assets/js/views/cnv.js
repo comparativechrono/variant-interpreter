@@ -15,7 +15,7 @@ import { h, esc, icon, toast, debounce, modal, popmenu, copyText, dateStr, nowIS
 import { go, link, setLeaveGuard } from '../router.js';
 import * as db from '../db.js';
 import * as settings from '../settings.js';
-import { page, crumbs, btn, linkBtn, note, loading, clsBadge, select, field, factList, table, ext } from '../ui.js';
+import { page, crumbs, btn, linkBtn, note, loading, clsBadge, select, field, factList, table, ext, answerBy } from '../ui.js';
 import { readCNV, readRegion, fmtRegion, fmtSize, normChrom, chromOK } from '../parse.js';
 import { INHERITANCE, inheritanceText, CNV_COPIES, CONTRIBUTION } from '../summary.js';
 import { regionGenes, dosageRegions, clinvarCNVs, dgvGold, gnomadSVs, cytobands, iscn, GNOMAD_SV_MAX, clingenGeneUrl } from '../api/cnv-sources.js';
@@ -181,6 +181,7 @@ async function cnvPage(root, { v, pt, section }) {
     saveBox.appendChild(h('p.small.muted', { style: { marginTop: '6px' } }, 'Your work is saved as you go; signing records a classification in its history and on the report.'));
   };
   drawSaveBox();
+  ctx.drawSaveBox = drawSaveBox;
 
   /* ---------- the heading ---------- */
   const drawHead = () => {
@@ -743,16 +744,16 @@ function compareItems(ctx, exp) {
     return { c, m: m ? signed(mine.get(c)) : '', t: t ? (tp != null ? signed(tp) : 'used') : '', status, why: (exp.notes || {})[c] || '' };
   });
   const agree = rows.filter((x) => x.status === 'Agree').length;
-  const who = exp.source || 'the case’s author';
+  const who = answerBy(exp.source);
   return h('div',
-    h('p', 'Your class: ', clsBadge(r.cls, { short: true }), `; ${who}’s: `, exp.cls ? clsBadge(exp.cls, { short: true }) : 'not given', `. ${agree} of ${rows.length} items agree.`),
+    h('p', 'Your class: ', clsBadge(r.cls, { short: true }), `. ${who}: `, exp.cls ? clsBadge(exp.cls, { short: true }) : 'not given', `. ${agree} of ${rows.length} items agree.`),
     table([
       { key: 'c', label: 'Item', fmt: (x) => h('b.hgvs', x.c) },
       { key: 'm', label: 'Yours', fmt: (x) => x.m || h('span.faint', '–') },
-      { key: 't', label: who, fmt: (x) => x.t || h('span.faint', '–') },
-      { key: 'status', label: '', fmt: (x) => h('span.tag' + (x.status === 'Agree' ? '.ok' : x.status === 'Different points' ? '.warn' : '.bad'), x.status) },
-      { key: 'why', label: 'Their reason', fmt: (x) => h('span.small', x.why) }
-    ], rows, { compact: true }));
+      { key: 't', label: 'Theirs', fmt: (x) => x.t || h('span.faint', '–') },
+      { key: 'status', label: '', fmt: (x) => h('span.tag' + (x.status === 'Agree' ? '.ok' : x.status === 'Different points' ? '.warn' : '.bad'), x.status) }
+    ], rows, { compact: true, detail: (x) => x.why || null }),
+    exp.source ? h('p.small.muted', 'Source: ', exp.source) : null);
 }
 
 const SECTIONS = [
@@ -807,7 +808,9 @@ function signOff(ctx) {
       v.contribution = contrib.value;
       await ctx.save(`Classification signed: ${chosen.toUpperCase()} (${signed(r.total)} points) by ${rec.by}`);
       toast('Signed and saved to the CNV’s history.', 'ok');
-      go(location.hash.slice(1), true);
+      // the same page: draw again what the signature changes (the panel's footer and the conclusion)
+      if (ctx.drawSaveBox) ctx.drawSaveBox();
+      if (ctx.redraw) ctx.redraw(['conclusion']);
     }, 'primary']]
   });
 }

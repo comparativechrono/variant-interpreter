@@ -302,6 +302,8 @@ table.data { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
 table.data th, table.data td { padding: 7px 10px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line-2); }
 table.data thead th { background: #f7f9fb; font-size: 0.8rem; color: var(--muted); font-weight: 700; position: sticky; top: 0; white-space: nowrap; }
 table.data tbody tr:last-child td { border-bottom: 0; }
+table.data tbody tr.has-detail td { border-bottom: 0; padding-bottom: 2px; }
+table.data tbody tr.detail-row td { padding-top: 0; color: var(--muted); font-size: 0.85rem; }
 table.data tbody tr.clickable { cursor: pointer; }
 table.data tbody tr.clickable:hover td { background: #f6fafb; }
 table.data td.num, table.data th.num { text-align: right; font-variant-numeric: tabular-nums; }
@@ -669,6 +671,8 @@ details.calc[open] { padding-bottom: 12px; }
 .gene-big { font-size: 1.3rem; font-weight: 800; text-decoration: none; color: var(--ink); }
 .pheno-fit { border-left: 3px solid var(--accent-2); padding: 2px 12px; margin: 8px 0; }
 .compare { border: 1px solid var(--line); border-radius: var(--r); padding: 8px 12px; margin: 6px 0; }
+.compare table.data .tag { white-space: normal; }
+@media (max-width: 560px) { .compare { padding: 8px; } .compare table.data th, .compare table.data td { padding-left: 6px; padding-right: 6px; } }
 .concl { display: flex; flex-direction: column; gap: 6px; }
 
 /* the genome browser (igv.js) */

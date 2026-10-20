@@ -9,7 +9,7 @@ import { link, go } from '../router.js';
 import * as settings from '../settings.js';
 import * as db from '../db.js';
 import { framework } from '../widgets/acmg-panel.js';
-import { loading, note, select, field, table, btn, linkBtn, clsBadge, critChip } from '../ui.js';
+import { loading, note, select, field, table, btn, linkBtn, clsBadge, critChip, answerBy } from '../ui.js';
 import { crits, waiting, sectionNote, stars, ext, kv } from './evidence-common.js';
 import { DOSAGE, dosageText, hiPredicted, tsPredicted, THRESH } from '../genes.js';
 import { geneMOI, lofMechanism } from '../acmg/suggest.js';
@@ -468,7 +468,8 @@ async function drawConclusion(ctx, body) {
     else {
       const showBtn = btn('Compare with the case’s answer', () => {
         showBtn.remove();
-        box.appendChild(compareTable(cls, exp.criteria || [], exp.cls, exp.source || 'the case’s author', exp.notes || {}));
+        box.appendChild(compareTable(cls, exp.criteria || [], exp.cls, answerBy(exp.source), exp.notes || {}));
+        if (exp.source) box.appendChild(h('p.small.muted', 'Source: ', exp.source));
       }, { cls: 'primary small', icon: 'scale' });
       box.appendChild(showBtn);
     }
@@ -526,14 +527,13 @@ function compareTable(cls, theirs, theirCls, who, why = {}, theirNotMet = []) {
   const r = cls.result();
   const agree = rows.filter((x) => x.status === 'Agree').length;
   return h('div',
-    h('p', 'Your class: ', clsBadge(r.cls, { short: true }), `; ${who}’s: `, theirCls ? clsBadge(theirCls, { short: true }) : 'not given', `. ${agree} of ${rows.length} criteria agree.`),
+    h('p', 'Your class: ', clsBadge(r.cls, { short: true }), `. ${who}: `, theirCls ? clsBadge(theirCls, { short: true }) : 'not given', `. ${agree} of ${rows.length} criteria agree.`),
     table([
       { key: 'c', label: 'Criterion', fmt: (x) => h('b.hgvs', x.c) },
       { key: 'm', label: 'Yours', fmt: (x) => (x.m ? critChip(x.c, x.m) : h('span.faint', '–')) },
-      { key: 't', label: who, fmt: (x) => (x.t ? critChip(x.c, x.t) : h('span.faint', '–')) },
-      { key: 'status', label: '', fmt: (x) => h('span.tag' + (x.status === 'Agree' ? '.ok' : x.status === 'Different strength' ? '.warn' : '.bad'), x.status) },
-      { key: 'why', label: 'Their reason', fmt: (x) => h('span.small', x.why) }
-    ], rows, { compact: true }));
+      { key: 't', label: 'Theirs', fmt: (x) => (x.t ? critChip(x.c, x.t) : h('span.faint', '–')) },
+      { key: 'status', label: '', fmt: (x) => h('span.tag' + (x.status === 'Agree' ? '.ok' : x.status === 'Different strength' ? '.warn' : '.bad'), x.status) }
+    ], rows, { compact: true, detail: (x) => x.why || null }));
 }
 
 export const MORE_SECTIONS = [
