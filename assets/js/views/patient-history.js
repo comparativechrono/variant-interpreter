@@ -3,7 +3,7 @@
 import { h, dateStr } from '../core.js';
 import { link } from '../router.js';
 import { table, clsBadge, empty } from '../ui.js';
-import { summariseVariant } from '../summary.js';
+import { summariseVariant, signerName } from '../summary.js';
 import { variantPath } from './patient-common.js';
 
 export function render(body, { patient: pt, variants: vs }) {
@@ -27,7 +27,7 @@ export function render(body, { patient: pt, variants: vs }) {
     { key: 'v', label: 'Variant', fmt: (x) => h('a', { href: link(variantPath(pt, x.v)) }, x.s.gene ? h('i.gene', x.s.gene + ' ') : '', h('span.hgvs.small', x.s.short)) },
     { key: 'cls', label: 'Class', fmt: (x) => h('span', clsBadge(x.cls, { short: true }), x.calculated && x.calculated !== x.cls ? h('span.small.muted', ` (calculated ${x.calculated.toUpperCase()})`) : null) },
     { key: 'criteria', label: 'Criteria', fmt: (x) => h('span.hgvs.small', x.criteria || '–') },
-    { key: 'by', label: 'By' },
+    { key: 'by', label: 'By', fmt: (x) => signerName(x.by) || h('span.muted', 'Not named') },
     { key: 'reason', label: 'Reason for a change', fmt: (x) => x.reason || '' }
   ], signed, { compact: true, sortable: true, caption: 'Signed classifications' }) : h('p.muted', 'No classifications have been signed yet. Each time you use “Sign the classification” beside a variant’s criteria, it’s recorded here.'));
   body.appendChild(h('h2.tab-h', 'Changes'));

@@ -33,7 +33,8 @@ export function placeText(g) {
 export function dosageSummary(genes, regions, type) {
   const pc = genes.filter((g) => g.pc);
   const whole = pc.filter((g) => g.whole).length;
-  const bits = [`${pc.length} protein-coding ${pc.length === 1 ? 'gene' : 'genes'}${pc.length ? ` (${whole} whole, ${pc.length - whole} in part)` : ''}`];
+  const split = !pc.length ? '' : whole === pc.length ? (pc.length === 1 ? ' (whole)' : ` (all ${pc.length} whole)`) : !whole ? (pc.length === 1 ? ' (in part)' : ` (all ${pc.length} in part)`) : ` (${whole} whole, ${pc.length - whole} in part)`;
+  const bits = [`${pc.length} protein-coding ${pc.length === 1 ? 'gene' : 'genes'}${split}`];
   const hi3 = pc.filter((g) => g.hi === 3), ts3 = pc.filter((g) => g.ts === 3);
   const reg = (regions || []).filter((r) => r.hi === 3 || r.ts === 3);
   if (hi3.length) bits.push(`${hi3.length} established haploinsufficient (ClinGen 3): ${hi3.slice(0, 5).map((g) => g.symbol).join(', ')}${hi3.length > 5 ? '…' : ''}`);

@@ -8,7 +8,7 @@ import { h, icon, toast, confirmBox, popmenu, dateStr } from '../core.js';
 import { go, link } from '../router.js';
 import * as db from '../db.js';
 import { table, clsBadge } from '../ui.js';
-import { summariseVariant, contributionText } from '../summary.js';
+import { summariseVariant, contributionText, signerName } from '../summary.js';
 import { niceConsequence } from '../annotate.js';
 import { fmtRegion, fmtSize } from '../parse.js';
 
@@ -55,7 +55,7 @@ export function classCell(s) {
   if (!s.final && s.assessed === false) return h('span.muted.small', 'Not assessed yet');
   return h('div.cls-cell',
     h('span.row', { style: { gap: '4px', display: 'inline-flex', flexWrap: 'wrap' } }, clsBadge(s.cls, { short: false, band: s.final ? (s.signed && s.signed.band) : s.band })),
-    h('span.small' + (s.final ? '' : '.muted'), s.final ? `Signed${s.signed && s.signed.by ? ' by ' + s.signed.by : ''}` : `${s.pointsText} ${s.kind !== 'cnv' && Math.abs(s.points) === 1 ? 'point' : 'points'} so far`));
+    h('span.small' + (s.final ? '' : '.muted'), s.final ? `Signed${s.signed && signerName(s.signed.by) ? ' by ' + s.signed.by : ''}` : `${s.pointsText} ${s.kind !== 'cnv' && Math.abs(s.points) === 1 ? 'point' : 'points'} so far`));
 }
 
 /**

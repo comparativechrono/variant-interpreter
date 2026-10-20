@@ -17,9 +17,9 @@ import * as db from '../db.js';
 import * as settings from '../settings.js';
 import { page, crumbs, btn, linkBtn, note, loading, clsBadge, select, field, factList, table, ext, answerBy } from '../ui.js';
 import { readCNV, readRegion, fmtRegion, fmtSize, normChrom, chromOK } from '../parse.js';
-import { INHERITANCE, inheritanceText, CNV_COPIES, CONTRIBUTION } from '../summary.js';
+import { INHERITANCE, inheritanceText, CNV_COPIES, CONTRIBUTION, signerName } from '../summary.js';
 import { regionGenes, dosageRegions, clinvarCNVs, dgvGold, gnomadSVs, cytobands, iscn, GNOMAD_SV_MAX, clingenGeneUrl } from '../api/cnv-sources.js';
-import { suggestCNV, geneCount } from '../cnv/suggest.js';
+import { suggestCNV, geneCount, hiSources } from '../cnv/suggest.js';
 import { CNVScore, cnvPanel, itemsBox, pts2, CLS_WORD, SECTION_TITLES } from '../cnv/panel.js';
 import { genesTable, regionsTable, popTable, clinvarTable, clinvarCounts, dosageSummary, placeText, dsBadge, pct, diseaseName } from '../cnv/tables.js';
 import { RUBRIC, itemOf } from '../cnv/rubric.js';
@@ -166,7 +166,7 @@ async function cnvPage(root, { v, pt, section }) {
       saveBox.append(h('p.small.muted', 'You’ve looked this CNV up, but it isn’t saved to a patient yet.'), btn('Add to a patient…', () => addToPatient(ctx), { cls: 'primary', icon: 'plus' }));
       return;
     }
-    if (s) saveBox.appendChild(h('p.small', 'Last signed as ', clsBadge(s.cls, { short: true }), ` by ${s.by || 'you'} on ${dateStr(s.at, true)}`, s.cls !== r.cls ? h('span.res-differ', ' (the calculated class has changed since)') : null));
+    if (s) saveBox.appendChild(h('p.small', 'Last signed as ', clsBadge(s.cls, { short: true }), `${signerName(s.by) ? ' by ' + s.by : ''} on ${dateStr(s.at, true)}`, s.cls !== r.cls ? h('span.res-differ', ' (the calculated class has changed since)') : null));
     saveBox.appendChild(btn(s ? 'Sign the classification again' : 'Sign the classification', () => signOff(ctx), { cls: 'primary', icon: 'badgeCheck', title: 'Record this classification in the CNV’s history, with your name, the date and the points' }));
     saveBox.appendChild(h('p.small.muted', { style: { marginTop: '6px' } }, 'Your work is saved as you go. Signing adds the classification to the CNV’s history and to the report.'));
   };
@@ -358,14 +358,24 @@ function drawSummary(ctx, body) {
     const reg = (d.regions || []).filter((r) => r[key] === 3);
     const benign = (d.regions || []).filter((r) => r[key] === 40);
     const bits = [];
-    if (reg.length) bits.push(`${reg.length === 1 ? 'An established' : reg.length + ' established'} ${type === 'loss' ? 'haploinsufficient' : 'triplosensitive'} ${reg.length === 1 ? 'region' : 'regions'} (${reg.map((r) => `${r.whole ? 'all' : pct(r.coverOfRegion)} of ${r.name || r.id}`).join('; ')})`);
-    if (est.length) bits.push(`${est.length} established ${type === 'loss' ? 'haploinsufficient' : 'triplosensitive'} ${est.length === 1 ? 'gene' : 'genes'} (${est.slice(0, 4).map((g) => g.symbol + (g.whole ? '' : ', in part')).join('; ')}${est.length > 4 ? '…' : ''})`);
-    if (benign.length) bits.push(benign.length === 1 ? `ClinGen’s established benign region ${benign[0].name || benign[0].id}` : `${benign.length} of ClinGen’s established benign regions (such as ${benign[0].name || benign[0].id})`);
-    if (!bits.length) {
-      const pred = pc.filter((g) => (type === 'loss' ? (g.hiWhy || []).length >= 2 : (g.tsWhy || []).length >= 1));
-      bits.push(`No established ${type === 'loss' ? 'haploinsufficient' : 'triplosensitive'} gene or region${pred.length ? `, but ${pred.length} predicted (${pred.slice(0, 4).map((g) => g.symbol).join(', ')}${pred.length > 4 ? '…' : ''})` : ''}`);
+    const sens = type === 'loss' ? 'haploinsufficient' : 'triplosensitive';
+    const and = (xs) => (xs.length < 2 ? xs.join('') : xs.slice(0, -1).join(', ') + ' and ' + xs[xs.length - 1]);
+    const share = (r) => `${r.whole ? 'all' : pct(r.coverOfRegion)} of the ${r.name || r.id}`;
+    if (reg.length === 1) bits.push(`It covers ${reg[0].whole ? 'all' : pct(reg[0].coverOfRegion)} of an established ${sens} region, the ${reg[0].name || reg[0].id}`);
+    else if (reg.length) bits.push(`It overlaps ${reg.length} established ${sens} regions, covering ${and(reg.map(share))}`);
+    if (est.length) {
+      const names = est.slice(0, 4).map((g) => g.symbol + (g.whole ? '' : ' (in part)'));
+      if (est.length > 4) names.push(`${est.length - 4} more`);
+      bits.push(`It contains ${est.length === 1 ? `an established ${sens} gene` : `${est.length} established ${sens} genes`}, ${and(names)}`);
     }
-    rows.push(['Dosage', bits.join('; '), 'dosage']);
+    if (benign.length) bits.push(benign.length === 1 ? `It overlaps ClinGen’s established benign region ${benign[0].name || benign[0].id}` : `It overlaps ${benign.length} of ClinGen’s established benign regions, such as ${benign[0].name || benign[0].id}`);
+    if (!bits.length) {
+      const pred = pc.filter((g) => (type === 'loss' ? hiSources(g.hiWhy || []) >= 2 : (g.tsWhy || []).length >= 1)); // pLI and LOEUF count as one, as for 2H
+      const names = pred.slice(0, 4).map((g) => g.symbol);
+      if (pred.length > 4) names.push(`${pred.length - 4} more`);
+      bits.push(`It contains no established ${sens} gene or region${pred.length ? `, but ${pred.length === 1 ? 'one gene is' : pred.length + ' genes are'} predicted to be ${sens} (${and(names)})` : ''}`);
+    }
+    rows.push(['Dosage', bits.length > 1 ? bits.join('. ') + '.' : bits[0], 'dosage']);
   } else rows.push(['Genes', ctx.status.genes === 'error' ? 'Could not be fetched' : '…', 'genes']);
   // population
   const g = d.gnomad;
@@ -444,10 +454,10 @@ function drawDosage(ctx, body) {
   const cut = curated.filter((g) => !g.whole && (type === 'loss' ? g.hi === 3 : g.hi === 3 || g.ts === 3));
   if (cut.length) body.appendChild(note('warn', h('p', `A breakpoint falls within ${cut.map((g) => `${g.symbol} (${placeText(g).toLowerCase()})`).join(', ')}, so ${type === 'loss' ? 'score the partial loss with 2C to 2E' : 'score it with 2I to 2K'}. You can see which exons are in the CNV in the genome browser below.`)));
   // predictions
-  const predHi = genes.filter((g) => (g.hiWhy || []).length >= 2 && g.hi !== 3);
+  const predHi = genes.filter((g) => hiSources(g.hiWhy || []) >= 2 && g.hi !== 3); // pLI and LOEUF count as one
   const predTs = genes.filter((g) => (g.tsWhy || []).length && g.ts !== 3);
   body.appendChild(h('h3.vsub', 'Predicted dosage sensitivity'));
-  body.appendChild(h('p', predHi.length ? [`${predHi.length} ${predHi.length === 1 ? 'gene meets' : 'genes meet'} two or more predictors of haploinsufficiency: `, h('span', predHi.slice(0, 12).map((g, i) => [i ? ', ' : '', h('i.gene', g.symbol), h('span.small.muted', ` (${g.hiWhy.join('; ')})`)])), predHi.length > 12 ? '…' : '', '.'] : 'No gene in the CNV meets two or more predictors of haploinsufficiency.'));
+  body.appendChild(h('p', predHi.length ? [`${predHi.length} ${predHi.length === 1 ? 'gene meets' : 'genes meet'} two or more independent predictors of haploinsufficiency: `, h('span', predHi.slice(0, 12).map((g, i) => [i ? ', ' : '', h('i.gene', g.symbol), h('span.small.muted', ` (${g.hiWhy.join('; ')})`)])), predHi.length > 12 ? '…' : '', '.'] : 'No gene in the CNV meets two or more independent predictors of haploinsufficiency.'));
   if (type === 'gain') body.appendChild(h('p', predTs.length ? `${predTs.length} predicted triplosensitive (pTriplo ≥ ${THRESH.pTriplo}): ${predTs.slice(0, 12).map((g) => g.symbol).join(', ')}${predTs.length > 12 ? '…' : ''}. Predictions aren’t part of the scoring for a gain, but they point to genes worth reading about.` : `No gene in the CNV has pTriplo ≥ ${THRESH.pTriplo}.`));
   body.appendChild(h('p.small.muted', `The predictors are pHaplo ≥ ${THRESH.pHaplo} and pTriplo ≥ ${THRESH.pTriplo} (Collins et al. 2022), and LOEUF < ${THRESH.loeuf} and pLI ≥ ${THRESH.pLI} (gnomAD v4.1). 2H needs two of them for at least one gene, but pLI and LOEUF come from the same gnomAD data, so they count as one. It doesn’t apply when the CNV holds an established haploinsufficient gene or region.`));
   body.appendChild(itemsBox(ctx.sc, codes));
@@ -694,7 +704,7 @@ function drawConclusion(ctx, body) {
     body.appendChild(h('h3.vsub', 'Signed classifications'));
     body.appendChild(table([
       { key: 'at', label: 'When', fmt: (x) => dateStr(x.at, true) },
-      { key: 'by', label: 'Who' },
+      { key: 'by', label: 'Who', fmt: (x) => signerName(x.by) || h('span.muted', 'Not named') },
       { key: 'cls', label: 'Class', fmt: (x) => h('span', clsBadge(x.cls, { short: true }), x.calculated && x.calculated !== x.cls ? h('span.small.muted', ` (calculated ${x.calculated.toUpperCase()})`) : null) },
       { key: 'points', label: 'Points', num: true, fmt: (x) => (x.points != null ? signed(Math.round(x.points * 100)) : '–') },
       { key: 'criteria', label: 'Items', fmt: (x) => h('span.hgvs.small', x.criteria || '–') },
@@ -784,7 +794,7 @@ function signOff(ctx) {
   summary.value = (v.classification.saved && v.classification.saved.summary) || autoSummary(ctx, r);
   const contrib = select([['', 'Not decided']].concat(CONTRIBUTION.filter(([k]) => k)), v.contribution || ''); // as on the variant page
   const body = h('div.stack',
-    h('p', 'The calculated class is ', clsBadge(r.cls), ` (${signed(r.total)} points), with `, h('span.hgvs', sc.summary(r) || 'nothing scored')),
+    h('p', 'The calculated class is ', clsBadge(r.cls), ` (${signed(r.total)} points), with `, h('span.hgvs', sc.summary(r) || 'nothing scored'), '.'),
     field('Classifier', nameIn),
     field('Classification', finalSel, 'You can choose a different class from the calculated one if you give a reason'),
     field('Reason for the change', reason),
@@ -809,7 +819,7 @@ function signOff(ctx) {
       v.classification.saved = rec;
       v.classification.history = [rec].concat(v.classification.history || []).slice(0, 50);
       v.contribution = contrib.value;
-      await ctx.save(`Classification signed: ${chosen.toUpperCase()} (${signed(r.total)} points) by ${rec.by}`);
+      await ctx.save(`Classification signed: ${chosen.toUpperCase()} (${signed(r.total)} points)${signerName(rec.by) ? ' by ' + rec.by : ''}`);
       toast('Signed. The classification is now in the CNV’s history.', 'ok');
       // the same page: draw again what the signature changes (the panel's footer and the conclusion)
       if (ctx.drawSaveBox) ctx.drawSaveBox();

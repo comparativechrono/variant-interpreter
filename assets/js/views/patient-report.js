@@ -14,7 +14,7 @@ import { link } from '../router.js';
 import * as db from '../db.js';
 import * as settings from '../settings.js';
 import { btn, note, clsBadge, field } from '../ui.js';
-import { summariseVariant, variantLong, genomicText, patientFacts, inheritanceText } from '../summary.js';
+import { summariseVariant, variantLong, genomicText, patientFacts, inheritanceText, signerName } from '../summary.js';
 import { CRITERIA, BY_CODE } from '../acmg/criteria.js';
 import { classify, criteriaString, POINTS } from '../acmg/engine.js';
 import { fw, labelFor } from '../acmg/frameworks.js';
@@ -112,7 +112,7 @@ export async function render(body, { patient: pt, variants: vs }) {
       h('p', 'How well the genotype explains the phenotype', a.disease ? ` (${a.disease})` : '', ':'),
       h('table.rp-table.rp-small', h('tbody', ASSESS_ROWS.filter(([k]) => a.rows[k]).map(([k, label]) => h('tr', h('th', { scope: 'row' }, label), h('td', (ASSESS_LEVELS.find((x) => x[0] === a.rows[k]) || [null, ''])[1]))))),
       a.note ? h('p', a.note) : null,
-      h('p.small.muted', `Assessed by ${a.by || 'not named'}, ${dateStr(a.at)}.`)));
+      h('p.small.muted', `Assessed${signerName(a.by) ? ' by ' + a.by : ''} on ${dateStr(a.at)}.`)));
   }
 
   // the phenotype
@@ -161,7 +161,7 @@ export async function render(body, { patient: pt, variants: vs }) {
     h('p', 'Variants are described with HGVS nomenclature on the MANE Select transcript unless otherwise stated. The classification of a variant can change as evidence accumulates. Variants of uncertain significance should not be used for clinical decisions. This report was produced in a teaching tool and is not validated for clinical use.')));
 
   // sign-off
-  const signers = Array.from(new Set(S.filter((x) => x.s.final).map((x) => x.s.signed.by).filter(Boolean)));
+  const signers = Array.from(new Set(S.filter((x) => x.s.final).map((x) => signerName(x.s.signed.by)).filter(Boolean)));
   paper.appendChild(h('footer.rp-sign',
     h('div', h('span.rp-sign-l', 'Classified by'), h('span.rp-sign-v', signers.join(', ') || '…………………………')),
     h('div', h('span.rp-sign-l', 'Checked by'), h('span.rp-sign-v', '…………………………')),
@@ -215,7 +215,7 @@ function seqBlock(pt, v, s, F) {
   const notWeighed = CRITERIA.filter((x) => !weighed.has(x.code) && !(x.deprecated && fw(fk).retired.includes(x.code))).map((x) => x.code);
   return h('section.rp-sec.rp-var',
     h('h3', s.gene ? h('i', s.gene + ' ') : '', h('span.hgvs', variantLong(v))),
-    h('p.rp-var-cls', clsBadge(s.cls, { band: signed ? signed.band : r.band }), h('span', `${r.points > 0 ? '+' : ''}${r.points} points under ${fw(fk).label}`), signed ? h('span.small.muted', `, signed by ${signed.by || 'someone not named'} on ${dateStr(signed.at)}`) : h('span.small.muted', ', not signed yet'),
+    h('p.rp-var-cls', clsBadge(s.cls, { band: signed ? signed.band : r.band }), h('span', `${r.points > 0 ? '+' : ''}${r.points} points under ${fw(fk).label}`), signed ? h('span.small.muted', `, signed${signerName(signed.by) ? ' by ' + signed.by : ''} on ${dateStr(signed.at)}`) : h('span.small.muted', ', not signed yet'),
       signed && signed.calculated && signed.calculated !== signed.cls ? h('span.small', `. The calculated class was ${CLS_WORD[signed.calculated].toLowerCase()}, and it was changed for this reason: ${String(signed.reason || '').replace(/\.?$/, '.')}`) : null),
     h('p.small.muted', `${genomicText(v)}, ${zygText(v.zygosity).toLowerCase()}, ${!v.inheritance || v.inheritance === 'unknown' ? 'inheritance ' : ''}${inheritanceText(v.inheritance).toLowerCase()}.${v.contribution && CONTRIB_SAYS[v.contribution] ? ' ' + CONTRIB_SAYS[v.contribution] : ''}`),
     signed && signed.summary ? h('p', signed.summary) : null,
@@ -242,7 +242,7 @@ function cnvBlock(pt, v, s, iscnText) {
   return h('section.rp-sec.rp-var',
     h('h3', h('span.hgvs', iscnText)),
     h('p.small.muted', variantLong(v)),
-    h('p.rp-var-cls', clsBadge(s.cls), h('span', `${fmtPts(sc.total)} points under the ACMG/ClinGen CNV standards (Riggs et al. 2020)`), signed ? h('span.small.muted', `, signed by ${signed.by || 'someone not named'} on ${dateStr(signed.at)}`) : h('span.small.muted', ', not signed yet')),
+    h('p.rp-var-cls', clsBadge(s.cls), h('span', `${fmtPts(sc.total)} points under the ACMG/ClinGen CNV standards (Riggs et al. 2020)`), signed ? h('span.small.muted', `, signed${signerName(signed.by) ? ' by ' + signed.by : ''} on ${dateStr(signed.at)}`) : h('span.small.muted', ', not signed yet')),
     v.genesSummary ? h('p.small.muted', `Genes: ${v.genesSummary}.`) : null,
     signed && signed.summary ? h('p', signed.summary) : null,
     sc.rows.length ? h('table.rp-table.rp-small', h('thead', h('tr', h('th', { scope: 'col' }, 'Item'), h('th', { scope: 'col' }, 'Points'), h('th', { scope: 'col' }, 'Evidence'))),

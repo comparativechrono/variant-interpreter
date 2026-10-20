@@ -13,7 +13,7 @@ import { resolveInput, annotate, describe, chooseTranscript, transcriptRows, nic
 import { loadGenes, gene as geneInfo, validity, g2p } from '../genes.js';
 import { Classification, acmgPanel, framework } from '../widgets/acmg-panel.js';
 import { suggest } from '../acmg/suggest.js';
-import { ZYGOSITY, INHERITANCE, CONTRIBUTION, inheritanceText, variantLong, patientFacts } from '../summary.js';
+import { ZYGOSITY, INHERITANCE, CONTRIBUTION, inheritanceText, variantLong, patientFacts, signerName } from '../summary.js';
 import { readQuery, vcfKey } from '../parse.js';
 import { SECTIONS } from './variant-evidence.js';
 import { drawSectionInto } from './evidence-common.js';
@@ -192,7 +192,7 @@ async function variantPage(root, { v, pt, section, q }) {
       saveBox.appendChild(btn('Add to a patient…', () => addToPatient(v, cls), { cls: 'primary', icon: 'plus' }));
       return;
     }
-    if (s) saveBox.appendChild(h('p.small', 'Last signed as ', clsBadge(s.cls, { short: true }), ` by ${s.by || 'you'} on ${dateStr(s.at, true)}`, s.cls !== r.cls ? h('span.res-differ', ' (the calculated class has changed since)') : null));
+    if (s) saveBox.appendChild(h('p.small', 'Last signed as ', clsBadge(s.cls, { short: true }), `${signerName(s.by) ? ' by ' + s.by : ''} on ${dateStr(s.at, true)}`, s.cls !== r.cls ? h('span.res-differ', ' (the calculated class has changed since)') : null));
     saveBox.appendChild(btn(s ? 'Sign the classification again' : 'Sign the classification', () => signOff(ctx, r), { cls: 'primary', icon: 'badgeCheck', title: 'Record this classification in the variant’s history, with your name, the date and the criteria' }));
     saveBox.appendChild(h('p.small.muted', { style: { marginTop: '6px' } }, 'Your work is saved as you go. Signing adds the classification to the variant’s history and to the report.'));
   };
@@ -342,7 +342,7 @@ function signOff(ctx, r) {
   summary.value = (v.classification.saved && v.classification.saved.summary) || autoSummary(ctx, r);
   const contrib = select([['', 'Not decided']].concat(CONTRIBUTION.filter(([k]) => k)), v.contribution || ''); // the same words as the lists and the report
   const body = h('div.stack',
-    h('p', 'The calculated class is ', clsBadge(r.cls, { band: r.band }), ` (${r.points > 0 ? '+' : ''}${r.points} points), with `, h('span.hgvs', cls.criteriaString() || 'no criteria applied')),
+    h('p', 'The calculated class is ', clsBadge(r.cls, { band: r.band }), ` (${r.points > 0 ? '+' : ''}${r.points} points), with `, h('span.hgvs', cls.criteriaString() || 'no criteria applied'), '.'),
     field('Classifier', nameIn),
     field('Classification', finalSel, 'You can choose a different class from the calculated one if you give a reason, as ClinGen’s curation interface asks'),
     field('Reason for the change', reason),
@@ -366,7 +366,7 @@ function signOff(ctx, r) {
       v.classification.saved = rec;
       v.classification.history = [rec].concat(v.classification.history || []).slice(0, 50);
       v.contribution = contrib.value;
-      await ctx.save(`Classification signed: ${chosen.toUpperCase()} (${rec.criteria || 'no criteria'}) by ${rec.by}`);
+      await ctx.save(`Classification signed: ${chosen.toUpperCase()} (${rec.criteria || 'no criteria'})${signerName(rec.by) ? ' by ' + rec.by : ''}`);
       toast('Signed. The classification is now in the variant’s history.', 'ok');
       // the same page: draw again what the signature changes (the panel's footer and the conclusion)
       if (ctx.drawSaveBox) ctx.drawSaveBox();

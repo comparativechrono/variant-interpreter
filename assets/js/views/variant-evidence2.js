@@ -16,7 +16,7 @@ import { geneMOI, lofMechanism } from '../acmg/suggest.js';
 import { denovoPoints, DENOVO_PHENO, pm3Points, PM3_ROWS, oddsPath, strengthOfPoints } from '../acmg/calculators.js';
 import { labelFor, fw } from '../acmg/frameworks.js';
 import { criteriaString } from '../acmg/engine.js';
-import { INHERITANCE, ZYGOSITY, inheritanceText } from '../summary.js';
+import { INHERITANCE, ZYGOSITY, inheritanceText, signerName } from '../summary.js';
 import { BY_CODE } from '../acmg/criteria.js';
 
 const SW = { VS: 'very strong', S: 'strong', M: 'moderate', P: 'supporting', SA: 'stand-alone' };
@@ -482,7 +482,7 @@ async function drawConclusion(ctx, body) {
     body.appendChild(h('h3.vsub', 'Signed classifications'));
     body.appendChild(table([
       { key: 'at', label: 'When', fmt: (x) => dateStr(x.at, true) },
-      { key: 'by', label: 'Who' },
+      { key: 'by', label: 'Who', fmt: (x) => signerName(x.by) || h('span.muted', 'Not named') },
       { key: 'cls', label: 'Class', fmt: (x) => h('span', clsBadge(x.cls, { short: true }), x.calculated && x.calculated !== x.cls ? h('span.small.muted', ` (calculated ${x.calculated.toUpperCase()})`) : null) },
       { key: 'criteria', label: 'Criteria', fmt: (x) => h('span.hgvs.small', x.criteria || '–') },
       { key: 'reason', label: 'Reason for the change', fmt: (x) => x.reason || '' }

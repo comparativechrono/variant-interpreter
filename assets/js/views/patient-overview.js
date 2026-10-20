@@ -8,7 +8,7 @@ import { go, link } from '../router.js';
 import * as db from '../db.js';
 import * as settings from '../settings.js';
 import { btn, linkBtn, select, field, note, clsBadge } from '../ui.js';
-import { summariseVariant, variantLong } from '../summary.js';
+import { summariseVariant, variantLong, signerName } from '../summary.js';
 import { variantTable, variantPath } from './patient-common.js';
 import { addSequenceDialog, addCnvDialog } from './patient-add.js';
 import { karyogram } from '../widgets/karyogram.js';
@@ -192,7 +192,7 @@ async function assessment(pt, vs, refresh) {
       await db.savePatient(pt, `Assessment: ${conclusionText(concl.value)}${pt.assessment.disease ? ' (' + pt.assessment.disease + ')' : ''}`);
       toast('Assessment saved.', 'ok');
       if (refresh) refresh();
-    }, { cls: 'primary', icon: 'save' }), a.at ? h('span.small.muted', `Last saved ${dateStr(a.at, true)} by ${a.by || 'you'}`) : null));
+    }, { cls: 'primary', icon: 'save' }), a.at ? h('span.small.muted', `Last saved ${dateStr(a.at, true)}${signerName(a.by) ? ' by ' + a.by : ''}`) : null));
   return box;
 }
 export { go, note, variantLong };

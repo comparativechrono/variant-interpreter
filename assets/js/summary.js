@@ -65,6 +65,8 @@ export const INHERITANCE = [
   ['notpaternal', 'Not inherited from the father (mother not tested)'],
   ['unknown', 'Not known (parents not tested)']
 ];
+/** the name a classification was signed with, or '' if none was given (older records say 'not named') */
+export const signerName = (by) => (by && by !== 'not named' ? by : '');
 export const inheritanceText = (k) => (INHERITANCE.find((x) => x[0] === k) || [null, 'Not known'])[1];
 export const CONTRIBUTION = [
   ['full', 'Full (explains the phenotype)'],
