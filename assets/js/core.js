@@ -388,12 +388,57 @@ export function popmenu(anchor, items) {
 
 /* ---------- formatting ---------- */
 export const debounce = (fn, ms) => {
-  let t;
-  return (...a) => {
+  let t = null;
+  let args = [];
+  const d = (...a) => {
+    args = a;
     clearTimeout(t);
-    t = setTimeout(() => fn(...a), ms);
+    t = setTimeout(() => {
+      t = null;
+      fn(...args);
+    }, ms);
   };
+  /** run now what is waiting, if anything is */
+  d.flush = () => {
+    if (t == null) return;
+    clearTimeout(t);
+    t = null;
+    fn(...args);
+  };
+  d.cancel = () => {
+    clearTimeout(t);
+    t = null;
+  };
+  return d;
 };
+
+/* ---------- work that must not be lost when the page is left, reloaded or hidden ---------- */
+const pendingWork = new Set();
+/** fn() is run before the page is left or hidden (a debounced save, say); returns a function that removes it */
+export function beforeLeaving(fn) {
+  pendingWork.add(fn);
+  return () => pendingWork.delete(fn);
+}
+/** commit the text field being typed in (its change event has not fired yet) and finish the waiting saves */
+export function finishPending() {
+  const a = typeof document !== 'undefined' ? document.activeElement : null;
+  const typing = a && (a.tagName === 'TEXTAREA' || (a.tagName === 'INPUT' && /^(text|number|email|url|tel|date)$/i.test(a.type || 'text')));
+  if (typing && !a.closest('#gsearch')) a.dispatchEvent(new Event('change', { bubbles: true }));
+  for (const fn of [...pendingWork]) {
+    try {
+      fn();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+}
+if (typeof document !== 'undefined' && typeof window !== 'undefined' && window.addEventListener) {
+  window.addEventListener('beforeunload', finishPending); // the earliest warning of a reload or a closed tab
+  window.addEventListener('pagehide', finishPending);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') finishPending();
+  });
+}
 export const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export const fmt = (n, d = 0) =>
   n == null || isNaN(n) ? '–' : Number(n).toLocaleString('en-GB', { maximumFractionDigits: d, minimumFractionDigits: d });

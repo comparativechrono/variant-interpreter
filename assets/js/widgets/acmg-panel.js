@@ -92,6 +92,9 @@ export function criterionRow(cls, code, opts = {}) {
     const st = cls.get(code);
     const sug = cls.suggestions[code];
     const showSug = !!(sug && cls.showSuggestions);
+    // a note being typed (its change event not yet fired) survives the row being drawn again
+    const old = row.querySelector('.crow-note input');
+    const typing = old && old === document.activeElement ? { value: old.value, a: old.selectionStart, b: old.selectionEnd } : null;
     row.innerHTML = '';
     row.classList.toggle('met', !!st.met);
     row.classList.toggle('notmet', !st.met && !!st.evaluated);
@@ -134,6 +137,15 @@ export function criterionRow(cls, code, opts = {}) {
       note.value = st.note || '';
       note.addEventListener('change', () => cls.set(code, { note: note.value.trim(), evaluated: true }));
       row.appendChild(h('div.crow-note', note));
+      if (typing) {
+        if (typing.value.trim() !== (st.note || '')) note.value = typing.value;
+        note.focus({ preventScroll: true });
+        try {
+          note.setSelectionRange(typing.a, typing.b);
+        } catch (e) {
+          /* not a text field */
+        }
+      }
     }
     if (c.deprecated && fw(F).retired.includes(code)) row.appendChild(h('div.crow-dep.small', 'Retired by ClinGen (2018) and not in the ACGS 2024 guidelines: weigh the evidence behind other classifications instead.'));
   };

@@ -10,7 +10,7 @@
    Genotypes are kept on each variant (v.familyGenotypes: person id →
    'het' | 'hom' | 'hemi' | 'ref' | 'untested').
    ===================================================================== */
-import { h, icon, toast, debounce, modal, dateStr } from '../core.js';
+import { h, icon, toast, debounce, beforeLeaving, modal, dateStr } from '../core.js';
 import { link } from '../router.js';
 import * as db from '../db.js';
 import { btn, field, select, note, checkbox } from '../ui.js';
@@ -60,6 +60,10 @@ export async function render(body, { patient: pt, variants: vs }) {
     drawTable();
   };
   const saveSoon = debounce(saveDrawing, 900);
+  const offLeave = beforeLeaving(() => {
+    saveSoon.cancel();
+    if (pending) saveDrawing();
+  });
 
   frame.addEventListener('load', () => {
     const win = frame.contentWindow;
@@ -223,6 +227,8 @@ export async function render(body, { patient: pt, variants: vs }) {
   drawTable();
   // leaving the tab: a change not yet saved is saved now
   return () => {
+    offLeave();
+    saveSoon.cancel();
     if (pending) saveDrawing();
   };
 }

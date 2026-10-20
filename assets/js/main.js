@@ -179,6 +179,9 @@ async function suggestions(q) {
 showName();
 showSaveState();
 setupSearch();
-start($('#main'), () => import('./views/notfound.js'));
+// saves that a reload or a closed tab interrupted are put back before any page reads the patients
+db.replayJournal()
+  .catch((e) => console.warn('could not replay the journal', e))
+  .then(() => start($('#main'), () => import('./views/notfound.js')));
 db.askPersist();
 window.VI = { go, link, db, settings };

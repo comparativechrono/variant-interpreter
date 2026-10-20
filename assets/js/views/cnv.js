@@ -11,7 +11,7 @@
        copyNumber, inheritance, genesSummary, cnv: { items, notes },
        classification: { saved, history }, contribution, notes, expected? }
    ===================================================================== */
-import { h, esc, icon, toast, debounce, modal, popmenu, copyText, dateStr, nowISO, confirmBox, fmt, fmtAF } from '../core.js';
+import { h, esc, icon, toast, debounce, beforeLeaving, modal, popmenu, copyText, dateStr, nowISO, confirmBox, fmt, fmtAF } from '../core.js';
 import { go, link, setLeaveGuard } from '../router.js';
 import * as db from '../db.js';
 import * as settings from '../settings.js';
@@ -24,7 +24,7 @@ import { CNVScore, cnvPanel, itemsBox, pts2, CLS_WORD, SECTION_TITLES } from '..
 import { genesTable, regionsTable, popTable, clinvarTable, clinvarCounts, dosageSummary, placeText, dsBadge, pct, diseaseName } from '../cnv/tables.js';
 import { RUBRIC, itemOf } from '../cnv/rubric.js';
 import { genomeBrowser } from '../widgets/genome.js';
-import { sectionNote } from './evidence-common.js';
+import { sectionNote, keepTyping } from './evidence-common.js';
 import { THRESH } from '../genes.js';
 
 const KIND = { loss: 'Loss', gain: 'Gain' };
@@ -106,6 +106,7 @@ async function cnvPage(root, { v, pt, section }) {
   };
   const saveSoon = debounce(() => saveNow(null), 700);
   ctx.save = (what) => (what ? saveNow(what) : saveSoon());
+  const offLeave = beforeLeaving(() => saveSoon.flush());
   sc.on((code, quiet) => {
     if (quiet) return;
     ctx.save();
@@ -140,13 +141,16 @@ async function cnvPage(root, { v, pt, section }) {
   const drawSection = (key) => {
     const s = ctx.sections[key];
     if (!s) return;
+    const restore = keepTyping(s.body); // a note being typed in the section survives its data arriving
     try {
       s.body.innerHTML = '';
       const out = s.S.draw(ctx, s.body);
-      if (out && out.then) out.catch((e) => {
-        console.error(e);
-        s.body.appendChild(note('bad', h('p', 'This section could not be drawn: ' + e.message)));
-      });
+      if (out && out.then) {
+        out.then(restore, (e) => {
+          console.error(e);
+          s.body.appendChild(note('bad', h('p', 'This section could not be drawn: ' + e.message)));
+        });
+      } else restore();
     } catch (e) {
       console.error(e);
       s.body.appendChild(note('bad', h('p', 'This section could not be drawn: ' + e.message)));
@@ -303,6 +307,8 @@ async function cnvPage(root, { v, pt, section }) {
   });
   if (section) setTimeout(() => scrollTo(section), 300);
   return () => {
+    saveSoon.flush();
+    offLeave();
     io.disconnect();
     setLeaveGuard(null);
     for (const fn of ctx.cleanups) {

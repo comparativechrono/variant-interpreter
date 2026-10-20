@@ -3,7 +3,7 @@
    that the site needs no server: GitHub Pages serves index.html, and
    the router shows the page that the rest of the address names.
    ===================================================================== */
-import { bus } from './core.js';
+import { bus, finishPending } from './core.js';
 
 const routes = [];
 let current = null;
@@ -61,6 +61,7 @@ export function start(container, notFoundLoader) {
 
 let lastHash = null;
 async function render() {
+  finishPending(); // a field being typed in, and a save waiting, before the page changes
   if (guard) {
     const stay = await guard(location.hash);
     if (stay) {

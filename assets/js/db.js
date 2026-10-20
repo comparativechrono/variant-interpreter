@@ -109,6 +109,55 @@ async function delOne(store, key) {
 }
 const clone = (x) => (x == null ? x : JSON.parse(JSON.stringify(x)));
 
+/* ---------------- a journal of saves in progress ----------------
+   A save to IndexedDB finishes a moment after it starts, and a page that is reloaded or closed in that moment
+   can lose it. So each save of a patient or a variant is first copied to localStorage (written at once), and
+   the copy removed when IndexedDB has it; a copy still there when the site next opens is put back. */
+const JKEY = 'varint:journal:';
+function journal(store, rec) {
+  try {
+    localStorage.setItem(JKEY + store + ':' + rec.id, JSON.stringify(rec));
+  } catch (e) {
+    /* storage full or not allowed: the save to IndexedDB still goes ahead */
+  }
+}
+function unjournal(store, id) {
+  try {
+    localStorage.removeItem(JKEY + store + ':' + id);
+  } catch (e) {
+    /* not allowed */
+  }
+}
+/** put back the saves a reload or a closed tab interrupted; returns how many */
+export async function replayJournal() {
+  let keys = [];
+  try {
+    keys = Object.keys(localStorage).filter((k) => k.startsWith(JKEY));
+  } catch (e) {
+    return 0;
+  }
+  let n = 0;
+  for (const k of keys) {
+    const [store, ...rest] = k.slice(JKEY.length).split(':');
+    const id = rest.join(':');
+    let rec = null;
+    try {
+      rec = JSON.parse(localStorage.getItem(k));
+    } catch (e) {
+      rec = null;
+    }
+    if (rec && rec.id === id && (store === 'patients' || store === 'variants')) {
+      const cur = await getOne(store, id);
+      if (!cur || String(cur.updated || '') <= String(rec.updated || '')) {
+        await putOne(store, rec);
+        n++;
+      }
+    }
+    unjournal(store, id);
+  }
+  return n;
+}
+
 /* ---------------- meta: settings and counters ---------------- */
 export async function getMeta(key, fallback) {
   const r = await getOne('meta', key);
@@ -167,7 +216,10 @@ export async function savePatient(p, what) {
   }
   p.updated = nowISO();
   if (what) logTo(p, what);
-  await putOne('patients', clone(p));
+  const rec = clone(p);
+  journal('patients', rec);
+  await putOne('patients', rec);
+  unjournal('patients', rec.id);
   bus.emit('db:patients', { id: p.id, isNew });
   return p;
 }
@@ -179,7 +231,11 @@ function logTo(rec, what) {
 
 export async function deletePatient(id) {
   const vs = await variantsOf(id);
-  for (const v of vs) await delOne('variants', v.id);
+  for (const v of vs) {
+    unjournal('variants', v.id);
+    await delOne('variants', v.id);
+  }
+  unjournal('patients', String(id));
   await delOne('patients', String(id));
   bus.emit('db:patients', { id, deleted: true });
 }
@@ -202,7 +258,10 @@ export async function saveVariant(v, what) {
   }
   v.updated = nowISO();
   if (what) logTo(v, what);
-  await putOne('variants', clone(v));
+  const rec = clone(v);
+  journal('variants', rec);
+  await putOne('variants', rec);
+  unjournal('variants', rec.id);
   bus.emit('db:variants', { id: v.id, patientId: v.patientId });
   if (v.patientId) {
     const p = await getPatient(v.patientId);
@@ -215,6 +274,7 @@ export async function saveVariant(v, what) {
 }
 export async function deleteVariant(id) {
   const v = await getVariant(id);
+  unjournal('variants', id);
   await delOne('variants', id);
   bus.emit('db:variants', { id, patientId: v && v.patientId, deleted: true });
 }
@@ -307,6 +367,11 @@ export async function importData(doc, opts = {}) {
 
 /** remove everything this site keeps in the browser */
 export async function wipeAll() {
+  try {
+    Object.keys(localStorage).filter((k) => k.startsWith(JKEY)).forEach((k) => localStorage.removeItem(k));
+  } catch (e) {
+    /* not allowed */
+  }
   const db = await open();
   if (!db) {
     Object.values(memory).forEach((m) => m.clear());

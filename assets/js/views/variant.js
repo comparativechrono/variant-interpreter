@@ -4,7 +4,7 @@
    worked on), or for any variant looked up from the search box (which
    can then be added to a patient).
    ===================================================================== */
-import { h, esc, icon, toast, debounce, modal, popmenu, copyText, dateStr, nowISO, confirmBox } from '../core.js';
+import { h, esc, icon, toast, debounce, beforeLeaving, modal, popmenu, copyText, dateStr, nowISO, confirmBox } from '../core.js';
 import { go, link, setLeaveGuard } from '../router.js';
 import * as db from '../db.js';
 import * as settings from '../settings.js';
@@ -16,6 +16,7 @@ import { suggest } from '../acmg/suggest.js';
 import { ZYGOSITY, INHERITANCE, inheritanceText, variantLong, patientFacts } from '../summary.js';
 import { readQuery, vcfKey } from '../parse.js';
 import { SECTIONS } from './variant-evidence.js';
+import { keepTyping } from './evidence-common.js';
 
 let current = null;
 
@@ -109,6 +110,7 @@ async function variantPage(root, { v, pt, section, q }) {
   };
   const saveSoon = debounce(() => saveNow(null), 700);
   ctx.save = (what) => (what ? saveNow(what) : saveSoon());
+  const offLeave = beforeLeaving(() => saveSoon.flush());
   cls.on((code, quiet) => {
     if (quiet) return;
     v.classification = cls.state;
@@ -149,10 +151,12 @@ async function variantPage(root, { v, pt, section, q }) {
   const drawSection = (key, why) => {
     const s = ctx.sections[key];
     if (!s) return;
+    const restore = keepTyping(s.body); // a note being typed in the section survives its data arriving
     try {
       s.body.innerHTML = '';
       const out = s.S.draw(ctx, s.body);
-      if (out && out.then) out.catch((e) => s.body.appendChild(note('bad', h('p', 'This section could not be drawn: ' + e.message))));
+      if (out && out.then) out.then(restore, (e) => s.body.appendChild(note('bad', h('p', 'This section could not be drawn: ' + e.message))));
+      else restore();
     } catch (e) {
       console.error(e);
       s.body.appendChild(note('bad', h('p', 'This section could not be drawn: ' + e.message)));
@@ -309,6 +313,8 @@ async function variantPage(root, { v, pt, section, q }) {
   start(false);
   if (section) setTimeout(() => scrollTo(section), 300);
   return () => {
+    saveSoon.flush();
+    offLeave();
     io.disconnect();
     setLeaveGuard(null);
     current = null;
